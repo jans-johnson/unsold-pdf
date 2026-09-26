@@ -33,6 +33,14 @@ const FRAME_CSS = `
   /* The open document was handed in: no upload step for single-file tools. */
   html.ua-doc-loaded #drop-zone,
   html.ua-doc-loaded #file-display-area { display: none !important; }
+  /* Tools whose editor sits after the upload card (e.g. Sign) would be left
+     with an empty card; hide it when nothing else in it is showing. */
+  html.ua-doc-loaded #tool-uploader:not(:has(> :not(#back-to-tools, h1, h1 + p, #drop-zone, #file-display-area))) {
+    display: none !important;
+  }
+  html.ua-doc-loaded #tool-uploader:not(:has(> :not(#back-to-tools, h1, h1 + p, #drop-zone, #file-display-area))) + * {
+    margin-top: 0 !important;
+  }
 `;
 
 const toolIdOf = (pathname: string) =>

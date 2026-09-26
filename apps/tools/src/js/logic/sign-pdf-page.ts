@@ -11,6 +11,72 @@ import { loadPdfDocument } from '../utils/load-pdf-document.js';
 import { flattenAnnotations } from '../utils/flatten-annotations.js';
 import type { SignState, PDFViewerWindow } from '@/types';
 
+// pdf.js ships its editor buttons as bare grey icons. Show their labels and
+// make "Add signature" the obvious primary action. Labels drop off the
+// secondary buttons when the toolbar gets narrow so the zoom menu still fits.
+function editorToolbarCss(accent: string, accentHover: string): string {
+  return `
+  #editorModeButtons { gap: 4px; }
+  #editorModeButtons .toolbarButton {
+    aspect-ratio: auto;
+    width: auto;
+    gap: 6px;
+    padding: 0 10px 0 8px;
+    border-radius: 6px;
+    --toolbar-icon-opacity: 1;
+  }
+  #editorModeButtons .toolbarButton > span {
+    width: auto;
+    height: auto;
+    overflow: visible;
+    white-space: nowrap;
+    font: 500 13px/1 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  #editorModeButtons #editorSignatureButton {
+    background-color: ${accent};
+    color: #fff;
+    margin-inline-end: 6px;
+  }
+  #editorModeButtons #editorSignatureButton::before { background-color: #fff; }
+  #editorModeButtons #editorSignatureButton > span { font-weight: 600; }
+  #editorModeButtons #editorSignatureButton:is(:hover, :focus-visible, .toggled) {
+    background-color: ${accentHover};
+  }
+  #editorModeButtons #editorSignatureButton.toggled {
+    outline: 2px solid #fff !important;
+    outline-offset: -2px;
+  }
+  @media (max-width: 1280px) {
+    #editorModeButtons .toolbarButton:not(#editorSignatureButton) {
+      aspect-ratio: 1;
+      padding: 0;
+    }
+    #editorModeButtons .toolbarButton:not(#editorSignatureButton) > span {
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+  }
+  @media (max-width: 700px) {
+    #editorModeButtons #editorSignatureButton > span { display: none; }
+    #editorModeButtons #editorSignatureButton { aspect-ratio: 1; padding: 0; }
+  }
+  `;
+}
+
+function injectEditorToolbarStyle(doc: Document) {
+  if (doc.getElementById('ua-sign-toolbar')) return;
+  const root = getComputedStyle(document.documentElement);
+  const accent =
+    root.getPropertyValue('--color-indigo-600').trim() || '#4f46e5';
+  const accentHover =
+    root.getPropertyValue('--color-indigo-700').trim() || '#4338ca';
+  const style = doc.createElement('style');
+  style.id = 'ua-sign-toolbar';
+  style.textContent = editorToolbarCss(accent, accentHover);
+  doc.head.append(style);
+}
+
 const signState: SignState = {
   file: null,
   pdfDoc: null,
@@ -211,6 +277,7 @@ async function setupSignTool() {
         const app = viewerWindow.PDFViewerApplication;
         const doc = viewerWindow.document;
         const eventBus = app.eventBus;
+        injectEditorToolbarStyle(doc);
         eventBus?._on('annotationeditoruimanager', () => {
           const editorModeButtons = doc.getElementById('editorModeButtons');
           editorModeButtons?.classList.remove('hidden');
