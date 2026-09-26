@@ -11,6 +11,8 @@ import {
 import type { Studio } from './studio.ts';
 import { toast } from './ui/feedback.ts';
 
+const SUPPORT_URL = 'https://buymeacoffee.com/jansjohnson';
+
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const matches = (q: string) => (t: Task) => !q || searchText(t).includes(q);
 const taskIcon = (t: { color: string; icon: string }, cls: string) =>
@@ -28,6 +30,15 @@ export function mountHome(studio: Studio) {
       ? 'device'
       : 'computer'
   }. Your files never leave it.`;
+
+  // Tips go through the store's own purchase system on phones, so the
+  // external link is desktop only.
+  const support = $<HTMLAnchorElement>('#support-link');
+  support.hidden = host.platform === 'android' || host.platform === 'ios';
+  support.addEventListener('click', (e) => {
+    e.preventDefault();
+    void host.openExternal(SUPPORT_URL);
+  });
 
   const recCard = ([target, label, ic]: Shortcut) => {
     const r = resolve(target);

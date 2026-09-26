@@ -1349,3 +1349,13 @@ button.chip:hover {
   color: var(--text-faint);
   letter-spacing: 0.01em;
 }
+
+.home-hero .tagline a {
+  margin-left: 6px;
+  color: var(--text-dim);
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+}
+.home-hero .tagline a:hover {
+  color: var(--text);
+}

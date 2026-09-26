@@ -12,6 +12,9 @@ sale, and neither are you.
   cost, end-to-end encrypted. Export is always free.
 - Open source under the AGPL, so nobody can take it and close it.
 
+Unsold is free and always will be. If it helps you, you can
+[buy me a coffee ☕](https://buymeacoffee.com/jansjohnson).
+
 Targets Windows, Linux, macOS, Android and iOS from one codebase. See
 [`docs/ROADMAP.md`](docs/ROADMAP.md) for the architecture and migration plan.
 
