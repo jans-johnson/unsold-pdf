@@ -15,6 +15,15 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 import { PdfEngine, OBJ } from './core.js';
 import { applyTagSurgery } from './tagsurgery.js';
+import {
+  backgroundAround,
+  eraseWords,
+  fitLine,
+  inkOf,
+  MIN_LINE_CONFIDENCE,
+  pageFamily,
+  recognizeLines,
+} from './scan-text.js';
 import { downloadFile } from '../utils/deliver-output.ts';
 import { pageHasPatternFill, protectPatternArtwork } from './shadingsurgery.js';
 import {
@@ -3043,23 +3052,272 @@ function refreshModel() {
   refreshPageExtras();
 }
 
+// ---------------------------------------------------------------- scanned pages
+// A page that is a picture of text can be turned into real, editable text,
+// but only when the user asks: a quiet bar offers it, nothing runs by itself.
+
+const scan = { busy: null, dismissedDoc: null };
+
+/** The scan image on the active page, if the page is a scanned page. */
+function scanOfPage() {
+  const eng = P();
+  if (!eng?.doc) return null;
+  const pageArea = eng.pageWidth * eng.pageHeight;
+  let best = null;
+  for (let i = 0; i < eng.objectCount(); i++) {
+    const o = eng.objectAt(i);
+    if (!o || o.type !== OBJ.IMAGE) continue;
+    const b = eng.objectBounds(o.handle);
+    if (!b) continue;
+    const area = b.w * b.h;
+    if (!best || area > best.area) best = { handle: o.handle, bounds: b, area };
+  }
+  if (!best || best.area < pageArea * 0.5) return null;
+  // Real, visible text already there means it isn't (or is no longer) a scan.
+  const visibleText = state.paragraphs
+    .filter((p) => p.editable && !p.invisible)
+    .reduce((n, p) => n + p.runs.map((r) => r.text).join('').trim().length, 0);
+  return visibleText > 40 ? null : best;
+}
+
+function scanBar() {
+  let bar = document.getElementById('scanBar');
+  if (bar) return bar;
+  bar = document.createElement('div');
+  bar.id = 'scanBar';
+  bar.hidden = true;
+  bar.innerHTML = `
+    <i class="ph ph-scan lead"></i>
+    <div class="msg">
+      <strong class="title"></strong>
+      <span class="detail"></span>
+      <div class="meter" hidden><div class="fill"></div></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" data-act="page">Make text editable</button>
+      <button class="btn" data-act="doc">Whole document</button>
+      <button class="btn" data-act="cancel" hidden>Cancel</button>
+      <button class="btn icon" data-act="dismiss" title="Hide"><i class="ph ph-x"></i></button>
+    </div>`;
+  $('stage').before(bar);
+  bar.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'page') void makeTextEditable('page');
+    else if (act === 'doc') void makeTextEditable('doc');
+    else if (act === 'cancel') scan.busy?.abort();
+    else if (act === 'dismiss') {
+      scan.dismissedDoc = P().doc;
+      bar.hidden = true;
+    }
+  });
+  return bar;
+}
+
+function setScanBar({ title, detail, progress = null, working = false }) {
+  const bar = scanBar();
+  bar.hidden = false;
+  bar.classList.toggle('working', working);
+  bar.querySelector('.title').textContent = title;
+  bar.querySelector('.detail').textContent = detail;
+  const meter = bar.querySelector('.meter');
+  meter.hidden = progress === null;
+  if (progress !== null) meter.firstElementChild.style.width = `${Math.round(progress * 100)}%`;
+  bar.querySelector('[data-act="page"]').hidden = working;
+  bar.querySelector('[data-act="doc"]').hidden = working || P().pageCount < 2;
+  bar.querySelector('[data-act="cancel"]').hidden = !working;
+  bar.querySelector('[data-act="dismiss"]').hidden = working;
+}
+
+function updateScanBar() {
+  // While text is being edited the page model is in flux: leave the bar be.
+  if (scan.busy || state.editing) return;
+  const bar = scanBar();
+  bar.classList.remove('working');
+  if (!scanOfPage() || scan.dismissedDoc === P().doc) {
+    bar.hidden = true;
+    return;
+  }
+  setScanBar({
+    title: 'This page is a scanned image.',
+    detail: 'Its text can’t be edited until it’s recognised.',
+  });
+}
+
+const median = (xs) => {
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length ? s[s.length >> 1] : 0;
+};
+
+function rgbaToBgra(rgba) {
+  const out = new Uint8Array(rgba.length);
+  for (let i = 0; i < rgba.length; i += 4) {
+    out[i] = rgba[i + 2];
+    out[i + 1] = rgba[i + 1];
+    out[i + 2] = rgba[i];
+    out[i + 3] = rgba[i + 3];
+  }
+  return out;
+}
+
+/**
+ * OCRs the active page's scan, erases the recognised text from the image
+ * and puts real text in its place. Returns the number of lines converted,
+ * or null if the page isn't a usable scan.
+ */
+async function convertActivePage({ signal, onProgress, undoPoint }) {
+  const eng = P();
+  const found = scanOfPage();
+  if (!found) return null;
+  if (!eng.imageIsUpright(found.handle)) {
+    return { skipped: 'This scan is rotated or skewed. Straighten it first (Scan & OCR › Straighten).' };
+  }
+  const img = eng.renderImageObjectNative(found.handle);
+  if (!img) return null;
+  const lines = (await recognizeLines(img, { signal, onProgress })).filter(
+    (l) => l.confidence >= MIN_LINE_CONFIDENCE
+  );
+  if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
+  if (!lines.length) return { lines: 0 };
+
+  if (undoPoint) snapshot();
+  // An existing invisible OCR layer would duplicate the new text.
+  for (const p of state.paragraphs) if (p.invisible) eng.deleteParagraph(p.id);
+
+  const B = found.bounds;
+  const sx = B.w / img.width;
+  const sy = B.h / img.height;
+  const styles = lines.map((l) => {
+    const bg = backgroundAround(img, l.bbox);
+    return { bg, ink: inkOf(img, l.bbox, bg) };
+  });
+  const typicalInk = median(styles.map((s) => s.ink.coverage));
+  const measured = lines.map((l, i) => ({
+    text: l.text,
+    bold: styles[i].ink.coverage > typicalInk * 1.35,
+    widthPt: (l.bbox.x1 - l.bbox.x0) * sx,
+    ascentPt: Math.max(1, (l.baseline - l.bbox.y0) * sy),
+  }));
+  const family = pageFamily(measured);
+
+  eraseWords(img, lines.flatMap((l) => l.words));
+  eng.replaceImage(found.handle, rgbaToBgra(img.data), img.width, img.height);
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const { bold, widthPt, ascentPt } = measured[i];
+    const fit = fitLine(line.text, { widthPt, ascentPt }, bold, family);
+    const [r, g, b] = styles[i].ink.color;
+    const x = B.x + line.bbox.x0 * sx;
+    const baseline = B.y + B.h - line.baseline * sy;
+    const created = eng.addParagraph(
+      x,
+      baseline + fit.size * 0.9,
+      widthPt * 1.1 + fit.size,
+      [
+        {
+          text: line.text,
+          family,
+          size: fit.size,
+          rgba: ((r << 24) | (g << 16) | (b << 8) | 0xff) >>> 0,
+          bold,
+          italic: false,
+          underline: false,
+          strike: false,
+          script: 0,
+          renderMode: 0,
+          strokeRgba: 0,
+          strokeWidth: 1,
+          hScale: fit.hScale,
+          rise: 0,
+          sourceIndex: -1,
+        },
+      ],
+      { align: 0, lineSpacing: 1.2, charSpacing: 0, paraSpacing: 0 }
+    );
+    // Put the new text's baseline exactly on the scanned line's baseline.
+    const first = created?.lines?.[0];
+    if (created && first) {
+      const dx = x - created.box.x;
+      const dy = baseline - first.y;
+      if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) eng.moveParagraph(created.id, dx, dy);
+    }
+  }
+  state.dirty = true;
+  refreshModel();
+  renderPage();
+  return { lines: lines.length };
+}
+
+async function makeTextEditable(scope) {
+  if (scan.busy) return;
+  endEdit(true);
+  const controller = new AbortController();
+  scan.busy = controller;
+  const start = P().pageIndex;
+  const pages =
+    scope === 'doc'
+      ? Array.from({ length: P().pageCount }, (_, i) => i)
+      : [start];
+  let converted = 0,
+    pagesDone = 0;
+  const notes = new Set();
+  try {
+    for (let k = 0; k < pages.length; k++) {
+      if (pages[k] !== P().pageIndex) goToPage(pages[k]);
+      const where = pages.length > 1 ? `page ${pages[k] + 1} of ${pages.length}` : 'this page';
+      setScanBar({
+        title: 'Recognising text…',
+        detail: `Reading ${where}.`,
+        progress: k / pages.length,
+        working: true,
+      });
+      const result = await convertActivePage({
+        signal: controller.signal,
+        undoPoint: k === 0 || converted === 0,
+        onProgress: (status, p) => {
+          if (status.startsWith('recognizing')) {
+            setScanBar({
+              title: 'Recognising text…',
+              detail: `Reading ${where}.`,
+              progress: (k + p) / pages.length,
+              working: true,
+            });
+          }
+        },
+      });
+      if (result?.skipped) notes.add(result.skipped);
+      if (result?.lines) {
+        converted += result.lines;
+        pagesDone++;
+      }
+    }
+    if (pages.length > 1 && P().pageIndex !== start) goToPage(start);
+    if (converted) {
+      toast(
+        `Text is now editable: ${converted} line${converted === 1 ? '' : 's'}` +
+          (pagesDone > 1 ? ` on ${pagesDone} pages` : '') +
+          '. Check it against the original; ⌘Z undoes this.'
+      );
+    } else {
+      toast(notes.size ? [...notes][0] : 'No readable text was found.');
+    }
+  } catch (err) {
+    if (err?.name !== 'AbortError') {
+      console.error('Text recognition failed', err);
+      toast('Text recognition failed: ' + (err?.message || err));
+    } else {
+      toast('Stopped. Pages already converted stay converted (⌘Z undoes them).');
+    }
+  } finally {
+    scan.busy = null;
+    updateChrome();
+    updateScanBar();
+  }
+}
+
 function refreshPageExtras() {
   prewarmDocFonts();
-  const invisibles = state.paragraphs.filter((p) => p.invisible).length;
-  if (
-    invisibles &&
-    !state.paragraphs.some((p) => p.editable) &&
-    state.ocrNoticeFor !== P().pageIndex
-  ) {
-    state.ocrNoticeFor = P().pageIndex;
-    toast(
-      'Scanned page: its ' +
-        invisibles +
-        ' text blocks are an invisible ' +
-        'OCR layer over the picture — searchable and selectable, but there ' +
-        'are no glyphs to edit.'
-    );
-  }
+  updateScanBar();
   if (state.patternPageFor !== P().pageIndex) {
     state.patternPageFor = P().pageIndex;
     state.patternPage = false;
@@ -9494,6 +9752,7 @@ async function openFile(file, sourceUrl = null, knownBytes) {
   otrace('model done');
   state.selection = null;
   $('empty').hidden = true;
+  scan.dismissedDoc = null;
   $('pageWrap').hidden = false;
   $('inspector').hidden = false;
   fitZoom();

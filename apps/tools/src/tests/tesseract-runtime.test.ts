@@ -126,3 +126,30 @@ describe('tesseract-runtime', () => {
     expect(createWorker).not.toHaveBeenCalled();
   });
 });
+
+describe('bundled OCR assets', () => {
+  it('uses the bundled English data inside the app', async () => {
+    const { bundledTesseractAssets } = await import(
+      '../js/utils/tesseract-runtime'
+    );
+    const assets = bundledTesseractAssets('eng', true);
+    expect(assets?.langPath).toMatch(/\/wasm\/tesseract\/lang$/);
+    expect(assets?.corePath).toMatch(/\/wasm\/tesseract\/core$/);
+    expect(assets?.workerPath).toMatch(/\/wasm\/tesseract\/worker\.min\.js$/);
+  });
+
+  it('downloads other languages as before', async () => {
+    const { bundledTesseractAssets } = await import(
+      '../js/utils/tesseract-runtime'
+    );
+    expect(bundledTesseractAssets('fra', true)).toBeNull();
+    expect(bundledTesseractAssets('eng+fra', true)).toBeNull();
+  });
+
+  it('leaves standalone pages unchanged', async () => {
+    const { bundledTesseractAssets } = await import(
+      '../js/utils/tesseract-runtime'
+    );
+    expect(bundledTesseractAssets('eng', false)).toBeNull();
+  });
+});

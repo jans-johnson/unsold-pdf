@@ -1432,6 +1432,55 @@ export class PdfEngine {
     return ok;
   }
 
+  /** Whether an image is drawn upright (no rotation, skew or flip). */
+  imageIsUpright(handle) {
+    const M = this.M;
+    const mp = M._malloc(24);
+    let upright = false;
+    if (M._FPDFPageObj_GetMatrix(handle, mp)) {
+      const [a, b, c, d] = M.HEAPF32.slice(mp >> 2, (mp >> 2) + 4);
+      upright = Math.abs(b) < 1e-4 && Math.abs(c) < 1e-4 && a > 0 && d > 0;
+    }
+    M._free(mp);
+    return upright;
+  }
+
+  /**
+   * Renders an upright image at its own pixel resolution (up to 4096 px),
+   * not at on-page size: what OCR needs to read small print.
+   */
+  renderImageObjectNative(handle) {
+    const M = this.M;
+    const sz = M._malloc(8);
+    let iw = 0,
+      ih = 0;
+    if (M._FPDFImageObj_GetImagePixelSize(handle, sz, sz + 4)) {
+      iw = M.HEAPU32[sz >> 2];
+      ih = M.HEAPU32[(sz + 4) >> 2];
+    }
+    M._free(sz);
+    const mp = M._malloc(24);
+    let saved = null;
+    if (M._FPDFPageObj_GetMatrix(handle, mp)) {
+      saved = M.HEAPF32.slice(mp >> 2, (mp >> 2) + 6);
+    }
+    const boost = saved && iw > 0 && ih > 0 && (iw > saved[0] || ih > saved[3]);
+    if (boost) {
+      const s = Math.min(1, 4096 / Math.max(iw, ih));
+      M.HEAPF32.set([iw * s, 0, 0, ih * s, saved[4], saved[5]], mp >> 2);
+      M._FPDFPageObj_SetMatrix(handle, mp);
+    }
+    try {
+      return this.renderImageObject(handle);
+    } finally {
+      if (boost) {
+        M.HEAPF32.set(saved, mp >> 2);
+        M._FPDFPageObj_SetMatrix(handle, mp);
+      }
+      M._free(mp);
+    }
+  }
+
   renderImageObject(handle) {
     const M = this.M;
     const bmp = M._FPDFImageObj_GetRenderedBitmap(this.doc, this.page, handle);

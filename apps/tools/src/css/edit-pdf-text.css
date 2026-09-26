@@ -2392,3 +2392,70 @@
   box-shadow: none;
   outline: none;
 }
+
+/* Scanned page: an offer to make the text editable (never runs by itself). */
+#text-editor-app #scanBar {
+  position: absolute;
+  top: 14px;
+  left: calc((100% - 264px) / 2);
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(640px, calc(100% - 320px));
+  padding: 10px 10px 10px 14px;
+  background: rgba(31, 31, 31, 0.96);
+  border: 1px solid var(--ecline);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  color: var(--ectext);
+}
+#text-editor-app #main:has(#inspector[hidden]) #scanBar {
+  left: 50%;
+  width: min(640px, calc(100% - 48px));
+}
+#text-editor-app #scanBar[hidden] {
+  display: none;
+}
+#text-editor-app #scanBar .lead {
+  font-size: 22px;
+  color: var(--ecaccent);
+  flex: none;
+}
+#text-editor-app #scanBar .msg {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+#text-editor-app #scanBar .detail {
+  color: var(--ecmuted);
+  font-size: 12px;
+}
+#text-editor-app #scanBar .meter {
+  height: 4px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--ecline);
+  overflow: hidden;
+}
+#text-editor-app #scanBar .meter .fill {
+  height: 100%;
+  width: 0;
+  background: var(--ecaccent);
+  transition: width 0.2s;
+}
+#text-editor-app #scanBar .actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+#text-editor-app #scanBar .btn.primary {
+  background: var(--ecaccent);
+  border-color: var(--ecaccent);
+  color: #fff;
+}

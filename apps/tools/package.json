@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@tesseract.js-data/eng": "1.0.0",
     "@types/sortablejs": "^1.15.8",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",

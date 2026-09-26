@@ -1,4 +1,5 @@
 import Tesseract from 'tesseract.js';
+import { findToolHost } from '@unacrobat/bridge/tool-host';
 import {
   assertTesseractLanguagesAvailable,
   TESSERACT_AVAILABLE_LANGUAGES_ENV_KEY,
@@ -88,13 +89,40 @@ export function getIncompleteTesseractOverrideKeys(
   });
 }
 
+/** Languages whose OCR data ships inside the app (see scripts/engines.mjs). */
+export const BUNDLED_OCR_LANGUAGES = new Set(['eng']);
+
+/**
+ * Inside the app, the OCR engine and bundled language data are served from
+ * /wasm/tesseract, so recognising those languages works offline.
+ */
+export function bundledTesseractAssets(
+  language: string,
+  inApp: boolean = findToolHost() !== null
+): TesseractAssetConfig | null {
+  if (!inApp) return null;
+  const langs = language.split('+').filter(Boolean);
+  if (!langs.length || !langs.every((l) => BUNDLED_OCR_LANGUAGES.has(l))) {
+    return null;
+  }
+  const base = new URL(`${import.meta.env.BASE_URL}wasm/tesseract/`, location.href);
+  return {
+    workerPath: new URL('worker.min.js', base).href,
+    corePath: new URL('core', base).href,
+    langPath: new URL('lang', base).href,
+  };
+}
+
 export function buildTesseractWorkerOptions(
   logger?: TesseractWorkerOptions['logger'],
-  env: TesseractAssetEnv = getDefaultTesseractAssetEnv()
+  env: TesseractAssetEnv = getDefaultTesseractAssetEnv(),
+  language?: string
 ): TesseractWorkerOptions {
   const config = resolveTesseractAssetConfig(env);
 
   if (!hasConfiguredTesseractOverrides(config)) {
+    const bundled = language ? bundledTesseractAssets(language) : null;
+    if (bundled) return { ...(logger ? { logger } : {}), ...bundled, gzip: true };
     return logger ? { logger } : {};
   }
 
@@ -125,6 +153,6 @@ export async function createConfiguredTesseractWorker(
   return Tesseract.createWorker(
     language,
     oem,
-    buildTesseractWorkerOptions(logger, env)
+    buildTesseractWorkerOptions(logger, env, language)
   );
 }

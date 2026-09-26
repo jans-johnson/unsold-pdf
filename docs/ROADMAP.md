@@ -84,8 +84,9 @@ Android use Tauri's `http://tauri.localhost`, which Chromium isolates.
 - Desktop auto-update (`tauri-plugin-updater`); store listings for mobile.
 
 ### Deferred (by request)
-- Bundling the Noto fallback fonts, editor fonts and OCR data locally. Until then
-  those three are still fetched from `rawcdn.githack.com` / jsDelivr on first use.
+- Bundling the Noto fallback fonts and editor fonts locally; they are still
+  fetched from `rawcdn.githack.com` / jsDelivr on first use. English OCR is now
+  bundled (engine + data, ~15 MB); other OCR languages still download on demand.
 
 ## Licence
 
