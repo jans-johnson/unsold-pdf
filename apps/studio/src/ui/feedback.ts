@@ -161,6 +161,22 @@ export async function confirmUnsaved(name: string): Promise<UnsavedChoice> {
   return choice ?? 'cancel';
 }
 
+export type ApplyChoice = 'apply' | 'discard' | 'cancel';
+
+export async function confirmApply(): Promise<ApplyChoice> {
+  const body = h(
+    'p',
+    { class: 'muted', style: 'margin-top:0' },
+    'You have edits in this tool that aren’t in the document yet.'
+  );
+  const choice = await modal<ApplyChoice>('Apply your changes?', body, [
+    { label: 'Cancel', value: () => 'cancel' },
+    { label: 'Discard', value: () => 'discard' },
+    { label: 'Apply', primary: true, value: () => 'apply' },
+  ]);
+  return choice ?? 'cancel';
+}
+
 export function askPassword(
   name: string,
   retry: boolean

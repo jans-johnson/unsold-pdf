@@ -16,6 +16,7 @@ const studio = new Studio(host);
 const toolHost: ToolHost = {
   deliverOutput: (output, source) => studio.receiveOutput(output, source),
   fetch: (request) => host.fetch(request),
+  requestClose: (source) => studio.requestCloseFrom(source),
 };
 Object.assign(window, { [TOOL_HOST_KEY]: toolHost });
 

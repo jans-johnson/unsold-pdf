@@ -9,6 +9,7 @@ import {
   loadFallbackFonts,
 } from '../utils/font-loader.js';
 import { setupFormatDock, setupFindSheet } from './edit-pdf-text-dock';
+import { findToolHost, registerToolPage } from '@unacrobat/bridge/tool-host';
 
 interface DocDescription {
   meta: { name: string; size: number; source?: string } | null;
@@ -283,6 +284,7 @@ interface EditorAppModule {
   setOnSaved: (fn: ((kb: number, fileName: string) => void) | null) => void;
   endEdit: (commit: boolean) => void;
   saveFile: () => Promise<void>;
+  hasUnsavedChanges: () => boolean;
 }
 
 function relocateAddText() {
@@ -1040,8 +1042,38 @@ function initializePage() {
     window.location.href = import.meta.env.BASE_URL;
   });
 
+  const host = findToolHost();
   document.getElementById('exitEditor')?.addEventListener('click', () => {
-    window.location.reload();
+    // Inside the app, "back" returns to the document being edited.
+    if (host) host.requestClose(window);
+    else window.location.reload();
+  });
+  if (host) adaptToStudio();
+}
+
+/**
+ * Inside the app the editor works on the open document: there is no other
+ * file to open, and "Export" puts the edits back into that document.
+ */
+function adaptToStudio() {
+  document.querySelector('label[for="file"]')?.setAttribute('hidden', '');
+  const exitBtn = document.getElementById('exitEditor');
+  if (exitBtn) {
+    exitBtn.removeAttribute('data-i18n-title');
+    exitBtn.title = 'Back to the document';
+  }
+  const save = document.getElementById('save');
+  const label = save?.querySelector('span');
+  if (save && label) {
+    save.removeAttribute('data-i18n-title');
+    label.removeAttribute('data-i18n');
+    save.title = 'Apply your edits to the document';
+    label.textContent = 'Apply';
+    save.querySelector('i')?.classList.replace('ph-export', 'ph-check');
+  }
+  registerToolPage({
+    hasChanges: () => appModule?.hasUnsavedChanges() ?? false,
+    apply: () => appModule?.saveFile(),
   });
 }
 

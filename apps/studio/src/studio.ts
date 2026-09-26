@@ -1,4 +1,8 @@
-import type { HostBridge, OpenedDocument } from '@unacrobat/bridge';
+import {
+  toolPageState,
+  type HostBridge,
+  type OpenedDocument,
+} from '@unacrobat/bridge';
 import { $, h, icon, isPdfBytes, nextId, storage, store } from './dom.ts';
 import {
   converterFor,
@@ -16,7 +20,13 @@ import {
 } from './panels.ts';
 import { DOCUMENT_OPTIONS, pdfjs } from './pdf.ts';
 import { HISTORY_LIMIT, type DocTab, type Tab, type ToolTab } from './tabs.ts';
-import { askPassword, confirmUnsaved, popMenu, toast } from './ui/feedback.ts';
+import {
+  askPassword,
+  confirmApply,
+  confirmUnsaved,
+  popMenu,
+  toast,
+} from './ui/feedback.ts';
 import {
   convertibleFormats,
   CREATE_FROM_FILES,
@@ -122,6 +132,8 @@ export class Studio {
   }
 
   async closeTab(tab: Tab): Promise<boolean> {
+    const frame = tab.kind === 'doc' ? tab.tool?.frame : tab.frame;
+    if (!(await this.leaveFrame(frame))) return false;
     if (tab.kind === 'doc' && tab.dirty) {
       this.activate(tab.id);
       const choice = await confirmUnsaved(tab.name);
@@ -144,6 +156,11 @@ export class Studio {
   /** Close guard for window/app close: offers to save every dirty document. */
   async confirmCloseAll(): Promise<boolean> {
     for (const tab of this.tabs) {
+      const frame = tab.kind === 'doc' ? tab.tool?.frame : tab.frame;
+      if (toolPageState(frame?.contentWindow)?.hasChanges()) {
+        this.activate(tab.id);
+        if (!(await this.leaveFrame(frame))) return false;
+      }
       if (tab.kind !== 'doc' || !tab.dirty) continue;
       this.activate(tab.id);
       const choice = await confirmUnsaved(tab.name);
@@ -438,6 +455,17 @@ export class Studio {
       ? task.modes
       : [{ tool: start.tool, label: modeLabel(start) }, ...task.modes];
 
+    let current: { tool: string; frame: HTMLIFrameElement | null } = {
+      tool: start.tool,
+      frame: null,
+    };
+    const markActive = (toolId: string) => {
+      switcher
+        .querySelectorAll<HTMLElement>('[data-mode]')
+        .forEach((b) => b.classList.toggle('on', b.dataset.mode === toolId));
+      const select = switcher.querySelector('select');
+      if (select) select.value = toolId;
+    };
     const mount = (toolId: string) => {
       const frame =
         toolId === CREATE_FROM_FILES
@@ -458,15 +486,16 @@ export class Studio {
                 onOpenTool: (id) => this.openToolTab(id),
               }
             );
+      current = { tool: toolId, frame };
       opts.onMount(toolId, frame);
-      switcher
-        .querySelectorAll<HTMLElement>('[data-mode]')
-        .forEach((b) => b.classList.toggle('on', b.dataset.mode === toolId));
-      const select = switcher.querySelector('select');
-      if (select) select.value = toolId;
+      markActive(toolId);
     };
-    const choose = (toolId: string) => {
-      if (opts.onSwitch && !opts.onSwitch(toolId)) return;
+    const choose = async (toolId: string) => {
+      if (toolId === current.tool) return;
+      if (!(await this.leaveFrame(current.frame)))
+        return markActive(current.tool);
+      if (opts.onSwitch && !opts.onSwitch(toolId))
+        return markActive(current.tool);
       mount(toolId);
     };
 
@@ -485,7 +514,7 @@ export class Studio {
                     role: 'tab',
                     dataset: { mode: m.tool },
                     title: tool(m.tool)?.subtitle ?? '',
-                    onclick: () => choose(m.tool),
+                    onclick: () => void choose(m.tool),
                   },
                   m.label
                 )
@@ -499,7 +528,7 @@ export class Studio {
                 'select',
                 {
                   onchange: (e: Event) =>
-                    choose((e.target as HTMLSelectElement).value),
+                    void choose((e.target as HTMLSelectElement).value),
                 },
                 modes.map((m) => h('option', { value: m.tool }, m.label))
               )
@@ -542,11 +571,14 @@ export class Studio {
     else this.openToolTab(id);
   }
 
-  runToolOnDoc(tab: DocTab, id: string) {
+  async runToolOnDoc(tab: DocTab, id: string) {
     const resolved = resolve(id);
     if (!resolved) return;
     if (!takesPdf(resolved.tool)) return this.openToolTab(id);
-    if (tab.tool) this.closeTool(tab);
+    if (tab.tool) {
+      if (!(await this.leaveFrame(tab.tool.frame))) return;
+      this.closeTool(tab);
+    }
     const file = {
       name: tab.name.endsWith('.pdf') ? tab.name : `${tab.name}.pdf`,
       data: tab.bytes,
@@ -560,7 +592,7 @@ export class Studio {
     const layer = this.buildSurface(resolved, {
       subtitle: `Working on “${tab.name}” · results come back into this document`,
       file,
-      onClose: () => this.closeTool(tab),
+      onClose: () => void this.requestCloseTool(tab),
       onLeave: () => this.closeTool(tab),
       onSwitch: (toolId) => {
         if (takesPdf(toolId)) return true;
@@ -579,6 +611,38 @@ export class Studio {
     tab.viewerLayer.hidden = true;
     tab.stageEl.append(layer);
     this.syncChrome();
+  }
+
+  /**
+   * Before a tool page goes away: if it has unapplied changes, offer to
+   * apply them. Resolves true when it is fine to leave now.
+   */
+  private async leaveFrame(frame: HTMLIFrameElement | null | undefined) {
+    const state = toolPageState(frame?.contentWindow);
+    if (!state?.hasChanges()) return true;
+    const choice = await confirmApply();
+    if (choice === 'discard') return true;
+    // Applying delivers the result, which closes the tool by itself.
+    if (choice === 'apply') await state.apply();
+    return false;
+  }
+
+  /** Close button / the page's own back control. */
+  async requestCloseTool(tab: DocTab) {
+    if (tab.tool && (await this.leaveFrame(tab.tool.frame)))
+      this.closeTool(tab);
+  }
+
+  /** A tool page asked to close (its back or done button). */
+  requestCloseFrom(source: Window) {
+    for (const tab of this.tabs) {
+      if (tab.kind === 'doc' && tab.tool?.frame?.contentWindow === source) {
+        return void this.requestCloseTool(tab);
+      }
+      if (tab.kind === 'tool' && tab.frame?.contentWindow === source) {
+        return void this.closeTab(tab);
+      }
+    }
   }
 
   closeTool(tab: DocTab) {

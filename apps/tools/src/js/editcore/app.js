@@ -9149,6 +9149,52 @@ function fitZoom() {
   const avail = Math.min(stage.clientWidth - 48, 1400);
   setZoom(avail / P().pageWidth);
 }
+// The engine edits one page at a time. To read like a continuous document,
+// scrolling on past the end of a page moves to the next one (and back).
+const EDGE_PUSH = 180; // extra scroll, in px, needed at an edge to turn the page
+const FLIP_COOLDOWN = 450; // ignore trackpad momentum right after a turn
+
+function flipPage(dir) {
+  const next = P().pageIndex + dir;
+  if (next < 0 || next >= P().pageCount) return false;
+  goToPage(next);
+  const stage = $('stage');
+  stage.scrollTop = dir > 0 ? 0 : stage.scrollHeight;
+  return true;
+}
+
+function edgePaging() {
+  const stage = $('stage');
+  let push = 0;
+  let lastDir = 0;
+  let quietUntil = 0;
+  let resetTimer = 0;
+  stage.addEventListener(
+    'wheel',
+    (e) => {
+      if (e.ctrlKey || e.metaKey || !P().doc) return; // pinch / ctrl-zoom
+      const dir = Math.sign(e.deltaY);
+      if (!dir) return;
+      const now = Date.now();
+      if (now < quietUntil) return;
+      const atEdge =
+        dir > 0
+          ? stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2
+          : stage.scrollTop <= 1;
+      if (!atEdge || dir !== lastDir) push = 0;
+      lastDir = dir;
+      if (!atEdge) return;
+      push += Math.abs(e.deltaY);
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => (push = 0), 300);
+      if (push < EDGE_PUSH) return;
+      push = 0;
+      if (flipPage(dir)) quietUntil = now + FLIP_COOLDOWN;
+    },
+    { passive: true }
+  );
+}
+
 function goToPage(i) {
   const eng = P();
   if (i < 0 || i >= eng.pageCount) return;
@@ -9807,6 +9853,7 @@ function wireUI() {
   });
 
   stagePointHandlers();
+  edgePaging();
 
   window.addEventListener('keydown', (e) => {
     const meta = e.metaKey || e.ctrlKey;
@@ -9838,6 +9885,17 @@ function wireUI() {
     ) {
       e.preventDefault();
       $('del').click();
+    } else if ((e.key === 'PageDown' || e.key === 'PageUp') && !typing) {
+      const dir = e.key === 'PageDown' ? 1 : -1;
+      const stage = $('stage');
+      const atEdge =
+        dir > 0
+          ? stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2
+          : stage.scrollTop <= 1;
+      if (atEdge && P().doc) {
+        e.preventDefault();
+        flipPage(dir);
+      }
     } else if (e.key.startsWith('Arrow') && !typing && state.selection) {
       e.preventDefault();
       const step = e.shiftKey ? 10 : 1;
@@ -10169,7 +10227,13 @@ async function addImageFromFile(file) {
   } else if (state.undo.length) state.undo.pop();
 }
 
+/** Whether there are edits that haven't been saved/applied yet. */
+function hasUnsavedChanges() {
+  return !!state.dirty;
+}
+
 export {
+  hasUnsavedChanges,
   openFile,
   engineReady,
   setZoom,
