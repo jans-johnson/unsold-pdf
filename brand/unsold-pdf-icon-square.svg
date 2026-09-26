@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="112 112 800 800" width="1024" height="1024">
+  <title>Unsold PDF</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1D1D1B"/>
+      <stop offset="1" stop-color="#0A0A0A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <defs>
+    <mask id="u6-shape" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+      <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
+      <g fill="#000"><circle cx="428" cy="350" r="40"/><rect x="178" y="541" width="668" height="98" rx="49" transform="rotate(-18 512 590)"/></g>
+    </mask>
+    <mask id="u6-band" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+      <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
+      <g fill="#000" stroke="#000" stroke-linejoin="round"><path d="M406 250 L584 250 L696 362 L696 774 L328 774 L328 328 Z"   stroke-width="60" stroke-linejoin="round"/></g>
+    </mask>
+  </defs>
+  <g mask="url(#u6-shape)"><path d="M406 250 L584 250 L696 362 L696 774 L328 774 L328 328 Z" fill="#C8F53B" stroke="#C8F53B" stroke-width="60" stroke-linejoin="round"/><path d="M584 250 L584 362 L696 362 Z" fill="#9CBF22" stroke="#9CBF22" stroke-width="26" stroke-linejoin="round"/></g>
+  <g fill="#C8F53B" mask="url(#u6-band)"><rect x="196" y="559" width="632" height="62" rx="31" transform="rotate(-18 512 590)"/></g>
+</svg>

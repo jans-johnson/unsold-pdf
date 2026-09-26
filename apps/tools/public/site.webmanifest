@@ -1,11 +1,11 @@
 {
     "name": "Unsold PDF",
     "short_name": "Unsold PDF",
-    "description": "Free online PDF tools - Privacy-first PDF toolkit that works 100% in your browser",
+    "description": "Unsold PDF: free, private PDF tools. Everything runs on your device.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#222222",
-    "theme_color": "#4f46e5",
+    "background_color": "#111111",
+    "theme_color": "#111111",
     "orientation": "portrait-primary",
     "icons": [
         {

@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <title>Unsold</title>
   <defs>
-    <mask id="u1-shape" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+    <mask id="u5-shape" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
       <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
       <g fill="#000"><circle cx="196" cy="196" r="30"/><rect x="6" y="255" width="500" height="74" rx="37" transform="rotate(-18 256 292)"/></g>
     </mask>
-    <mask id="u1-band" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
+    <mask id="u5-band" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
       <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
       <g fill="#000" stroke="#000" stroke-linejoin="round"><g transform="rotate(0)"><path d="M104 190 L190 104 L408 104 L408 408 L104 408 Z" transform="rotate(0)"   stroke-width="56" stroke-linejoin="round"/></g></g>
     </mask>
   </defs>
-  <g mask="url(#u1-shape)"><g transform="rotate(0)"><path d="M104 190 L190 104 L408 104 L408 408 L104 408 Z" transform="rotate(0)" fill="#C8F53B" stroke="#C8F53B" stroke-width="56" stroke-linejoin="round"/></g></g>
-  <g fill="#C8F53B" mask="url(#u1-band)"><rect x="20" y="269" width="472" height="46" rx="23" transform="rotate(-18 256 292)"/></g>
+  <g mask="url(#u5-shape)"><g transform="rotate(0)"><path d="M104 190 L190 104 L408 104 L408 408 L104 408 Z" transform="rotate(0)" fill="#111111" stroke="#111111" stroke-width="56" stroke-linejoin="round"/></g></g>
+  <g fill="#111111" mask="url(#u5-band)"><rect x="20" y="269" width="472" height="46" rx="23" transform="rotate(-18 256 292)"/></g>
 </svg>
