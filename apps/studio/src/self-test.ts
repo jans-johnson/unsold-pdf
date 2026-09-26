@@ -1,4 +1,4 @@
-import type { SelfTestCheck, SelfTestHost } from '@unacrobat/bridge';
+import type { SelfTestCheck, SelfTestHost } from '@unsold/bridge';
 import type { Studio } from './studio.ts';
 
 // A one-page PDF, small enough to inline.

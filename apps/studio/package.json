@@ -1,5 +1,5 @@
 {
-  "name": "@unacrobat/studio",
+  "name": "@unsold/studio",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@phosphor-icons/web": "^2.1.2",
-    "@unacrobat/bridge": "0.1.0",
-    "@unacrobat/tools": "0.1.0"
+    "@unsold/bridge": "0.1.0",
+    "@unsold/tools": "0.1.0"
   },
   "devDependencies": {
     "pdfjs-dist": "^5.4.624",

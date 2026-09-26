@@ -7,7 +7,7 @@
  */
 
 // Skip service worker registration in development mode, and inside the
-// UnAcrobat app (pages are embedded in the Studio and every file is local).
+// Unsold PDF app (pages are embedded in the Studio and every file is local).
 const isDevelopment =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1' ||
@@ -86,7 +86,7 @@ if (isDevelopment) {
 
                 if (
                   confirm(
-                    'A new version of UnAcrobat is available. Reload to update?'
+                    'A new version of Unsold PDF is available. Reload to update?'
                   )
                 ) {
                   newWorker.postMessage({ type: 'SKIP_WAITING' });

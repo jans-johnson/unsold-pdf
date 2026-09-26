@@ -107,7 +107,7 @@ pub async fn net_fetch(request: Request<'_>) -> Result<NetResponse, String> {
         .resolve(&host, addr)
         .redirect(reqwest::redirect::Policy::none())
         .timeout(TIMEOUT)
-        .user_agent(concat!("UnAcrobat/", env!("CARGO_PKG_VERSION")))
+        .user_agent(concat!("UnsoldPDF/", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|e| e.to_string())?;
 

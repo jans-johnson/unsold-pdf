@@ -730,7 +730,7 @@ export async function buildAcroFormPdf(
   }
 
   if (title) doc.setTitle(title);
-  doc.setProducer('UnAcrobat');
-  doc.setCreator('UnAcrobat Form Filler (converted from XFA)');
+  doc.setProducer('Unsold PDF');
+  doc.setCreator('Unsold PDF Form Filler (converted from XFA)');
   return doc.save({ updateFieldAppearances: false });
 }

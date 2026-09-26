@@ -7,7 +7,7 @@ import { needsFontEmbedding } from './freetext-script.js';
 
 const fontCache: Map<string, ArrayBuffer> = new Map();
 
-const DB_NAME = 'unacrobat-fonts';
+const DB_NAME = 'unsold-fonts';
 const DB_VERSION = 1;
 const STORE_NAME = 'fonts';
 

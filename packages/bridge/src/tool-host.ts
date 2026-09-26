@@ -2,7 +2,7 @@ import type { NetRequest, NetResponse } from './types.ts';
 
 /**
  * What the Studio offers to tool pages running inside it (same-origin
- * frames). Tool pages reach it through `window.top.unacrobat`; when a page
+ * frames). Tool pages reach it through `window.top.unsold`; when a page
  * runs on its own there is no host and it falls back to browser behaviour.
  */
 export interface ToolHost {
@@ -27,7 +27,7 @@ export interface ToolPageState {
   apply(): void | Promise<void>;
 }
 
-export const TOOL_PAGE_KEY = 'unacrobatTool';
+export const TOOL_PAGE_KEY = 'unsoldTool';
 
 export function registerToolPage(state: ToolPageState) {
   (window as Window & { [TOOL_PAGE_KEY]?: ToolPageState })[TOOL_PAGE_KEY] =
@@ -49,7 +49,7 @@ export function toolPageState(
   }
 }
 
-export const TOOL_HOST_KEY = 'unacrobat';
+export const TOOL_HOST_KEY = 'unsold';
 
 /** The Studio's tool host, if this page is embedded in it. */
 export function findToolHost(): ToolHost | null {

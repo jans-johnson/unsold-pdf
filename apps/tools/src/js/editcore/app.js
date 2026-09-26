@@ -9542,7 +9542,7 @@ function fitZoom() {
 // one and the others are rendered images that update as you move on. The
 // single-page view shows one page and turns pages when you scroll past it.
 
-const VIEW_PREF = 'unacrobat:editor-view';
+const VIEW_PREF = 'unsold:editor-view';
 const view = {
   continuous: (() => {
     try {

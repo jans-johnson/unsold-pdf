@@ -1,5 +1,5 @@
 /**
- * The contract between UnAcrobat's UI and the operating system.
+ * The contract between Unsold PDF's UI and the operating system.
  *
  * UI code never talks to Tauri (or any other host) directly: it receives a
  * `HostBridge` and calls these methods. That keeps the Studio runnable in a

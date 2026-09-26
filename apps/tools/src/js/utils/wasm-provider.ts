@@ -6,7 +6,7 @@ interface WasmProviderConfig {
   cpdf?: string;
 }
 
-const STORAGE_KEY = 'unacrobat:wasm-providers';
+const STORAGE_KEY = 'unsold:wasm-providers';
 
 // The engines ship with the app and are served from /wasm/ on its own origin.
 const bundledEngine = (dir: string) =>

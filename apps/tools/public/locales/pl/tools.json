@@ -837,7 +837,7 @@
   },
   "digitalSignPdf": {
     "name": "Podpis cyfrowy PDF",
-    "pageTitle": "Podpis cyfrowy PDF - Dodaj podpis kryptograficzny | UnAcrobat",
+    "pageTitle": "Podpis cyfrowy PDF - Dodaj podpis kryptograficzny | Unsold PDF",
     "subtitle": "Dodaj kryptograficzny podpis cyfrowy do pliku PDF, używając certyfikatów X.509. Obsługuje formaty PKCS#12 (.pfx, .p12) i PEM. Twój klucz prywatny nigdy nie opuszcza przeglądarki.",
     "certificateSection": "Certyfikat",
     "uploadCert": "Prześlij certyfikat (.pfx, .p12, .pem)",
@@ -915,12 +915,12 @@
   },
   "validateSignaturePdf": {
     "name": "Zweryfikuj podpis PDF",
-    "pageTitle": "Zweryfikuj podpis PDF - Sprawdź podpisy cyfrowe | UnAcrobat",
+    "pageTitle": "Zweryfikuj podpis PDF - Sprawdź podpisy cyfrowe | Unsold PDF",
     "subtitle": "Zweryfikuj podpisy cyfrowe w plikach PDF. Sprawdź ważność certyfikatu, zobacz dane osoby podpisującej i potwierdź integralność dokumentu. Całe przetwarzanie odbywa się w Twojej przeglądarce."
   },
   "timestampPdf": {
     "name": "Znakowanie czasem PDF",
-    "pageTitle": "Znakowanie czasem PDF Online Za Darmo - Znacznik Czasu Dokumentu RFC 3161 | UnAcrobat",
+    "pageTitle": "Znakowanie czasem PDF Online Za Darmo - Znacznik Czasu Dokumentu RFC 3161 | Unsold PDF",
     "subtitle": "Dodaj znacznik czasu RFC 3161 do pliku PDF, korzystając z serwera zaufanego urzędu znakowania czasem (TSA). Udowadnia, że Twój dokument istniał w określonym momencie w czasie. Certyfikat nie jest wymagany.",
     "tsaSectionTitle": "Serwer znacznika czasu (TSA)",
     "selectTsa": "Wybierz serwer TSA",
@@ -1106,7 +1106,7 @@
     "resetWithDefaults": "Niestandardowe ustawienia zostały wyczyszczone. Aktywne są wstępnie skonfigurowane ustawienia domyślne.",
     "resetNoDefaults": "Wszystkie konfiguracje i moduły z pamięci podręcznej zostały wyczyszczone.",
     "licenseTitle": "Informacja licencyjna:",
-    "licenseDescription": "Zewnętrzne moduły (PyMuPDF, Ghostscript, CoherentPDF) są licencjonowane na podstawie AGPL-3.0 lub podobnych licencji copyleft. Konfigurując i używając tych modułów, zgadzasz się na ich odpowiednie warunki licencyjne. UnAcrobat jest kompatybilne z dowolną implementacją Ghostscript WASM i PyMuPDF WASM, która podąża za oczekiwanym interfejsem."
+    "licenseDescription": "Zewnętrzne moduły (PyMuPDF, Ghostscript, CoherentPDF) są licencjonowane na podstawie AGPL-3.0 lub podobnych licencji copyleft. Konfigurując i używając tych modułów, zgadzasz się na ich odpowiednie warunki licencyjne. Unsold PDF jest kompatybilne z dowolną implementacją Ghostscript WASM i PyMuPDF WASM, która podąża za oczekiwanym interfejsem."
   },
   "pdfOverlay": {
     "name": "Nakładka PDF",

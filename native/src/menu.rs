@@ -137,7 +137,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         let settings = MenuItemBuilder::with_id("open-tool:wasm-settings", "Settings…")
             .accelerator("CmdOrCtrl+,")
             .build(app)?;
-        let app_menu = SubmenuBuilder::new(app, "UnAcrobat")
+        let app_menu = SubmenuBuilder::new(app, "Unsold PDF")
             .item(&about)
             .separator()
             .item(&settings)

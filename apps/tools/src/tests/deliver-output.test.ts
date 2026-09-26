@@ -12,7 +12,7 @@ describe('downloadFile', () => {
     const deliverOutput = vi.fn();
     Object.defineProperty(window, 'top', {
       configurable: true,
-      value: { unacrobat: { deliverOutput, fetch: vi.fn() } },
+      value: { unsold: { deliverOutput, fetch: vi.fn() } },
     });
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click');
 

@@ -1,5 +1,5 @@
 {
-  "name": "@unacrobat/tools",
+  "name": "@unsold/tools",
   "private": true,
   "version": "0.1.0",
   "license": "AGPL-3.0-only",
@@ -42,7 +42,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node-forge": "^1.3.14",
     "@types/papaparse": "^5.5.2",
-    "@unacrobat/bridge": "0.1.0",
+    "@unsold/bridge": "0.1.0",
     "bwip-js": "^4.8.0",
     "cropperjs": "^1.6.2",
     "diff": "^8.0.3",
@@ -86,8 +86,8 @@
     "terser": "^5.46.0",
     "tesseract.js": "^7.0.0",
     "tiff": "^7.1.2",
-    "unacrobat-pdfium": "file:vendor/unacrobat-pdfium/unacrobat-pdfium-813903c93c75.tgz",
-    "unacrobat-viewer": "file:vendor/unacrobat-viewer/unacrobat-viewer-813903c93c75.tgz",
+    "unsold-pdfium": "file:vendor/unsold-pdfium/unsold-pdfium-813903c93c75.tgz",
+    "unsold-viewer": "file:vendor/unsold-viewer/unsold-viewer-813903c93c75.tgz",
     "wasm-vips": "^0.0.17",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "zgapdfsigner": "^2.7.5"

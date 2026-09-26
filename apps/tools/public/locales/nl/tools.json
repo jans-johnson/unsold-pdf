@@ -997,7 +997,7 @@
   },
   "digitalSignPdf": {
     "name": "Digitale handtekening",
-    "pageTitle": "Digitale handtekening - Cryptografische handtekening toevoegen | UnAcrobat",
+    "pageTitle": "Digitale handtekening - Cryptografische handtekening toevoegen | Unsold PDF",
     "subtitle": "Een cryptografische digitale handtekening toevoegen aan een PDF met behulp van X.509-certificaten. Ondersteunt PKCS#12 (.pfx, .p12) en PEM-formaten. Jouw privésleutel blijft op jouw browser.",
     "certificateSection": "Certificaat",
     "uploadCert": "Certificaat laden (.pfx, .p12, .pem)",
@@ -1075,12 +1075,12 @@
   },
   "validateSignaturePdf": {
     "name": "PDF-handtekening Valideren",
-    "pageTitle": "PDF-handtekening valideren - Digitale handtekeningen verifiëren | UnAcrobat",
+    "pageTitle": "PDF-handtekening valideren - Digitale handtekeningen verifiëren | Unsold PDF",
     "subtitle": "Digitale handtekeningen in een PDF-bestanden verifiëren. Controleer de geldigheid van het certificaat, bekijk de gegevens van de ondertekenaar en bevestig de integriteit van het document. Alle verwerking gebeurt binnen jouw browser."
   },
   "timestampPdf": {
     "name": "PDF Tijdstempelen",
-    "pageTitle": "PDF tijdstempel gratis online - RFC 3161 documenttijdstempel | UnAcrobat",
+    "pageTitle": "PDF tijdstempel gratis online - RFC 3161 documenttijdstempel | Unsold PDF",
     "subtitle": "Voeg een RFC 3161 tijdstempel toe aan je PDF via een vertrouwde TSA-server. Dit bewijst dat jouw document op een specifiek moment bestond. Geen certificaat vereist.",
     "tsaSectionTitle": "Tijdstempelserver (TSA)",
     "selectTsa": "Selecteer een TSA-server",
@@ -1266,7 +1266,7 @@
     "resetWithDefaults": "Aangepaste overrides gewist. Vooraf geconfigureerde standaardwaarden zijn actief.",
     "resetNoDefaults": "Alle configuraties en cachemodules zijn gewist.",
     "licenseTitle": "Licentiekennisgeving:",
-    "licenseDescription": "De externe modules (PyMuPDF, Ghostscript, CoherentPDF) zijn gelicentieerd onder AGPL-3.0 of vergelijkbare copyleft-licenties. Door deze modules te configureren en te gebruiken ga je akkoord met de respectievelijke licentievoorwaarden. UnAcrobat is compatibel met elke Ghostscript WASM- en PyMuPDF WASM-implementatie die de verwachte interface volgt."
+    "licenseDescription": "De externe modules (PyMuPDF, Ghostscript, CoherentPDF) zijn gelicentieerd onder AGPL-3.0 of vergelijkbare copyleft-licenties. Door deze modules te configureren en te gebruiken ga je akkoord met de respectievelijke licentievoorwaarden. Unsold PDF is compatibel met elke Ghostscript WASM- en PyMuPDF WASM-implementatie die de verwachte interface volgt."
   },
   "pdfOverlay": {
     "name": "PDF-overlay",

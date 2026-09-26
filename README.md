@@ -1,7 +1,16 @@
-# UnAcrobat
+# Unsold PDF
 
 A private, offline PDF workbench: view, edit, annotate, sign, convert,
 organise, compress, OCR and protect PDFs. Every tool runs on the device.
+
+Unsold PDF is the first app from **Unsold**: free software that isn't for
+sale, and neither are you.
+
+- The apps are free, forever. No paid tiers, no ads, no account, no tracking.
+- Your files and data stay on your device.
+- Optional sync (future apps): bring your own cloud for free, or use ours at
+  cost, end-to-end encrypted. Export is always free.
+- Open source under the AGPL, so nobody can take it and close it.
 
 Targets Windows, Linux, macOS, Android and iOS from one codebase. See
 [`docs/ROADMAP.md`](docs/ROADMAP.md) for the architecture and migration plan.
@@ -21,7 +30,7 @@ Targets Windows, Linux, macOS, Android and iOS from one codebase. See
 ```bash
 npm install
 npm run test          # all workspaces
-npm run build -w @unacrobat/tools
+npm run build -w @unsold/tools
 ```
 
 Licensed under the GNU AGPL v3. See `LICENSE`.

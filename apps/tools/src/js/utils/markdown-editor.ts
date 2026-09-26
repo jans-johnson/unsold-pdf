@@ -75,7 +75,7 @@ export interface MarkdownEditorOptions {
 
 export type { MarkdownItOptions } from '@/types';
 
-const DEFAULT_MARKDOWN = `# Welcome to UnAcrobat Markdown Editor
+const DEFAULT_MARKDOWN = `# Welcome to Unsold PDF Markdown Editor
 
 This is a **live preview** markdown editor with full plugin support.
 
@@ -145,12 +145,12 @@ graph TD
 \`\`\`mermaid
 sequenceDiagram
     participant User
-    participant UnAcrobat
+    participant App as Unsold PDF
     participant Server
-    User->>UnAcrobat: Upload PDF
-    UnAcrobat->>UnAcrobat: Process locally
-    UnAcrobat-->>User: Download result
-    Note over UnAcrobat: No server needed!
+    User->>App: Upload PDF
+    App->>App: Process locally
+    App-->>User: Download result
+    Note over App: No server needed!
 \`\`\`
 
 ### Pie Chart
@@ -218,7 +218,7 @@ erDiagram
 
 \`\`\`mermaid
 mindmap
-    root((UnAcrobat))
+    root((Unsold PDF))
         Convert
             Word to PDF
             Excel to PDF

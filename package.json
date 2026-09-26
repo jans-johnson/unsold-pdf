@@ -1,5 +1,5 @@
 {
-  "name": "unacrobat",
+  "name": "unsold-pdf",
   "private": true,
   "version": "0.1.0",
   "license": "AGPL-3.0-only",
@@ -11,8 +11,8 @@
   "scripts": {
     "tauri": "tauri",
     "engines": "node scripts/engines.mjs",
-    "dev": "npm run engines && npm run build -w @unacrobat/tools && npm run dev -w @unacrobat/studio",
-    "build:web": "npm run engines && npm run build -w @unacrobat/tools && npm run build -w @unacrobat/studio && node scripts/assemble.mjs",
+    "dev": "npm run engines && npm run build -w @unsold/tools && npm run dev -w @unsold/studio",
+    "build:web": "npm run engines && npm run build -w @unsold/tools && npm run build -w @unsold/studio && node scripts/assemble.mjs",
     "app:dev": "tauri dev",
     "app:build": "tauri build",
     "app:android": "tauri android dev",

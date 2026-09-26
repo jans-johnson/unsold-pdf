@@ -997,7 +997,7 @@
   },
   "digitalSignPdf": {
     "name": "PDF 数字签名",
-    "pageTitle": "PDF 数字签名 - 添加加密签名 | UnAcrobat",
+    "pageTitle": "PDF 数字签名 - 添加加密签名 | Unsold PDF",
     "subtitle": "使用 X.509 证书为您的 PDF 添加加密数字签名。支持 PKCS#12 (.pfx, .p12) 和 PEM 格式。您的私钥永远不会离开您的浏览器。",
     "certificateSection": "证书",
     "uploadCert": "上传证书 (.pfx, .p12, .pem)",
@@ -1075,12 +1075,12 @@
   },
   "validateSignaturePdf": {
     "name": "验证 PDF 签名",
-    "pageTitle": "验证 PDF 签名 - 验证数字签名 | UnAcrobat",
+    "pageTitle": "验证 PDF 签名 - 验证数字签名 | Unsold PDF",
     "subtitle": "验证您的 PDF 文件中的数字签名。检查证书有效性、查看签名者详情并确认文档完整性。所有处理都在您的浏览器中进行。"
   },
   "timestampPdf": {
     "name": "PDF 时间戳",
-    "pageTitle": "免费在线 PDF 时间戳 - RFC 3161 文档时间戳 | UnAcrobat",
+    "pageTitle": "免费在线 PDF 时间戳 - RFC 3161 文档时间戳 | Unsold PDF",
     "subtitle": "通过可信的 TSA 服务器为您的 PDF 添加 RFC 3161 时间戳。证明您的文档在特定时间点存在。无需证书。",
     "tsaSectionTitle": "时间戳服务器 (TSA)",
     "selectTsa": "选择 TSA 服务器",
@@ -1266,7 +1266,7 @@
     "resetWithDefaults": "已清除自定义覆盖。预配置的默认值已激活。",
     "resetNoDefaults": "所有配置和缓存模块均已清除。",
     "licenseTitle": "许可证通知：",
-    "licenseDescription": "外部模块（PyMuPDF、Ghostscript、CoherentPDF）根据 AGPL-3.0 或类似的 copyleft 许可证授权。配置和使用这些模块即表示您同意各自的许可证条款。UnAcrobat 与遵循预期接口的任何 Ghostscript WASM 和 PyMuPDF WASM 实现兼容。"
+    "licenseDescription": "外部模块（PyMuPDF、Ghostscript、CoherentPDF）根据 AGPL-3.0 或类似的 copyleft 许可证授权。配置和使用这些模块即表示您同意各自的许可证条款。Unsold PDF 与遵循预期接口的任何 Ghostscript WASM 和 PyMuPDF WASM 实现兼容。"
   },
   "pdfOverlay": {
     "name": "PDF 叠加",

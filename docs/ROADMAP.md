@@ -1,4 +1,4 @@
-# UnAcrobat roadmap
+# Unsold PDF roadmap
 
 Goal: one offline PDF workbench that ships natively on **Windows, Linux, macOS,
 Android and iOS** from a single codebase, with the code reorganised around a
@@ -10,7 +10,7 @@ small set of clear packages instead of one web app plus an Electron wrapper.
 | --- | --- | --- |
 | Native shell | **Tauri 2** for all five platforms; Electron is retired | One shell covers desktop and mobile. ~10 MB installers instead of ~150 MB. Per-response headers (COOP/COEP) on every platform, which the WASM tools need for `SharedArrayBuffer`. Capability-scoped plugins replace hand-written IPC. |
 | Repo layout | npm workspaces monorepo | Each layer builds, tests and versions on its own; the boundary between "PDF logic", "UI" and "host OS" becomes explicit. |
-| Host access | Every OS call goes through `@unacrobat/bridge` | UI code never imports Tauri directly, so it runs unchanged in a plain browser for dev/tests, and a platform can be swapped without touching the UI. |
+| Host access | Every OS call goes through `@unsold/bridge` | UI code never imports Tauri directly, so it runs unchanged in a plain browser for dev/tests, and a platform can be swapped without touching the UI. |
 | Network | Only allow-listed hosts via `tauri-plugin-http` | Replaces the Electron `/cors-proxy`, which would fetch any URL, including LAN addresses. Needed only for signature timestamping and certificate-chain lookups. |
 | Tool pages | Strangler migration | The ~120 existing tool pages keep working inside the Studio from day one; they move to the new tool format one at a time and each legacy page is deleted once its replacement lands. |
 | Mobile | Same Studio UI, adaptive layout, capability tiers | Heavy engines (LibreOffice, Ghostscript) are memory-hungry; tools declare their needs and the Studio hides what a device can't run instead of crashing. |
@@ -18,7 +18,7 @@ small set of clear packages instead of one web app plus an Electron wrapper.
 ## Target layout
 
 ```
-unacrobat/
+unsold-pdf/
 ├─ apps/
 │  ├─ studio/       The app UI every platform loads: home, tabs, viewer, tools pane (TypeScript, Vite)
 │  └─ tools/        Tool pages + PDF logic (today's web app). Shrinks as tools migrate.
@@ -45,7 +45,7 @@ Studio can drive tool pages in frames and exchange blobs without copying.
 
 ### Phase 1: Monorepo + Tauri shell ✅
 1. Web app in `apps/tools`, workspace UI in `apps/studio`, root is an npm workspace.
-2. `@unacrobat/bridge`: typed `HostBridge` with `tauri` and `browser` implementations, plus the `ToolHost` contract tool pages use.
+2. `@unsold/bridge`: typed `HostBridge` with `tauri` and `browser` implementations, plus the `ToolHost` contract tool pages use.
 3. Studio ported from untyped JS on `window.desktop` to TypeScript modules on `HostBridge`.
 4. Tool results go through `deliverOutput()`; certificate/TSA fetches go through the native `net_fetch`.
 5. WASM engines resolve to `/wasm/…` on the app origin.
@@ -76,7 +76,7 @@ Android use Tauri's `http://tauri.localhost`, which Chromium isolates.
 ### Phase 4: Mobile experience
 - Adaptive Studio layout: single pane, bottom sheets, touch-sized targets, share-sheet export, Files/SAF open.
 - Capability tiers from `needs` + device memory; lazy-load engines; stream large files.
-- iOS/Android specifics: app sandbox paths, background-task limits, "Open in UnAcrobat" document types.
+- iOS/Android specifics: app sandbox paths, background-task limits, "Open in Unsold PDF" document types.
 
 ### Phase 5: Release engineering
 - CI matrix (GitHub Actions): macOS (arm64/x64), Windows (x64/arm64), Linux (AppImage/deb/rpm), Android (AAB/APK), iOS (IPA).
@@ -90,5 +90,5 @@ Android use Tauri's `http://tauri.localhost`, which Chromium isolates.
 
 ## Licence
 
-UnAcrobat is AGPL-3.0. Keep `LICENSE`, keep the upstream copyright/attribution
+Unsold PDF is AGPL-3.0. Keep `LICENSE`, keep the upstream copyright/attribution
 notices, and ship the corresponding source with any distributed build.

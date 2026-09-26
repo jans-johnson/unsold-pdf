@@ -356,8 +356,8 @@
     "subtitle": "Fill in forms directly in the browser. Also supports XFA forms.",
     "uploadHint": "Upload a PDF with form fields. Fill them directly in the viewer below, then click the button to save and download the filled form. XFA forms are saved as standard PDFs that open in any viewer.",
     "xfaNoticeTitle": "XFA form detected.",
-    "xfaPureNotice": "When you save, UnAcrobat turns it into a standard fillable PDF that opens in any viewer. Pages are saved as images with searchable text, and XFA-only behaviour such as growing sections and built-in calculations is dropped.",
-    "xfaHybridNotice": "When you save, UnAcrobat removes the XFA layer and keeps the standard form fields, so the filled form opens in any viewer.",
+    "xfaPureNotice": "When you save, Unsold PDF turns it into a standard fillable PDF that opens in any viewer. Pages are saved as images with searchable text, and XFA-only behaviour such as growing sections and built-in calculations is dropped.",
+    "xfaHybridNotice": "When you save, Unsold PDF removes the XFA layer and keeps the standard form fields, so the filled form opens in any viewer.",
     "keepXfa": "Keep the original XFA form instead (only opens in Adobe Acrobat and Firefox)",
     "convertingPage": "Converting page {{page}} of {{total}}...",
     "buildingPdf": "Building PDF..."
@@ -1004,7 +1004,7 @@
   },
   "digitalSignPdf": {
     "name": "Digital Signature PDF",
-    "pageTitle": "Digital Signature PDF - Add Cryptographic Signature | UnAcrobat",
+    "pageTitle": "Digital Signature PDF - Add Cryptographic Signature | Unsold PDF",
     "subtitle": "Add a cryptographic digital signature to your PDF using X.509 certificates. Supports PKCS#12 (.pfx, .p12) and PEM formats. Your private key never leaves your browser.",
     "certificateSection": "Certificate",
     "uploadCert": "Upload certificate (.pfx, .p12, .pem)",
@@ -1082,12 +1082,12 @@
   },
   "validateSignaturePdf": {
     "name": "Validate PDF Signature",
-    "pageTitle": "Validate PDF Signature - Verify Digital Signatures | UnAcrobat",
+    "pageTitle": "Validate PDF Signature - Verify Digital Signatures | Unsold PDF",
     "subtitle": "Verify digital signatures in your PDF files. Check certificate validity, view signer details, and confirm document integrity. All processing happens in your browser."
   },
   "timestampPdf": {
     "name": "Timestamp PDF",
-    "pageTitle": "Timestamp PDF Online Free - RFC 3161 Document Timestamp | UnAcrobat",
+    "pageTitle": "Timestamp PDF Online Free - RFC 3161 Document Timestamp | Unsold PDF",
     "subtitle": "Add an RFC 3161 document timestamp to your PDF using a trusted Time Stamp Authority (TSA) server. Proves your document existed at a specific point in time. No certificate required.",
     "tsaSectionTitle": "Timestamp Server (TSA)",
     "selectTsa": "Select a TSA server",
@@ -1273,7 +1273,7 @@
     "resetWithDefaults": "Custom overrides cleared. Pre-configured defaults are active.",
     "resetNoDefaults": "All configurations and cached modules have been cleared.",
     "licenseTitle": "License Notice:",
-    "licenseDescription": "The external modules (PyMuPDF, Ghostscript, CoherentPDF) are licensed under AGPL-3.0 or similar copyleft licenses. By configuring and using these modules, you agree to their respective license terms. UnAcrobat is compatible with any Ghostscript WASM and PyMuPDF WASM implementation that follows the expected interface."
+    "licenseDescription": "The external modules (PyMuPDF, Ghostscript, CoherentPDF) are licensed under AGPL-3.0 or similar copyleft licenses. By configuring and using these modules, you agree to their respective license terms. Unsold PDF is compatible with any Ghostscript WASM and PyMuPDF WASM implementation that follows the expected interface."
   },
   "pdfOverlay": {
     "name": "PDF Overlay",

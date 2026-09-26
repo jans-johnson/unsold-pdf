@@ -40,19 +40,19 @@ jobs:
           - name: macOS arm64
             os: macos-latest
             args: --target aarch64-apple-darwin
-            binary: native/target/aarch64-apple-darwin/release/unacrobat
+            binary: native/target/aarch64-apple-darwin/release/unsold-pdf
           - name: macOS x64
             os: macos-13
             args: --target x86_64-apple-darwin
-            binary: native/target/x86_64-apple-darwin/release/unacrobat
+            binary: native/target/x86_64-apple-darwin/release/unsold-pdf
           - name: Windows x64
             os: windows-latest
             args: ''
-            binary: native/target/release/unacrobat.exe
+            binary: native/target/release/unsold-pdf.exe
           - name: Linux x64
             os: ubuntu-22.04
             args: ''
-            binary: native/target/release/unacrobat
+            binary: native/target/release/unsold-pdf
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
         run: ${{ matrix.binary }} --self-test
       - uses: actions/upload-artifact@v4
         with:
-          name: unacrobat-${{ matrix.name }}
+          name: unsold-${{ matrix.name }}
           path: |
             native/target/**/release/bundle/dmg/*.dmg
             native/target/**/release/bundle/msi/*.msi

@@ -1,5 +1,5 @@
 [package]
-name = "unacrobat"
+name = "unsold-pdf"
 version = "0.1.0"
 description = "Offline PDF workbench"
 license = "AGPL-3.0-only"
@@ -7,7 +7,7 @@ edition = "2021"
 rust-version = "1.80"
 
 [lib]
-name = "unacrobat_lib"
+name = "unsold_pdf_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -168,7 +168,7 @@ describe('timestampPdf', () => {
       contentType: 'application/timestamp-reply',
       body: new Uint8Array([9, 9]),
     });
-    const fakeTop = { unacrobat: { fetch: hostFetch, deliverOutput: vi.fn() } };
+    const fakeTop = { unsold: { fetch: hostFetch, deliverOutput: vi.fn() } };
     const realTop = Object.getOwnPropertyDescriptor(window, 'top');
     Object.defineProperty(window, 'top', { configurable: true, value: fakeTop });
     try {

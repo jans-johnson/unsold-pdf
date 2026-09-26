@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    unacrobat_lib::run()
+    unsold_pdf_lib::run()
 }

@@ -21,7 +21,7 @@
     "startUsing": "Начать"
   },
   "usedBy": {
-    "title": "UnAcrobat используют люди из:"
+    "title": "Unsold PDF используют люди из:"
   },
   "tools": {
     "title": "Начните работать с",
@@ -156,7 +156,6 @@
     "say": " "
   },
   "footer": {
-    "copyright": "Free software under the GNU AGPL v3.",
     "version": "Версия",
     "company": "Компания",
     "aboutUs": "Про нас",

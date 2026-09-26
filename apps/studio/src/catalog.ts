@@ -1,4 +1,4 @@
-import { categories } from '@unacrobat/tools/catalog';
+import { categories } from '@unsold/tools/catalog';
 
 export interface Tool {
   id: string;

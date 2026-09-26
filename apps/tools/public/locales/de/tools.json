@@ -996,7 +996,7 @@
   },
   "digitalSignPdf": {
     "name": "Digitale PDF-Signatur",
-    "pageTitle": "Digitale PDF-Signatur - Kryptografische Signatur hinzufügen | UnAcrobat",
+    "pageTitle": "Digitale PDF-Signatur - Kryptografische Signatur hinzufügen | Unsold PDF",
     "subtitle": "Fügen Sie eine kryptografische digitale Signatur mit X.509-Zertifikaten zu Ihrer PDF hinzu. Unterstützt PKCS#12 (.pfx, .p12) und PEM-Formate. Ihr privater Schlüssel verlässt niemals Ihren Browser.",
     "certificateSection": "Zertifikat",
     "uploadCert": "Zertifikat hochladen (.pfx, .p12, .pem)",
@@ -1074,12 +1074,12 @@
   },
   "validateSignaturePdf": {
     "name": "PDF-Signatur überprüfen",
-    "pageTitle": "PDF-Signatur überprüfen - Digitale Signaturen verifizieren | UnAcrobat",
+    "pageTitle": "PDF-Signatur überprüfen - Digitale Signaturen verifizieren | Unsold PDF",
     "subtitle": "Überprüfen Sie digitale Signaturen in Ihren PDF-Dateien. Prüfen Sie die Zertifikatsgültigkeit, sehen Sie Unterzeichnerdetails und bestätigen Sie die Dokumentenintegrität. Die gesamte Verarbeitung erfolgt in Ihrem Browser."
   },
   "timestampPdf": {
     "name": "PDF mit Zeitstempel versehen",
-    "pageTitle": "PDF-Zeitstempel online kostenlos - RFC 3161 Dokumentenzeitstempel | UnAcrobat",
+    "pageTitle": "PDF-Zeitstempel online kostenlos - RFC 3161 Dokumentenzeitstempel | Unsold PDF",
     "subtitle": "Fügen Sie Ihrem PDF einen RFC 3161-Zeitstempel über einen vertrauenswürdigen Zeitstempelserver (TSA) hinzu. Beweist, dass Ihr Dokument zu einem bestimmten Zeitpunkt existierte. Kein Zertifikat erforderlich.",
     "tsaSectionTitle": "Zeitstempelserver (TSA)",
     "selectTsa": "TSA-Server auswählen",
@@ -1265,7 +1265,7 @@
     "resetWithDefaults": "Benutzerdefinierte Überschreibungen wurden entfernt. Vorkonfigurierte Standardwerte sind aktiv.",
     "resetNoDefaults": "Alle Konfigurationen und zwischengespeicherten Module wurden gelöscht.",
     "licenseTitle": "Lizenzhinweis:",
-    "licenseDescription": "Die externen Module (PyMuPDF, Ghostscript, CoherentPDF) sind unter AGPL-3.0 oder ähnlichen Copyleft-Lizenzen lizenziert. Durch das Konfigurieren und Verwenden dieser Module stimmen Sie den jeweiligen Lizenzbedingungen zu. UnAcrobat ist mit jeder Ghostscript-WASM- und PyMuPDF-WASM-Implementierung kompatibel, die der erwarteten Schnittstelle folgt."
+    "licenseDescription": "Die externen Module (PyMuPDF, Ghostscript, CoherentPDF) sind unter AGPL-3.0 oder ähnlichen Copyleft-Lizenzen lizenziert. Durch das Konfigurieren und Verwenden dieser Module stimmen Sie den jeweiligen Lizenzbedingungen zu. Unsold PDF ist mit jeder Ghostscript-WASM- und PyMuPDF-WASM-Implementierung kompatibel, die der erwarteten Schnittstelle folgt."
   },
   "pdfOverlay": {
     "name": "PDF-Überlagerung",

@@ -2,7 +2,7 @@ import {
   toolPageState,
   type HostBridge,
   type OpenedDocument,
-} from '@unacrobat/bridge';
+} from '@unsold/bridge';
 import { $, h, icon, isPdfBytes, nextId, storage, store } from './dom.ts';
 import {
   converterFor,
@@ -128,7 +128,7 @@ export class Studio {
       : id === 'tools'
         ? 'All tools'
         : 'Home';
-    void this.host.setTitle(`${title} — UnAcrobat`);
+    void this.host.setTitle(`${title} — Unsold PDF`);
   }
 
   async closeTab(tab: Tab): Promise<boolean> {
@@ -232,7 +232,7 @@ export class Studio {
         this.openToolTab(converter, { name: f.name, data: f.data });
         toast(`Opened “${f.name}” in ${tool(converter)!.name}`);
       } else {
-        toast(`UnAcrobat can’t open “${f.name}”`, { error: true });
+        toast(`Unsold PDF can’t open “${f.name}”`, { error: true });
       }
     }
   }

@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "ホーム",
-    "about": "UnAcrobatについて",
+    "about": "Unsold PDFについて",
     "contact": "コンタクト",
     "licensing": "ライセンス",
     "allTools": "すべてのツール",
@@ -156,7 +156,6 @@
     "say": "の声"
   },
   "footer": {
-    "copyright": "© 2026 UnAcrobat。無断転載を禁じます。",
     "version": "バージョン",
     "company": "会社",
     "aboutUs": "当社について",

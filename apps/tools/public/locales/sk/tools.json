@@ -996,7 +996,7 @@
   },
   "digitalSignPdf": {
     "name": "Digitálny podpis PDF",
-    "pageTitle": "Digitálny podpis PDF - Pridať kryptografický podpis | UnAcrobat",
+    "pageTitle": "Digitálny podpis PDF - Pridať kryptografický podpis | Unsold PDF",
     "subtitle": "Pridať kryptografický digitálny podpis do vášho PDF pomocou certifikátov X.509. Podporuje formáty PKCS#12 (.pfx, .p12) a PEM. Váš súkromný kľúč nikdy neopustí váš prehliadač.",
     "certificateSection": "Certifikát",
     "uploadCert": "Nahrať certifikát (.pfx, .p12, .pem)",
@@ -1074,12 +1074,12 @@
   },
   "validateSignaturePdf": {
     "name": "Overiť PDF podpis",
-    "pageTitle": "Overiť PDF podpis - Verifikácia digitálnych podpisov | UnAcrobat",
+    "pageTitle": "Overiť PDF podpis - Verifikácia digitálnych podpisov | Unsold PDF",
     "subtitle": "Overte digitálne podpisy vo vašich PDF súboroch. Skontrolujte platnosť certifikátu, zobrazte údaje o podpisujúcom a potvrďte integritu dokumentu. Všetko spracovanie prebieha vo vašom prehliadači."
   },
   "timestampPdf": {
     "name": "Časová pečiatka PDF",
-    "pageTitle": "Časová pečiatka PDF Online zadarmo - RFC 3161 Dokument | UnAcrobat",
+    "pageTitle": "Časová pečiatka PDF Online zadarmo - RFC 3161 Dokument | Unsold PDF",
     "subtitle": "Pridajte k vášmu PDF časovú pečiatku podľa RFC 3161 pomocou dôveryhodného servera časových pečiatok (TSA). Preukazuje, že váš dokument existoval v určitom okamihu. Nevyžaduje sa žiadny certifikát.",
     "tsaSectionTitle": "Server časových pečiatok (TSA)",
     "selectTsa": "Vyberte TSA server",
@@ -1265,7 +1265,7 @@
     "resetWithDefaults": "Vlastné prepísania boli vymazané. Predkonfigurované hodnoty sú aktívne.",
     "resetNoDefaults": "Všetky konfigurácie a moduly v medzipamäti boli vymazané.",
     "licenseTitle": "Upozornenie o licencii:",
-    "licenseDescription": "Externé moduly (PyMuPDF, Ghostscript, CoherentPDF) sú licencované pod licenciou AGPL-3.0 alebo podobnými \"copyleft\" licenciami. Konfiguráciou a používaním týchto modulov súhlasíte s ich príslušnými licenčnými podmienkami. UnAcrobat je kompatibilné so žiadnou implementáciou Ghostscript WASM a PyMuPDF WASM, ktorá nasleduje očakávané rozhranie."
+    "licenseDescription": "Externé moduly (PyMuPDF, Ghostscript, CoherentPDF) sú licencované pod licenciou AGPL-3.0 alebo podobnými \"copyleft\" licenciami. Konfiguráciou a používaním týchto modulov súhlasíte s ich príslušnými licenčnými podmienkami. Unsold PDF je kompatibilné so žiadnou implementáciou Ghostscript WASM a PyMuPDF WASM, ktorá nasleduje očakávané rozhranie."
   },
   "pdfOverlay": {
     "name": "Prekrytie PDF",

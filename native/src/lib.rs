@@ -211,7 +211,7 @@ pub fn run() {
             net::net_fetch,
         ])
         .build(tauri::generate_context!())
-        .expect("failed to build UnAcrobat");
+        .expect("failed to build Unsold PDF");
 
     app.run(|app, event| match event {
         // macOS "Open With" / dropping files on the Dock icon.

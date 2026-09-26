@@ -2,7 +2,7 @@ import { PdfSigner, type SignOption } from 'zgapdfsigner';
 import forge from 'node-forge';
 import { CertificateData, SignPdfOptions } from '@/types';
 import { isValidTsaRequestUrl } from '../config/timestamp-tsa.js';
-import { findToolHost, type ToolHost } from '@unacrobat/bridge/tool-host';
+import { findToolHost, type ToolHost } from '@unsold/bridge/tool-host';
 
 export function parsePfxFile(
   pfxBytes: ArrayBuffer,
@@ -100,7 +100,7 @@ export function parseCombinedPem(
  * but those servers often don't have CORS headers. This proxy adds the necessary
  * CORS headers to allow the requests from the browser.
  *
- * Inside the UnAcrobat app these requests go through the native host instead
+ * Inside the Unsold PDF app these requests go through the native host instead
  * (see viaToolHost); the proxy is only used when a page runs on its own.
  */
 const DEFAULT_CORS_PROXY_URL = '/cors-proxy';
@@ -124,7 +124,7 @@ const CORS_PROXY_URL = resolveCorsProxyUrl();
  * 3. Have your frontend call your server, which then calls the CORS proxy
  *
  * This client-side HMAC provides limited protection (deters casual abuse)
- * but should NOT be considered secure against determined attackers. UnAcrobat
+ * but should NOT be considered secure against determined attackers. Unsold PDF
  * accepts this tradeoff because of its client-side architecture.
  *
  * To enable (optional):

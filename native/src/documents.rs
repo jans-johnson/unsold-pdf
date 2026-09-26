@@ -87,7 +87,7 @@ impl Library {
         if self.granted.lock().unwrap().contains(handle) {
             Ok(())
         } else {
-            Err("This file was not opened through UnAcrobat".into())
+            Err("This file was not opened through Unsold PDF".into())
         }
     }
 
@@ -434,5 +434,5 @@ pub fn paths_from_args(args: &[String], cwd: Option<&std::path::Path>) -> Vec<Fi
 pub fn data_dir<R: Runtime>(app: &AppHandle<R>) -> PathBuf {
     app.path()
         .app_data_dir()
-        .unwrap_or_else(|_| std::env::temp_dir().join("unacrobat"))
+        .unwrap_or_else(|_| std::env::temp_dir().join("unsold-pdf"))
 }

@@ -135,7 +135,7 @@ async function deserializeWorkflow(
   }
 }
 
-const TEMPLATES_KEY = 'unacrobat-workflow-templates';
+const TEMPLATES_KEY = 'unsold-workflow-templates';
 
 interface StoredTemplates {
   [name: string]: SerializedWorkflow;

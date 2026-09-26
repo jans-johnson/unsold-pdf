@@ -2,7 +2,7 @@ import '@phosphor-icons/web/regular';
 import '@phosphor-icons/web/fill';
 import './styles.css';
 
-import { connectHost, TOOL_HOST_KEY, type ToolHost } from '@unacrobat/bridge';
+import { connectHost, TOOL_HOST_KEY, type ToolHost } from '@unsold/bridge';
 import { $ } from './dom.ts';
 import type { PanelName } from './panels.ts';
 import { Studio } from './studio.ts';
@@ -12,7 +12,7 @@ const host = await connectHost();
 document.documentElement.dataset.platform = host.platform;
 const studio = new Studio(host);
 
-// Tool pages (same-origin frames) reach the Studio through window.unacrobat.
+// Tool pages (same-origin frames) reach the Studio through window.unsold.
 const toolHost: ToolHost = {
   deliverOutput: (output, source) => studio.receiveOutput(output, source),
   fetch: (request) => host.fetch(request),

@@ -997,7 +997,7 @@
   },
   "digitalSignPdf": {
     "name": "توقيع رقمي لـ PDF",
-    "pageTitle": "توقيع رقمي لـ PDF - إضافة توقيع تشفيري | UnAcrobat",
+    "pageTitle": "توقيع رقمي لـ PDF - إضافة توقيع تشفيري | Unsold PDF",
     "subtitle": "إضافة توقيع رقمي تشفيري إلى PDF باستخدام شهادات X.509. يدعم تنسيقات PKCS#12 (.pfx، .p12) وPEM. مفتاحك الخاص لا يغادر متصفحك أبدًا.",
     "certificateSection": "الشهادة",
     "uploadCert": "رفع شهادة (.pfx, .p12, .pem)",
@@ -1075,12 +1075,12 @@
   },
   "validateSignaturePdf": {
     "name": "التحقق من توقيع PDF",
-    "pageTitle": "التحقق من توقيع PDF - التحقق من التوقيعات الرقمية | UnAcrobat",
+    "pageTitle": "التحقق من توقيع PDF - التحقق من التوقيعات الرقمية | Unsold PDF",
     "subtitle": "التحقق من التوقيعات الرقمية في ملفات PDF. تحقق من صلاحية الشهادة، واعرض تفاصيل الموقّع، وتأكد من سلامة المستند. تتم جميع المعالجة في متصفحك."
   },
   "timestampPdf": {
     "name": "ختم PDF بالوقت",
-    "pageTitle": "ختم PDF بالوقت مجاناً - ختم RFC 3161 | UnAcrobat",
+    "pageTitle": "ختم PDF بالوقت مجاناً - ختم RFC 3161 | Unsold PDF",
     "subtitle": "أضف ختماً زمنياً RFC 3161 إلى ملف PDF باستخدام خادم TSA موثوق. يثبت أن مستندك كان موجوداً في وقت محدد. لا يتطلب شهادة.",
     "tsaSectionTitle": "خادم الختم الزمني (TSA)",
     "selectTsa": "اختر خادم TSA",
@@ -1266,7 +1266,7 @@
     "resetWithDefaults": "تم مسح التجاوزات المخصصة. الإعدادات الافتراضية المهيأة مسبقًا نشطة.",
     "resetNoDefaults": "تم مسح جميع التكوينات والوحدات المخزنة مؤقتًا.",
     "licenseTitle": "إشعار الترخيص:",
-    "licenseDescription": "الوحدات الخارجية (PyMuPDF، Ghostscript، CoherentPDF) مرخصة بموجب AGPL-3.0 أو تراخيص copyleft مماثلة. بتكوين واستخدام هذه الوحدات، فإنك توافق على شروط الترخيص الخاصة بكل منها. UnAcrobat متوافق مع أي تنفيذ Ghostscript WASM وPyMuPDF WASM يتبع الواجهة المتوقعة."
+    "licenseDescription": "الوحدات الخارجية (PyMuPDF، Ghostscript، CoherentPDF) مرخصة بموجب AGPL-3.0 أو تراخيص copyleft مماثلة. بتكوين واستخدام هذه الوحدات، فإنك توافق على شروط الترخيص الخاصة بكل منها. Unsold PDF متوافق مع أي تنفيذ Ghostscript WASM وPyMuPDF WASM يتبع الواجهة المتوقعة."
   },
   "pdfOverlay": {
     "name": "تراكب PDF",

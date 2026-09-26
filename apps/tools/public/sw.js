@@ -1,11 +1,11 @@
 /**
- * UnAcrobat Service Worker
+ * Unsold PDF Service Worker
  * Caches WASM files and static assets for offline support and faster loading
  * Supports both local and CDN delivery with deduplication
  * Version: 1.1.0
  */
 
-const CACHE_VERSION = 'unacrobat-v11';
+const CACHE_VERSION = 'unsold-v11';
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 
 const trustedCdnOrigins = new Set(['https://cdn.jsdelivr.net']);
@@ -58,7 +58,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName.startsWith('unacrobat-') && cacheName !== CACHE_NAME) {
+            if (cacheName.startsWith('unsold-') && cacheName !== CACHE_NAME) {
               // console.log('[ServiceWorker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -295,8 +295,8 @@ const CACHEABLE_EXTENSIONS =
 function shouldCache(pathname, isCDN = false) {
   if (isCDN) {
     return (
-      pathname.includes('/@unacrobat/pymupdf-wasm') ||
-      pathname.includes('/@unacrobat/gs-wasm') ||
+      pathname.includes('/@unsold/pymupdf-wasm') ||
+      pathname.includes('/@unsold/gs-wasm') ||
       pathname.includes('/@matbee/libreoffice-converter') ||
       CACHEABLE_EXTENSIONS.test(pathname)
     );

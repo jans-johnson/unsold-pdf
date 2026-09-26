@@ -9,7 +9,7 @@ import {
   loadFallbackFonts,
 } from '../utils/font-loader.js';
 import { setupFormatDock, setupFindSheet } from './edit-pdf-text-dock';
-import { findToolHost, registerToolPage } from '@unacrobat/bridge/tool-host';
+import { findToolHost, registerToolPage } from '@unsold/bridge/tool-host';
 
 interface DocDescription {
   meta: { name: string; size: number; source?: string } | null;

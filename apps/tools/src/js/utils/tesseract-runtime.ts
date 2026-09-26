@@ -1,5 +1,5 @@
 import Tesseract from 'tesseract.js';
-import { findToolHost } from '@unacrobat/bridge/tool-host';
+import { findToolHost } from '@unsold/bridge/tool-host';
 import {
   assertTesseractLanguagesAvailable,
   TESSERACT_AVAILABLE_LANGUAGES_ENV_KEY,

@@ -13,7 +13,7 @@ import { createHash } from 'crypto';
 
 function engineVersion(): string {
   try {
-    const dir = resolve(__dirname, 'node_modules/unacrobat-pdfium');
+    const dir = resolve(__dirname, 'node_modules/unsold-pdfium');
     const h = createHash('sha256');
     for (const f of ['editcore.js', 'editcore.wasm']) {
       h.update(fs.readFileSync(resolve(dir, f)));
@@ -552,12 +552,12 @@ export default defineConfig(() => {
       },
     },
     optimizeDeps: {
-      exclude: ['coherentpdf', 'wasm-vips', 'unacrobat-pdfium'],
+      exclude: ['coherentpdf', 'wasm-vips', 'unsold-pdfium'],
     },
     server: {
       host: process.env.VITE_DEV_HOST || 'localhost',
       watch: {
-        ignored: ['!**/node_modules/unacrobat-pdfium/**'],
+        ignored: ['!**/node_modules/unsold-pdfium/**'],
       },
       headers: {
         'Cross-Origin-Opener-Policy': 'same-origin',

@@ -51,7 +51,7 @@ function serveAppLayout(): Plugin {
     return null;
   };
   return {
-    name: 'unacrobat-app-layout',
+    name: 'unsold-app-layout',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = decodeURIComponent((req.url ?? '/').split('?')[0]);

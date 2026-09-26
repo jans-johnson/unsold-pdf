@@ -1,7 +1,7 @@
-import { findToolHost } from '@unacrobat/bridge/tool-host';
+import { findToolHost } from '@unsold/bridge/tool-host';
 
 /**
- * Hands a result file to the user. Inside the UnAcrobat app the Studio takes
+ * Hands a result file to the user. Inside the Unsold PDF app the Studio takes
  * it (PDFs come back into the document, other files get a save dialog); a
  * standalone page falls back to a normal browser download.
  */
