@@ -1892,6 +1892,63 @@ export class PdfEngine {
     return { width: w, height: h, data: out };
   }
 
+  /** Size of any page, without loading it. */
+  pageSizeAt(index) {
+    const M = this.M;
+    const p = M._malloc(8);
+    const ok = M._FPDF_GetPageSizeByIndexF(this.doc, index, p);
+    const size = ok
+      ? { width: M.HEAPF32[p >> 2], height: M.HEAPF32[(p + 4) >> 2] }
+      : { width: this.pageWidth, height: this.pageHeight };
+    M._free(p);
+    return size;
+  }
+
+  /**
+   * Renders a page other than the active one (for the continuous view)
+   * without changing which page is being edited. Edits made earlier to that
+   * page are kept in its cached handle, so they show.
+   */
+  renderPageAt(index, scale) {
+    if (index === this.pageIndex) {
+      const img = this.renderPage(scale);
+      return { ...img, data: img.data.slice() };
+    }
+    const M = this.M;
+    const cached = this._pageCache?.get(index);
+    const handle = cached || M._FPDF_LoadPage(this.doc, index);
+    if (!handle) return null;
+    try {
+      const pw = M._FPDF_GetPageWidthF(handle);
+      const ph = M._FPDF_GetPageHeightF(handle);
+      scale = Math.max(0.05, Math.min(scale, 4096 / Math.max(1, pw), 4096 / Math.max(1, ph)));
+      const w = Math.max(1, Math.round(pw * scale));
+      const h = Math.max(1, Math.round(ph * scale));
+      const bmp = M._FPDFBitmap_CreateEx(w, h, 4, 0, 0);
+      M._FPDFBitmap_FillRect(bmp, 0, 0, w, h, 0xffffffff);
+      const FLAGS = 0x01 | 0x02 | 0x10; // annotations, LCD text, RGBA order
+      M._FPDF_RenderPageBitmap(bmp, handle, 0, 0, w, h, 0, FLAGS);
+      // Live form values: only for pages the form environment knows about.
+      if (cached) {
+        try {
+          M._ec_form_draw(this.session, handle, bmp, 0, 0, w, h, 0, FLAGS);
+        } catch {
+          /* widget appearances are already drawn by FPDF_ANNOT */
+        }
+      }
+      const buf = M._FPDFBitmap_GetBuffer(bmp);
+      const stride = M._FPDFBitmap_GetStride(bmp);
+      const data = new Uint8ClampedArray(w * h * 4);
+      for (let y = 0; y < h; y++) {
+        data.set(M.HEAPU8.subarray(buf + y * stride, buf + y * stride + w * 4), y * w * 4);
+      }
+      M._FPDFBitmap_Destroy(bmp);
+      return { width: w, height: h, data };
+    } finally {
+      if (!cached) M._FPDF_ClosePage(handle);
+    }
+  }
+
   generateContent() {
     if (!this._pageDirty) return true;
     if (this._t3seg && this._t3seg[this.pageIndex]) {

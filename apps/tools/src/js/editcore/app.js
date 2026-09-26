@@ -3031,6 +3031,7 @@ function renderPage() {
   if (overlay.style.height !== cssH) overlay.style.height = cssH;
   drawOverlay();
   drawRulers();
+  syncContinuous();
 }
 
 let scanningPages = false;
@@ -9149,8 +9150,191 @@ function fitZoom() {
   const avail = Math.min(stage.clientWidth - 48, 1400);
   setZoom(avail / P().pageWidth);
 }
-// The engine edits one page at a time. To read like a continuous document,
-// scrolling on past the end of a page moves to the next one (and back).
+// ---------------------------------------------------------------- page views
+// The engine edits one page at a time. In the continuous view (default) all
+// pages are laid out in one scroll: the page in view is the live, editable
+// one and the others are rendered images that update as you move on. The
+// single-page view shows one page and turns pages when you scroll past it.
+
+const VIEW_PREF = 'unacrobat:editor-view';
+const view = {
+  continuous: (() => {
+    try {
+      return localStorage.getItem(VIEW_PREF) !== 'single';
+    } catch {
+      return true;
+    }
+  })(),
+  slots: [], // { el, rendered }
+  doc: null,
+  zoom: 0,
+  observer: null,
+  scrolling: false, // page change caused by scrolling: don't scroll again
+};
+
+function pageStack() {
+  let stack = document.getElementById('pageStack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'pageStack';
+    $('stage').append(stack);
+  }
+  return stack;
+}
+
+/** Rebuilds the stack of page slots (new document or new zoom). */
+function buildContinuous() {
+  const eng = P();
+  const stage = $('stage');
+  const wrap = $('pageWrap');
+  const stack = pageStack();
+  view.observer?.disconnect();
+  if (!view.continuous || !eng?.doc) {
+    stage.classList.remove('continuous');
+    stack.hidden = true;
+    if (wrap.parentElement !== stage) stage.insertBefore(wrap, stack);
+    view.slots = [];
+    view.doc = null;
+    return;
+  }
+  // Keep the reading position across a zoom change.
+  const old = view.slots[eng.pageIndex]?.el;
+  const ratio = old ? (stage.scrollTop - old.offsetTop) / old.offsetHeight : 0;
+
+  stage.classList.add('continuous');
+  stack.hidden = false;
+  view.doc = eng.doc;
+  view.zoom = state.zoom;
+  view.slots = [];
+  const slots = [];
+  for (let i = 0; i < eng.pageCount; i++) {
+    const size = eng.pageSizeAt(i);
+    const el = document.createElement('div');
+    el.className = 'page-slot';
+    el.dataset.page = String(i);
+    el.style.width = size.width * state.zoom + 'px';
+    el.style.height = size.height * state.zoom + 'px';
+    slots.push(el);
+    view.slots.push({ el, rendered: false });
+  }
+  stack.replaceChildren(...slots);
+  view.slots[eng.pageIndex].el.append(wrap);
+  view.observer = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) if (e.isIntersecting) renderPreview(+e.target.dataset.page);
+    },
+    { root: stage, rootMargin: '800px 0px' }
+  );
+  for (const s of view.slots) view.observer.observe(s.el);
+
+  const now = view.slots[eng.pageIndex].el;
+  stage.scrollTop = now.offsetTop + Math.max(0, ratio) * now.offsetHeight;
+}
+
+function renderPreview(i) {
+  const slot = view.slots[i];
+  const eng = P();
+  if (!slot || slot.rendered || i === eng.pageIndex) return;
+  const img = eng.renderPageAt(i, state.zoom * devicePixelRatio);
+  if (!img) return;
+  const canvas = document.createElement('canvas');
+  canvas.className = 'page-preview';
+  canvas.width = img.width;
+  canvas.height = img.height;
+  canvas.getContext('2d').putImageData(new ImageData(img.data, img.width, img.height), 0, 0);
+  slot.el.replaceChildren(canvas);
+  slot.rendered = true;
+}
+
+/** Keeps the continuous layout in step after every render. Cheap when nothing changed. */
+function syncContinuous() {
+  if (!view.continuous) return;
+  const eng = P();
+  if (!eng?.doc) return;
+  if (view.doc !== eng.doc || view.slots.length !== eng.pageCount || view.zoom !== state.zoom) {
+    buildContinuous();
+    return;
+  }
+  const wrap = $('pageWrap');
+  const slot = view.slots[eng.pageIndex];
+  if (wrap.parentElement === slot.el) return;
+  const left = wrap.parentElement?.classList.contains('page-slot') ? +wrap.parentElement.dataset.page : -1;
+  slot.el.replaceChildren(wrap);
+  slot.rendered = false;
+  if (left >= 0 && view.slots[left]) {
+    view.slots[left].el.replaceChildren();
+    view.slots[left].rendered = false;
+    renderPreview(left); // may carry edits made while it was active
+  }
+  if (!view.scrolling) slot.el.scrollIntoView({ block: 'start' });
+}
+
+/** The page whose area covers the middle of the viewport. */
+function pageInView() {
+  const stage = $('stage');
+  const mid = stage.scrollTop + stage.clientHeight / 2;
+  let best = P().pageIndex;
+  for (let i = 0; i < view.slots.length; i++) {
+    const el = view.slots[i].el;
+    if (el.offsetTop <= mid) best = i;
+    else break;
+  }
+  return best;
+}
+
+function activateFromScroll(i) {
+  if (i === P().pageIndex) return;
+  view.scrolling = true;
+  try {
+    goToPage(i);
+  } finally {
+    view.scrolling = false;
+  }
+}
+
+function continuousHandlers() {
+  const stage = $('stage');
+  let timer = 0;
+  stage.addEventListener(
+    'scroll',
+    () => {
+      if (!view.continuous || !P()?.doc) return;
+      clearTimeout(timer);
+      // Switch pages once scrolling settles, and never mid-typing.
+      timer = setTimeout(() => {
+        if (!state.editing) activateFromScroll(pageInView());
+      }, 140);
+    },
+    { passive: true }
+  );
+  // A click on another page makes it the live page right away.
+  stage.addEventListener('pointerdown', (e) => {
+    const slot = e.target.closest?.('.page-slot');
+    if (!view.continuous || !slot || e.target.closest('#pageWrap')) return;
+    endEdit(true);
+    activateFromScroll(+slot.dataset.page);
+  });
+  const btn = document.getElementById('viewMode');
+  const paint = () => {
+    btn?.classList.toggle('on', view.continuous);
+    btn?.setAttribute('aria-pressed', String(view.continuous));
+    if (btn) btn.title = view.continuous ? 'Continuous pages (click for single page)' : 'Single page (click for continuous pages)';
+  };
+  btn?.addEventListener('click', () => {
+    view.continuous = !view.continuous;
+    try {
+      localStorage.setItem(VIEW_PREF, view.continuous ? 'continuous' : 'single');
+    } catch {
+      /* preference just won't persist */
+    }
+    paint();
+    buildContinuous();
+    if (!view.continuous) $('stage').scrollTop = 0;
+  });
+  paint();
+}
+
+// Single-page view: scrolling on past the end of a page turns to the next.
 const EDGE_PUSH = 180; // extra scroll, in px, needed at an edge to turn the page
 const FLIP_COOLDOWN = 450; // ignore trackpad momentum right after a turn
 
@@ -9172,7 +9356,7 @@ function edgePaging() {
   stage.addEventListener(
     'wheel',
     (e) => {
-      if (e.ctrlKey || e.metaKey || !P().doc) return; // pinch / ctrl-zoom
+      if (view.continuous || e.ctrlKey || e.metaKey || !P().doc) return;
       const dir = Math.sign(e.deltaY);
       if (!dir) return;
       const now = Date.now();
@@ -9854,6 +10038,7 @@ function wireUI() {
 
   stagePointHandlers();
   edgePaging();
+  continuousHandlers();
 
   window.addEventListener('keydown', (e) => {
     const meta = e.metaKey || e.ctrlKey;
@@ -9892,7 +10077,7 @@ function wireUI() {
         dir > 0
           ? stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2
           : stage.scrollTop <= 1;
-      if (atEdge && P().doc) {
+      if (atEdge && P().doc && !view.continuous) {
         e.preventDefault();
         flipPage(dir);
       }
