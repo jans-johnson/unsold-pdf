@@ -590,30 +590,6 @@ export default defineConfig(() => {
           'merge-pdf': resolve(__dirname, 'src/pages/merge-pdf.html'),
           'split-pdf': resolve(__dirname, 'src/pages/split-pdf.html'),
           'compress-pdf': resolve(__dirname, 'src/pages/compress-pdf.html'),
-          'compress-pdf-to-100kb': resolve(
-            __dirname,
-            'src/pages/compress-pdf-to-100kb.html'
-          ),
-          'compress-pdf-to-200kb': resolve(
-            __dirname,
-            'src/pages/compress-pdf-to-200kb.html'
-          ),
-          'compress-pdf-to-500kb': resolve(
-            __dirname,
-            'src/pages/compress-pdf-to-500kb.html'
-          ),
-          'compress-pdf-to-1mb': resolve(
-            __dirname,
-            'src/pages/compress-pdf-to-1mb.html'
-          ),
-          'compress-pdf-to-2mb': resolve(
-            __dirname,
-            'src/pages/compress-pdf-to-2mb.html'
-          ),
-          'compress-pdf-for-email': resolve(
-            __dirname,
-            'src/pages/compress-pdf-for-email.html'
-          ),
           'edit-pdf': resolve(__dirname, 'src/pages/edit-pdf.html'),
           'edit-pdf-text': resolve(__dirname, 'src/pages/edit-pdf-text.html'),
           'jpg-to-pdf': resolve(__dirname, 'src/pages/jpg-to-pdf.html'),
