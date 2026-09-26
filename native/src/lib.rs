@@ -147,8 +147,11 @@ pub fn run() {
 
     // A second launch (e.g. double-clicking another PDF) hands its arguments
     // to the running instance instead of opening a new window.
+    let self_test = std::env::args().any(|a| a == "--self-test");
+
+    // Self-test runs always get their own instance.
     #[cfg(desktop)]
-    {
+    if !self_test {
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
             let paths = documents::paths_from_args(&args, Some(std::path::Path::new(&cwd)));
             app.state::<Library>().deliver_opened(app, paths);
@@ -164,7 +167,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .manage(QuitApproved(Default::default()))
-        .manage(SelfTest(std::env::args().any(|a| a == "--self-test")))
+        .manage(SelfTest(self_test))
         .setup(|app| {
             let handle = app.handle().clone();
             app.manage(Library::load(documents::data_dir(&handle)));
