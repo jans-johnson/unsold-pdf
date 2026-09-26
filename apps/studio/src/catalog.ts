@@ -72,6 +72,16 @@ export const NEW_DOCUMENT_TOOLS = new Set([
   'pdf-to-pdfa',
 ]);
 
+/** Tools that need more files than the open document, so keep their upload area. */
+export const MULTI_INPUT_TOOLS = new Set([
+  'merge-pdf',
+  'alternate-merge',
+  'compare-pdfs',
+  'overlay-pdf',
+  'bates-numbering',
+  'pdf-to-zip',
+]);
+
 const NO_PDF_INPUT = new Set([
   'pdf-workflow',
   'markdown-to-pdf',
@@ -79,35 +89,6 @@ const NO_PDF_INPUT = new Set([
 ]);
 export const takesPdf = (id: string) =>
   !NO_PDF_INPUT.has(id) && tool(id)?.category !== 'Convert to PDF';
-
-export type Shortcut = [toolId: string, label: string, icon: string];
-
-export const RECOMMENDED: Shortcut[] = [
-  ['edit-pdf', 'Comment & annotate', 'ph-chat-circle-text'],
-  ['edit-pdf-text', 'Edit text', 'ph-cursor-text'],
-  ['pdf-to-word', 'Export a PDF', 'ph-export'],
-  ['word-to-pdf', 'Create a PDF', 'ph-file-plus'],
-  ['merge-pdf', 'Combine files', 'ph-browsers'],
-  ['organize-pdf', 'Organize pages', 'ph-files'],
-  ['sign-pdf', 'Fill & Sign', 'ph-pen-nib'],
-  ['compress-pdf', 'Compress a PDF', 'ph-arrows-in'],
-  ['ocr-pdf', 'Scan & OCR', 'ph-scan'],
-  ['protect-pdf', 'Protect a PDF', 'ph-lock-key'],
-];
-
-export const QUICK_RAIL: (Shortcut | null)[] = [
-  ['edit-pdf', 'Comment & annotate', 'ph-chat-circle-text'],
-  ['edit-pdf-text', 'Edit text & images', 'ph-cursor-text'],
-  ['sign-pdf', 'Fill & Sign', 'ph-pen-nib'],
-  ['form-filler', 'Fill form', 'ph-textbox'],
-  ['add-stamps', 'Stamp', 'ph-stamp'],
-  null,
-  ['organize-pdf', 'Organize pages', 'ph-files'],
-  ['compress-pdf', 'Compress', 'ph-arrows-in'],
-  ['ocr-pdf', 'Recognize text (OCR)', 'ph-scan'],
-  ['protect-pdf', 'Protect', 'ph-lock-key'],
-  ['pdf-to-word', 'Export to Word', 'ph-file-doc'],
-];
 
 const EXT_ALIASES: Record<string, string> = {
   jpeg: 'jpg',

@@ -1,29 +1,20 @@
+import { $, formatBytes, h, icon, locationOf, timeAgo } from './dom.ts';
 import {
-  $,
-  formatBytes,
-  h,
-  icon,
-  locationOf,
-  storage,
-  store,
-  timeAgo,
-} from './dom.ts';
-import {
-  CATEGORIES,
-  CATEGORY_STYLE,
-  POPULAR,
+  GROUPS,
   QUICK_RAIL,
   RECOMMENDED,
-  tool,
+  resolve,
+  searchText,
   type Shortcut,
-  type Tool,
-} from './catalog.ts';
+  type Task,
+} from './tasks.ts';
 import type { Studio } from './studio.ts';
 import { toast } from './ui/feedback.ts';
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-const matches = (q: string) => (t: Tool) =>
-  !q || `${t.name} ${t.subtitle}`.toLowerCase().includes(q);
+const matches = (q: string) => (t: Task) => !q || searchText(t).includes(q);
+const taskIcon = (t: { color: string; icon: string }, cls: string) =>
+  h('span', { class: cls, style: `background:${t.color}` }, icon(t.icon));
 
 // ------------------------------------------------------------------ home
 
@@ -38,19 +29,19 @@ export function mountHome(studio: Studio) {
       : 'computer'
   }. Your files never leave it.`;
 
-  const recCard = ([id, label, ic]: Shortcut) => {
-    const t = tool(id);
-    return t
+  const recCard = ([target, label, ic]: Shortcut) => {
+    const r = resolve(target);
+    return r
       ? h(
           'button',
-          { class: 'rec-card', onclick: () => studio.openToolTab(id) },
+          { class: 'rec-card', onclick: () => studio.openToolTab(target) },
           h(
             'div',
-            { class: 'rec-icon', style: `background:${t.color}` },
+            { class: 'rec-icon', style: `background:${r.task.color}` },
             icon(ic)
           ),
           h('strong', {}, label),
-          h('span', {}, t.subtitle)
+          h('span', {}, r.task.summary)
         )
       : null;
   };
@@ -159,39 +150,61 @@ export function mountToolsView(studio: Studio) {
   const render = () => {
     const q = $<HTMLInputElement>('#tools-search').value.trim().toLowerCase();
     const match = matches(q);
-    const sections: HTMLElement[] = [];
-    const seen = new Set<string>();
-    for (const cat of CATEGORIES) {
-      const tools = cat.tools.filter((t) => match(t) && !(q && seen.has(t.id)));
-      tools.forEach((t) => seen.add(t.id));
-      if (!tools.length) continue;
-      sections.push(
-        h('h2', { id: `cat-${slug(cat.name)}` }, cat.name),
+    const sections = GROUPS.flatMap((group) => {
+      const tasks = group.tasks.filter(match);
+      if (!tasks.length) return [];
+      return [
+        h('h2', { id: `group-${slug(group.name)}` }, group.name),
         h(
           'div',
-          { class: 'tool-grid' },
-          tools.map((t) =>
+          { class: 'task-grid' },
+          tasks.map((task) =>
             h(
-              'button',
+              'div',
               {
-                class: 'tool-card',
-                title: t.subtitle,
-                onclick: () => studio.openToolTab(t.id),
+                class: 'task-card',
+                role: 'button',
+                tabindex: '0',
+                onclick: () => studio.openToolTab(task.id),
+                onkeydown: (e: KeyboardEvent) => {
+                  if (e.key === 'Enter') studio.openToolTab(task.id);
+                },
               },
               h(
                 'div',
-                {
-                  class: 't-icon',
-                  style: `background:${tool(t.id)?.color ?? '#555'}`,
-                },
-                icon(t.icon)
+                { class: 'task-card-head' },
+                taskIcon(task, 't-icon'),
+                h(
+                  'div',
+                  {},
+                  h('strong', {}, task.name),
+                  h('span', {}, task.summary)
+                )
               ),
-              h('div', {}, h('strong', {}, t.name), h('span', {}, t.subtitle))
+              task.modes.length > 1
+                ? h(
+                    'div',
+                    { class: 'chips' },
+                    task.modes.map((m) =>
+                      h(
+                        'button',
+                        {
+                          class: 'chip',
+                          onclick: (e: Event) => {
+                            e.stopPropagation();
+                            studio.openToolTab(m.tool);
+                          },
+                        },
+                        m.label
+                      )
+                    )
+                  )
+                : null
             )
           )
-        )
-      );
-    }
+        ),
+      ];
+    });
     $('#tools-main').replaceChildren(
       ...(sections.length
         ? sections
@@ -200,23 +213,24 @@ export function mountToolsView(studio: Studio) {
               'div',
               { class: 'empty' },
               icon('ph-magnifying-glass'),
-              `No tools match “${q}”`
+              `Nothing matches “${q}”`
             ),
           ])
     );
     $('#tools-cats').replaceChildren(
-      ...CATEGORIES.map((cat) =>
+      ...GROUPS.map((group) =>
         h(
           'button',
           {
             class: 'cat-link',
             onclick: () =>
               document
-                .getElementById(`cat-${slug(cat.name)}`)
+                .getElementById(`group-${slug(group.name)}`)
                 ?.scrollIntoView({ behavior: 'smooth' }),
           },
-          cat.name,
-          h('small', {}, cat.tools.filter(match).length)
+          h('span', { class: 'cat-dot', style: `background:${group.color}` }),
+          group.name,
+          h('small', {}, group.tasks.filter(match).length)
         )
       )
     );
@@ -231,14 +245,14 @@ export function mountDocumentPanes(studio: Studio) {
   $('#quick-rail').replaceChildren(
     ...QUICK_RAIL.map((item) => {
       if (!item) return h('div', { class: 'rail-sep' });
-      const [id, label, ic] = item;
+      const [target, label, ic] = item;
       return h(
         'button',
         {
           class: 'rail-btn',
           'data-tip': label,
-          dataset: { tool: id },
-          onclick: () => studio.runTool(id),
+          dataset: { target },
+          onclick: () => studio.runTool(target),
         },
         icon(ic)
       );
@@ -255,66 +269,29 @@ export function mountDocumentPanes(studio: Studio) {
     )
   );
 
-  const openCats = new Set<string>(
-    JSON.parse(
-      storage('openCats') ?? '["Edit & Annotate","Organize & Manage"]'
-    ) as string[]
-  );
   const renderList = () => {
     const q = $<HTMLInputElement>('#pane-search').value.trim().toLowerCase();
     const match = matches(q);
     $('#pane-list').replaceChildren(
-      ...CATEGORIES.filter((c) => c.name !== POPULAR).flatMap((cat) => {
-        const tools = cat.tools.filter(match);
-        if (!tools.length) return [];
-        const style = CATEGORY_STYLE[cat.name] ?? {
-          color: '#555',
-          icon: 'ph-wrench',
-        };
-        const el = h(
-          'div',
-          { class: `pane-cat${q || openCats.has(cat.name) ? ' open' : ''}` },
-          h(
-            'button',
-            {
-              onclick: () => {
-                el.classList.toggle('open');
-                if (el.classList.contains('open')) openCats.add(cat.name);
-                else openCats.delete(cat.name);
-                store('openCats', JSON.stringify([...openCats]));
-              },
-            },
+      ...GROUPS.flatMap((group) => {
+        const tasks = group.tasks.filter(match);
+        if (!tasks.length) return [];
+        return [
+          h('div', { class: 'pane-group' }, group.name),
+          ...tasks.map((task) =>
             h(
-              'span',
-              { class: 'cat-icon', style: `background:${style.color}` },
-              icon(style.icon)
-            ),
-            cat.name,
-            icon('ph-caret-right', 'ph caret')
-          ),
-          h(
-            'ul',
-            {},
-            tools.map((t) =>
-              h(
-                'li',
-                {},
-                h(
-                  'button',
-                  {
-                    class: 'pane-tool',
-                    title: t.subtitle,
-                    dataset: { tool: t.id },
-                    onclick: () => studio.runTool(t.id),
-                  },
-                  icon(t.icon),
-                  t.name
-                )
-              )
+              'button',
+              {
+                class: 'pane-tool',
+                title: task.summary,
+                dataset: { task: task.id },
+                onclick: () => studio.runTool(task.id),
+              },
+              taskIcon(task, 'pane-icon'),
+              task.name
             )
-          )
-        );
-        return [el];
+          ),
+        ];
       })
     );
     studio.syncChrome();

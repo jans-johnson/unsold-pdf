@@ -1,9 +1,11 @@
-import { h } from './dom.ts';
+import { h, icon } from './dom.ts';
 import { hasTool, tool } from './catalog.ts';
 
 export interface FrameFile {
   name: string;
   data: Uint8Array;
+  /** The tool works on just this file: hide its own upload step. */
+  only?: boolean;
 }
 
 export interface FrameEvents {
@@ -23,6 +25,14 @@ const FRAME_CSS = `
   }
   html, body { background: #222 !important; }
   #uploader { min-height: 100% !important; }
+  /* The Studio header already names the task and mode. */
+  h1[data-i18n^="tools:"],
+  p[data-i18n^="tools:"][data-i18n$=".subtitle"],
+  h1:has(~ #drop-zone),
+  h1:has(~ #drop-zone) + p { display: none !important; }
+  /* The open document was handed in: no upload step for single-file tools. */
+  html.ua-doc-loaded #drop-zone,
+  html.ua-doc-loaded #file-display-area { display: none !important; }
 `;
 
 const toolIdOf = (pathname: string) =>
@@ -131,7 +141,55 @@ async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
     input.files = dt.files;
     input.dispatchEvent(new win.Event('input', { bubbles: true }));
     input.dispatchEvent(new win.Event('change', { bubbles: true }));
+    if (file.only) {
+      iframe.contentDocument?.documentElement.classList.add('ua-doc-loaded');
+    }
   } catch (err) {
     console.warn('File injection failed', err);
   }
+}
+
+/**
+ * Create PDF's "from files" mode: one place to drop or pick any supported
+ * file; each file is routed to the right converter.
+ */
+export function mountCreatePanel(
+  wrap: HTMLElement,
+  opts: { pick: () => void; formats: string[] }
+) {
+  wrap.replaceChildren(
+    h(
+      'div',
+      { class: 'create-panel' },
+      h(
+        'div',
+        { class: 'create-drop' },
+        icon('ph-file-arrow-up', 'ph create-icon'),
+        h('h2', {}, 'Turn files into a PDF'),
+        h(
+          'p',
+          { class: 'muted' },
+          'Drop files anywhere in this window, or choose them. Each file is converted with the right tool automatically.'
+        ),
+        h(
+          'button',
+          { class: 'btn primary lg', onclick: opts.pick },
+          icon('ph-folder-open'),
+          'Choose files'
+        )
+      ),
+      h(
+        'div',
+        { class: 'create-formats' },
+        h('h3', {}, 'Works with'),
+        h(
+          'div',
+          { class: 'chips' },
+          ['Images', ...opts.formats].map((f) =>
+            h('span', { class: 'chip' }, f)
+          )
+        )
+      )
+    )
+  );
 }

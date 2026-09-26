@@ -2,9 +2,12 @@ import type { PdfDocument } from './pdf.ts';
 import type { Viewer } from './viewer.ts';
 
 export interface RunningTool {
+  /** Tool page (mode) currently shown. */
   id: string;
+  taskId: string;
   layer: HTMLElement;
-  frame: HTMLIFrameElement;
+  /** `null` for modes the Studio renders itself. */
+  frame: HTMLIFrameElement | null;
 }
 
 export interface DocTab {
@@ -33,9 +36,10 @@ export interface DocTab {
 export interface ToolTab {
   kind: 'tool';
   id: string;
+  taskId: string;
   toolId: string;
   stageEl: HTMLElement;
-  frame: HTMLIFrameElement;
+  frame: HTMLIFrameElement | null;
 }
 
 export type Tab = DocTab | ToolTab;

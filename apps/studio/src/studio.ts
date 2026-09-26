@@ -2,12 +2,12 @@ import type { HostBridge, OpenedDocument } from '@unacrobat/bridge';
 import { $, h, icon, isPdfBytes, nextId, storage, store } from './dom.ts';
 import {
   converterFor,
-  hasTool,
+  MULTI_INPUT_TOOLS,
   NEW_DOCUMENT_TOOLS,
   takesPdf,
   tool,
 } from './catalog.ts';
-import { mountToolFrame, type FrameFile } from './frames.ts';
+import { mountCreatePanel, mountToolFrame, type FrameFile } from './frames.ts';
 import {
   highlightThumb,
   printDocument,
@@ -17,6 +17,13 @@ import {
 import { DOCUMENT_OPTIONS, pdfjs } from './pdf.ts';
 import { HISTORY_LIMIT, type DocTab, type Tab, type ToolTab } from './tabs.ts';
 import { askPassword, confirmUnsaved, popMenu, toast } from './ui/feedback.ts';
+import {
+  convertibleFormats,
+  CREATE_FROM_FILES,
+  modeLabel,
+  resolve,
+  type Resolved,
+} from './tasks.ts';
 import { createViewer, find } from './viewer.ts';
 
 type View = 'home' | 'tools';
@@ -53,7 +60,8 @@ export class Studio {
     wrap.replaceChildren(
       ...this.tabs.map((t) => {
         const isDoc = t.kind === 'doc';
-        const label = isDoc ? t.name : (tool(t.toolId)?.name ?? t.toolId);
+        const task = isDoc ? null : resolve(t.taskId)?.task;
+        const label = isDoc ? t.name : (task?.name ?? t.taskId);
         return h(
           'div',
           {
@@ -69,7 +77,7 @@ export class Studio {
           },
           isDoc
             ? icon('ph-file-pdf', 'ph-fill tab-icon-pdf')
-            : icon(tool(t.toolId)?.icon ?? 'ph-wrench', 'ph tab-icon-tool'),
+            : icon(task?.icon ?? 'ph-wrench', 'ph tab-icon-tool'),
           h('span', { class: 'tab-name' }, label),
           isDoc && t.dirty
             ? h('span', { class: 'dirty-dot', title: 'Unsaved changes' })
@@ -106,7 +114,7 @@ export class Studio {
     const title = tab
       ? tab.kind === 'doc'
         ? tab.name
-        : tool(tab.toolId)?.name
+        : resolve(tab.taskId)?.task.name
       : id === 'tools'
         ? 'All tools'
         : 'Home';
@@ -408,65 +416,168 @@ export class Studio {
 
   // ------------------------------------------------------------------ tools
 
-  private toolHeader(toolId: string, subtitle: string, onClose?: () => void) {
-    const t = tool(toolId)!;
-    return h(
+  /**
+   * The header + content area for a running task. Switching modes swaps the
+   * tool page in place; the Studio's own "from files" picker is a mode too.
+   */
+  private buildSurface(
+    start: Resolved,
+    opts: {
+      subtitle: string;
+      file?: FrameFile;
+      onClose?: () => void;
+      onLeave: () => void;
+      /** Return false to handle the switch elsewhere (e.g. a tool that needs no PDF). */
+      onSwitch?: (toolId: string) => boolean;
+      onMount: (toolId: string, frame: HTMLIFrameElement | null) => void;
+    }
+  ): HTMLElement {
+    const { task } = start;
+    const wrap = h('div', { class: 'tool-frame-wrap' });
+    const modes = task.modes.some((m) => m.tool === start.tool)
+      ? task.modes
+      : [{ tool: start.tool, label: modeLabel(start) }, ...task.modes];
+
+    const mount = (toolId: string) => {
+      const frame =
+        toolId === CREATE_FROM_FILES
+          ? (mountCreatePanel(wrap, {
+              pick: async () => this.openFiles(await this.host.pickDocuments()),
+              formats: convertibleFormats(),
+            }),
+            null)
+          : mountToolFrame(
+              wrap,
+              toolId,
+              opts.file && {
+                ...opts.file,
+                only: opts.file.only && !MULTI_INPUT_TOOLS.has(toolId),
+              },
+              {
+                onLeave: opts.onLeave,
+                onOpenTool: (id) => this.openToolTab(id),
+              }
+            );
+      opts.onMount(toolId, frame);
+      switcher
+        .querySelectorAll<HTMLElement>('[data-mode]')
+        .forEach((b) => b.classList.toggle('on', b.dataset.mode === toolId));
+      const select = switcher.querySelector('select');
+      if (select) select.value = toolId;
+    };
+    const choose = (toolId: string) => {
+      if (opts.onSwitch && !opts.onSwitch(toolId)) return;
+      mount(toolId);
+    };
+
+    const switcher =
+      modes.length <= 1
+        ? h('div')
+        : modes.length <= 6
+          ? h(
+              'div',
+              { class: 'mode-switch', role: 'tablist' },
+              modes.map((m) =>
+                h(
+                  'button',
+                  {
+                    class: 'mode-btn',
+                    role: 'tab',
+                    dataset: { mode: m.tool },
+                    title: tool(m.tool)?.subtitle ?? '',
+                    onclick: () => choose(m.tool),
+                  },
+                  m.label
+                )
+              )
+            )
+          : h(
+              'label',
+              { class: 'mode-select' },
+              h('span', {}, task.modePicker ?? 'Mode'),
+              h(
+                'select',
+                {
+                  onchange: (e: Event) =>
+                    choose((e.target as HTMLSelectElement).value),
+                },
+                modes.map((m) => h('option', { value: m.tool }, m.label))
+              )
+            );
+
+    const header = h(
       'div',
       { class: 'tool-header' },
       h(
         'div',
-        { class: 't-icon', style: `background:${t.color}` },
-        icon(t.icon)
+        { class: 't-icon', style: `background:${task.color}` },
+        icon(task.icon)
       ),
       h(
         'div',
-        { style: 'min-width:0' },
-        h('div', { class: 't-title' }, t.name),
-        h('div', { class: 't-sub' }, subtitle)
+        { class: 't-head' },
+        h('div', { class: 't-title' }, task.name),
+        h('div', { class: 't-sub' }, opts.subtitle)
       ),
+      switcher,
       h('div', { class: 'spacer' }),
-      onClose
+      opts.onClose
         ? h(
             'button',
-            { class: 'btn sm', onclick: onClose },
+            { class: 'btn sm', onclick: opts.onClose },
             icon('ph-x'),
-            'Close tool'
+            'Close'
           )
         : null
     );
+    const layer = h('div', { class: 'tab-stage' }, header, wrap);
+    mount(start.tool);
+    return layer;
   }
 
-  runTool(toolId: string) {
+  /** Runs a task or tool: on the open document if there is one, else in its own tab. */
+  runTool(id: string) {
     const tab = this.activeDoc();
-    if (tab) this.runToolOnDoc(tab, toolId);
-    else this.openToolTab(toolId);
+    if (tab) this.runToolOnDoc(tab, id);
+    else this.openToolTab(id);
   }
 
-  runToolOnDoc(tab: DocTab, toolId: string) {
-    if (!takesPdf(toolId)) return this.openToolTab(toolId);
+  runToolOnDoc(tab: DocTab, id: string) {
+    const resolved = resolve(id);
+    if (!resolved) return;
+    if (!takesPdf(resolved.tool)) return this.openToolTab(id);
     if (tab.tool) this.closeTool(tab);
-    const wrap = h('div', { class: 'tool-frame-wrap' });
-    const layer = h(
-      'div',
-      { class: 'tab-stage' },
-      this.toolHeader(
-        toolId,
-        `Working on “${tab.name}” · Results come back into this document`,
-        () => this.closeTool(tab)
-      ),
-      wrap
-    );
-    tab.viewerLayer.hidden = true;
-    tab.stageEl.append(layer);
     const file = {
       name: tab.name.endsWith('.pdf') ? tab.name : `${tab.name}.pdf`,
       data: tab.bytes,
+      only: true,
     };
-    const frame = mountToolFrame(wrap, toolId, file, {
+    // The first mount happens while buildSurface runs, before `layer` exists.
+    let shown: { id: string; frame: HTMLIFrameElement | null } = {
+      id: resolved.tool,
+      frame: null,
+    };
+    const layer = this.buildSurface(resolved, {
+      subtitle: `Working on “${tab.name}” · results come back into this document`,
+      file,
+      onClose: () => this.closeTool(tab),
       onLeave: () => this.closeTool(tab),
-      onOpenTool: (id) => this.openToolTab(id),
+      onSwitch: (toolId) => {
+        if (takesPdf(toolId)) return true;
+        this.openToolTab(toolId);
+        return false;
+      },
+      onMount: (toolId, frame) => {
+        shown = { id: toolId, frame };
+        if (!tab.tool) return;
+        tab.tool.id = toolId;
+        tab.tool.frame = frame;
+        if (tab === this.activeTab()) this.syncChrome();
+      },
     });
-    tab.tool = { id: toolId, layer, frame };
+    tab.tool = { ...shown, taskId: resolved.task.id, layer };
+    tab.viewerLayer.hidden = true;
+    tab.stageEl.append(layer);
     this.syncChrome();
   }
 
@@ -478,31 +589,43 @@ export class Studio {
     if (tab === this.activeTab()) this.syncChrome();
   }
 
-  openToolTab(toolId: string, file?: FrameFile) {
-    if (!hasTool(toolId)) return;
+  openToolTab(id: string, file?: FrameFile) {
+    const resolved = resolve(id);
+    if (!resolved) return;
     if (!file) {
       const existing = this.tabs.find(
-        (t) => t.kind === 'tool' && t.toolId === toolId
+        (t): t is ToolTab => t.kind === 'tool' && t.taskId === resolved.task.id
       );
-      if (existing) return this.activate(existing.id);
+      if (existing) {
+        this.activate(existing.id);
+        if (existing.toolId !== resolved.tool && id !== resolved.task.id) {
+          existing.stageEl
+            .querySelector<HTMLElement>(`[data-mode="${resolved.tool}"]`)
+            ?.click();
+        }
+        return;
+      }
     }
-    const id = nextId();
-    const wrap = h('div', { class: 'tool-frame-wrap' });
-    const stageEl = h(
-      'div',
-      { class: 'tab-stage' },
-      this.toolHeader(toolId, tool(toolId)!.subtitle),
-      wrap
-    );
-    $('#stage').append(stageEl);
-    const frame = mountToolFrame(wrap, toolId, file, {
-      onLeave: () => {
-        const self = this.tabs.find((t) => t.id === id);
-        if (self) void this.closeTab(self);
+    const tabId = nextId();
+    const tab: ToolTab = {
+      kind: 'tool',
+      id: tabId,
+      taskId: resolved.task.id,
+      toolId: resolved.tool,
+      stageEl: h('div'),
+      frame: null,
+    };
+    tab.stageEl = this.buildSurface(resolved, {
+      subtitle: file ? `Converting “${file.name}”` : resolved.task.summary,
+      file,
+      onLeave: () => void this.closeTab(tab),
+      onMount: (toolId, frame) => {
+        tab.toolId = toolId;
+        tab.frame = frame;
+        if (tab === this.activeTab()) this.syncChrome();
       },
-      onOpenTool: (other) => this.openToolTab(other),
     });
-    const tab: ToolTab = { kind: 'tool', id, toolId, stageEl, frame };
+    $('#stage').append(tab.stageEl);
     this.tabs.push(tab);
     this.activate(tab.id);
   }
@@ -514,10 +637,11 @@ export class Studio {
 
     const origin = this.tabs.find(
       (t): t is DocTab =>
-        t.kind === 'doc' && t.tool?.frame.contentWindow === source
+        t.kind === 'doc' && t.tool?.frame?.contentWindow === source
     );
     if (origin?.tool && !NEW_DOCUMENT_TOOLS.has(origin.tool.id)) {
-      const name = tool(origin.tool.id)?.name ?? 'Tool';
+      const ran = resolve(origin.tool.id);
+      const name = ran ? `${ran.task.name} (${modeLabel(ran)})` : 'Tool';
       this.closeTool(origin); // the viewer must be visible before it reloads
       this.applyEdit(origin, output.data);
       this.activate(origin.id);
@@ -566,18 +690,20 @@ export class Studio {
     const showPanel = !!doc && !!this.panel;
     $('#side-panel').hidden = !showPanel;
     $('#right-rail').hidden = !doc;
-    const runningTool = doc?.tool?.id;
+    const running =
+      doc?.tool ??
+      (tab?.kind === 'tool' ? { id: tab.toolId, taskId: tab.taskId } : null);
+    const isRunning = (target?: string) =>
+      !!running && (target === running.taskId || target === running.id);
     document
       .querySelectorAll<HTMLElement>('#right-rail .rail-btn')
       .forEach((b) => b.classList.toggle('on', b.dataset.panel === this.panel));
     document
       .querySelectorAll<HTMLElement>('#quick-rail .rail-btn')
-      .forEach((b) => b.classList.toggle('on', b.dataset.tool === runningTool));
+      .forEach((b) => b.classList.toggle('on', isRunning(b.dataset.target)));
     document
       .querySelectorAll<HTMLElement>('#pane-list .pane-tool')
-      .forEach((b) =>
-        b.classList.toggle('active', b.dataset.tool === runningTool)
-      );
+      .forEach((b) => b.classList.toggle('active', isRunning(b.dataset.task)));
     if (showPanel) void renderPanel(doc, this.panel!, this.panelActions);
     if (doc?.viewer) {
       this.syncPageUI();
