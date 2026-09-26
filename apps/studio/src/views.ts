@@ -253,6 +253,8 @@ export function mountToolsView(studio: Studio) {
 // ------------------------------------------------------------------ document panes
 
 export function mountDocumentPanes(studio: Studio) {
+  const mobile =
+    studio.host.platform === 'android' || studio.host.platform === 'ios';
   $('#quick-rail').replaceChildren(
     ...QUICK_RAIL.map((item) => {
       if (!item) return h('div', { class: 'rail-sep' });
@@ -303,7 +305,20 @@ export function mountDocumentPanes(studio: Studio) {
             )
           ),
         ];
-      })
+      }),
+      // A quiet way to say thanks, at the very end of the list only.
+      q || mobile
+        ? ''
+        : h(
+            'button',
+            {
+              class: 'pane-support',
+              title: 'Unsold is free. If it helps you, buy me a coffee.',
+              onclick: () => void studio.host.openExternal(SUPPORT_URL),
+            },
+            icon('ph-coffee'),
+            'Support Unsold'
+          )
     );
     studio.syncChrome();
   };
