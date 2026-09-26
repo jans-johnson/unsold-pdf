@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { flattenFreeTextToPageText } from '@/js/utils/freetext-flatten';
 import type { FreeTextSystemFontAnnotation } from '@/types';
 import {
@@ -118,8 +118,8 @@ describe('flattening FreeText annotations into page text', () => {
 
   it('keeps Czech and Croatian letters when no system font is available', async () => {
     const font = readFileSync(
-      resolve(
-        'node_modules/pdfjs-dist/standard_fonts/LiberationSans-Regular.ttf'
+      createRequire(import.meta.url).resolve(
+        'pdfjs-dist/standard_fonts/LiberationSans-Regular.ttf'
       )
     );
     const fetchFont = vi.fn(async () => new Response(font));

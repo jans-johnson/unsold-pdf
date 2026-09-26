@@ -19,7 +19,8 @@ function resolveWasmUrl() {
   }
   const resolve = import.meta.resolve;
   if (typeof resolve !== 'function') return null;
-  return new URL(resolve('unsold-pdfium/editcore.wasm')).pathname;
+  // A file URL's pathname keeps spaces encoded (%20); the file system needs them decoded.
+  return decodeURIComponent(new URL(resolve('unsold-pdfium/editcore.wasm')).pathname);
 }
 
 const wasmUrl = resolveWasmUrl();
