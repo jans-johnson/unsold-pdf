@@ -5,7 +5,6 @@ import https from 'https';
 import type { Connect, Plugin } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import viteCompression from 'vite-plugin-compression';
 import handlebars from 'vite-plugin-handlebars';
 import { resolve } from 'path';
 import fs from 'fs';
@@ -533,30 +532,6 @@ export default defineConfig(() => {
           global: false,
           process: true,
         },
-      }),
-      viteCompression({
-        algorithm: 'brotliCompress',
-        ext: '.br',
-        threshold: 1024,
-        filter: /\.(js|mjs|json|css|html|wasm|svg)$/i,
-        compressionOptions: {
-          params: {
-            [zlibConstants.BROTLI_PARAM_QUALITY]: 11,
-            [zlibConstants.BROTLI_PARAM_MODE]:
-              zlibConstants.BROTLI_MODE_GENERIC,
-          },
-        },
-        deleteOriginFile: false,
-      }),
-      viteCompression({
-        algorithm: 'gzip',
-        ext: '.gz',
-        threshold: 1024,
-        filter: /\.(js|mjs|json|css|html|wasm|svg)$/i,
-        compressionOptions: {
-          level: 9,
-        },
-        deleteOriginFile: false,
       }),
     ],
     define: {

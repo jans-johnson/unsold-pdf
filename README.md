@@ -1,15 +1,27 @@
 # UnAcrobat
 
-A private, offline PDF workbench for macOS: view, edit, annotate, sign,
-convert, organise, compress, OCR and protect PDFs. Every tool runs locally.
+A private, offline PDF workbench: view, edit, annotate, sign, convert,
+organise, compress, OCR and protect PDFs. Every tool runs on the device.
 
-- `src/`, `public/`: the PDF tools (Vite + TypeScript), one page per tool.
-- `desktop/`: the macOS app (Electron), with an Acrobat-style workspace. See
-  `desktop/README.md`.
+Targets Windows, Linux, macOS, Android and iOS from one codebase. See
+[`docs/ROADMAP.md`](docs/ROADMAP.md) for the architecture and migration plan.
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `apps/tools/` | The PDF tools: one page per tool plus the processing logic (Vite + TypeScript) |
+| `apps/studio/` | The app UI every platform loads: home, document tabs, viewer, tools pane |
+| `packages/bridge/` | `HostBridge`: the only way UI code reaches the OS (files, dialogs, network) |
+| `native/` | Tauri 2 shell for desktop and mobile |
+| `scripts/` | Build orchestration (`engines.mjs` unpacks the WASM engines into `build/engines/`) |
+
+## Develop
 
 ```bash
-npm ci
-cd desktop && npm install && npm run dist   # -> desktop/release/UnAcrobat-*.dmg
+npm install
+npm run test          # all workspaces
+npm run build -w @unacrobat/tools
 ```
 
-Licensed under the GNU AGPL v3. See `LICENSE` and `NOTICE.md`.
+Licensed under the GNU AGPL v3. See `LICENSE`.

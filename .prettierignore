@@ -1,4 +1,10 @@
 # Handlebars partials with template syntax inside HTML attributes
-src/partials/footer.html
+apps/tools/src/partials/footer.html
 
-blog/posts/
+apps/tools/public/
+apps/tools/vendor/
+/build/
+native/target/
+native/gen/
+native/www/
+**/dist/

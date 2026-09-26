@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { createRequire } from 'node:module';
 import createModule from '@neslinesli93/qpdf-wasm';
 import { PDFDocument } from 'pdf-lib';
 import type { QpdfInstanceExtended } from '@/types';
@@ -254,9 +254,8 @@ describe('split modes end-to-end with real qpdf', () => {
 
   beforeAll(async () => {
     const wasmBinary = fs.readFileSync(
-      path.resolve(
-        process.cwd(),
-        'node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.wasm'
+      createRequire(import.meta.url).resolve(
+        '@neslinesli93/qpdf-wasm/dist/qpdf.wasm'
       )
     );
     qpdf = await (
