@@ -15,12 +15,23 @@ const until = async (test: () => boolean, ms: number) => {
   return false;
 };
 
+/** Each check gets its own deadline, so a hang is reported by name. */
+const CHECK_TIMEOUT_MS = 25_000;
+
 async function check(
   name: string,
   run: () => Promise<boolean | string>
 ): Promise<SelfTestCheck> {
   try {
-    const result = await run();
+    const result = await Promise.race([
+      run(),
+      new Promise<string>((resolve) =>
+        setTimeout(
+          () => resolve(`timed out after ${CHECK_TIMEOUT_MS / 1000}s`),
+          CHECK_TIMEOUT_MS
+        )
+      ),
+    ]);
     return result === true
       ? { name, ok: true }
       : { name, ok: false, detail: String(result) };
