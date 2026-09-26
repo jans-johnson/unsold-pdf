@@ -1,0 +1,6 @@
+node_modules/
+release/
+wasm/
+shell/generated/
+shell/vendor/
+build/icon.png
