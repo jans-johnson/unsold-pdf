@@ -2459,3 +2459,63 @@
   border-color: var(--ecaccent);
   color: #fff;
 }
+
+/* Text in a selected image */
+#text-editor-app #contextbar .btn.labeled {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  width: auto;
+}
+#text-editor-app #contextbar .btn.labeled span {
+  font-size: 12.5px;
+}
+#text-editor-app #imgTextOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  background: rgba(10, 14, 22, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#text-editor-app #imgTextModal {
+  width: 520px;
+  max-width: calc(100vw - 48px);
+  padding: 18px 20px;
+  background: var(--ecpanel);
+  border: 1px solid var(--ecline);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#text-editor-app #imgTextModal textarea {
+  width: 100%;
+  min-height: 180px;
+  max-height: 50vh;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid var(--ecline);
+  border-radius: 8px;
+  background: var(--ecbg);
+  color: var(--ectext);
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+#text-editor-app #imgTextModal .hint {
+  margin: 0;
+  color: var(--ecmuted);
+  font-size: 12px;
+}
+#text-editor-app #imgTextModal .foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+#text-editor-app #imgTextModal .btn.primary {
+  background: var(--ecaccent);
+  border-color: var(--ecaccent);
+  color: #fff;
+}

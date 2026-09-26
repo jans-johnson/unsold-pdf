@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { backgroundAround, eraseWords, inkOf } from '../js/editcore/scan-text.js';
+import {
+  backgroundAround,
+  eraseWords,
+  inkOf,
+  SERIF_CONTRAST,
+  strokeContrast,
+  strokeWidth,
+} from '../js/editcore/scan-text.js';
 
 /** A 40x20 cream "page" with a dark 10x6 "word" at (15,7). */
 function scanImage() {
@@ -32,5 +39,34 @@ describe('scanned text helpers', () => {
       Array.from(img.data.slice((y * img.width + x) * 4, (y * img.width + x) * 4 + 3));
     expect(px(20, 10)).toEqual([250, 248, 240]);
     expect(px(2, 2)).toEqual([250, 248, 240]);
+  });
+});
+
+/** Letter-like marks: vertical stems `stem` px wide joined by bars `bar` px tall. */
+function glyphs(stem: number, bar: number) {
+  const width = 200,
+    height = 60;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0; i < data.length; i += 4) data.set([255, 255, 255, 255], i);
+  const ink = (x: number, y: number) => data.set([0, 0, 0, 255], (y * width + x) * 4);
+  for (let g = 0; g < 8; g++) {
+    const left = 10 + g * 22;
+    for (let y = 10; y < 50; y++) for (let x = left; x < left + stem; x++) ink(x, y);
+    for (let y = 28; y < 28 + bar; y++) for (let x = left; x < left + 16; x++) ink(x, y);
+  }
+  return { data, width, height };
+}
+const box = { x0: 5, y0: 5, x1: 195, y1: 55 };
+
+describe('font weight and style from strokes', () => {
+  it('measures stem thickness', () => {
+    expect(strokeWidth(glyphs(6, 6), box, [255, 255, 255])).toBe(6);
+  });
+
+  it('tells high-contrast (serif-like) from even (sans-like) strokes', () => {
+    const serif = strokeContrast(glyphs(6, 2), box, [255, 255, 255], [0, 0, 0], 40);
+    const sans = strokeContrast(glyphs(6, 6), box, [255, 255, 255], [0, 0, 0], 40);
+    expect(serif).toBeLessThan(SERIF_CONTRAST);
+    expect(sans).toBeGreaterThan(SERIF_CONTRAST);
   });
 });

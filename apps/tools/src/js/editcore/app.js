@@ -20,9 +20,12 @@ import {
   eraseWords,
   fitLine,
   inkOf,
+  BOLD_STEM_RATIO,
   MIN_LINE_CONFIDENCE,
   pageFamily,
   recognizeLines,
+  strokeContrast,
+  strokeWidth,
 } from './scan-text.js';
 import { downloadFile } from '../utils/deliver-output.ts';
 import { pageHasPatternFill, protectPatternArtwork } from './shadingsurgery.js';
@@ -3143,11 +3146,6 @@ function updateScanBar() {
   });
 }
 
-const median = (xs) => {
-  const s = [...xs].sort((a, b) => a - b);
-  return s.length ? s[s.length >> 1] : 0;
-};
-
 function rgbaToBgra(rgba) {
   const out = new Uint8Array(rgba.length);
   for (let i = 0; i < rgba.length; i += 4) {
@@ -3165,35 +3163,59 @@ function rgbaToBgra(rgba) {
  * or null if the page isn't a usable scan.
  */
 async function convertActivePage({ signal, onProgress, undoPoint }) {
-  const eng = P();
   const found = scanOfPage();
   if (!found) return null;
-  if (!eng.imageIsUpright(found.handle)) {
+  if (!P().imageIsUpright(found.handle)) {
     return { skipped: 'This scan is rotated or skewed. Straighten it first (Scan & OCR › Straighten).' };
   }
-  const img = eng.renderImageObjectNative(found.handle);
-  if (!img) return null;
+  // An existing invisible OCR layer would duplicate the new text.
+  return convertImageText(found, { signal, onProgress, undoPoint, replacesOcrLayer: true });
+}
+
+/** Recognised lines of an image on the active page (confident ones only). */
+async function readImageText(handle, { signal, onProgress }) {
+  const img = P().renderImageObjectNative(handle);
+  if (!img) return { img: null, lines: [] };
   const lines = (await recognizeLines(img, { signal, onProgress })).filter(
     (l) => l.confidence >= MIN_LINE_CONFIDENCE
   );
   if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
+  return { img, lines };
+}
+
+/**
+ * Replaces the text drawn inside an image with real, editable text at the
+ * same place: erases the words from the image, then lays text over them.
+ * `found`: { handle, bounds } for an upright image on the active page.
+ */
+async function convertImageText(found, { signal, onProgress, undoPoint, replacesOcrLayer = false }) {
+  const eng = P();
+  const { img, lines } = await readImageText(found.handle, { signal, onProgress });
+  if (!img) return null;
   if (!lines.length) return { lines: 0 };
 
   if (undoPoint) snapshot();
-  // An existing invisible OCR layer would duplicate the new text.
-  for (const p of state.paragraphs) if (p.invisible) eng.deleteParagraph(p.id);
+  if (replacesOcrLayer) {
+    for (const p of state.paragraphs) if (p.invisible) eng.deleteParagraph(p.id);
+  }
 
   const B = found.bounds;
   const sx = B.w / img.width;
   const sy = B.h / img.height;
   const styles = lines.map((l) => {
     const bg = backgroundAround(img, l.bbox);
-    return { bg, ink: inkOf(img, l.bbox, bg) };
+    // Bold: stems thick relative to the text size (judged per line, so it
+    // also works for a single heading or a two-line image).
+    const sizePx = Math.max(1, (l.baseline - l.bbox.y0) / 0.72);
+    const bold = strokeWidth(img, l.bbox, bg) / sizePx > BOLD_STEM_RATIO;
+    const ink = inkOf(img, l.bbox, bg);
+    const contrast = strokeContrast(img, l.bbox, bg, ink.color, sizePx);
+    return { bg, ink, bold, contrast };
   });
-  const typicalInk = median(styles.map((s) => s.ink.coverage));
   const measured = lines.map((l, i) => ({
     text: l.text,
-    bold: styles[i].ink.coverage > typicalInk * 1.35,
+    bold: styles[i].bold,
+    contrast: styles[i].contrast,
     widthPt: (l.bbox.x1 - l.bbox.x0) * sx,
     ascentPt: Math.max(1, (l.baseline - l.bbox.y0) * sy),
   }));
@@ -3246,6 +3268,108 @@ async function convertActivePage({ signal, onProgress, undoPoint }) {
   refreshModel();
   renderPage();
   return { lines: lines.length };
+}
+
+/**
+ * Text inside a selected image, on request: 'edit' turns it into editable
+ * text on top of the image; 'copy' only reads it and shows it for copying.
+ */
+async function imageTextAction(mode) {
+  const sel = state.selection;
+  if (scan.busy || sel?.kind !== 'object' || sel.type !== OBJ.IMAGE) return;
+  const handle = sel.handle;
+  if (mode === 'edit' && !P().imageIsUpright(handle)) {
+    toast('This image is rotated or flipped, so its text can’t be placed back accurately. Use “Copy text” instead.');
+    return;
+  }
+  endEdit(true);
+  const controller = new AbortController();
+  scan.busy = controller;
+  updateChrome();
+  const show = (progress) =>
+    setScanBar({
+      title: 'Recognising text…',
+      detail: 'Reading the selected image.',
+      progress,
+      working: true,
+    });
+  show(0);
+  const onProgress = (status, p) => {
+    if (status.startsWith('recognizing')) show(p);
+  };
+  try {
+    if (mode === 'copy') {
+      const { lines } = await readImageText(handle, { signal: controller.signal, onProgress });
+      if (lines.length) showImageText(lines.map((l) => l.text).join('\n'));
+      else toast('No readable text was found in this image.');
+    } else {
+      const bounds = P().objectBounds(handle);
+      selectObject(null);
+      const result = await convertImageText(
+        { handle, bounds },
+        { signal: controller.signal, onProgress, undoPoint: true }
+      );
+      toast(
+        result?.lines
+          ? `The text in this image is now editable (${result.lines} line${result.lines === 1 ? '' : 's'}). ⌘Z undoes this.`
+          : 'No readable text was found in this image.'
+      );
+    }
+  } catch (err) {
+    if (err?.name === 'AbortError') toast('Stopped.');
+    else {
+      console.error('Text recognition failed', err);
+      toast('Text recognition failed: ' + (err?.message || err));
+    }
+  } finally {
+    scan.busy = null;
+    updateChrome();
+    updateScanBar();
+  }
+}
+
+/** Shows text read from an image, ready to review and copy. */
+function showImageText(text) {
+  const app = document.getElementById('text-editor-app');
+  const overlay = document.createElement('div');
+  overlay.id = 'imgTextOverlay';
+  overlay.innerHTML = `
+    <div id="imgTextModal" role="dialog" aria-modal="true" aria-labelledby="imgTextTitle">
+      <div class="docmodal-head">
+        <span id="imgTextTitle">Text in this image</span>
+        <button class="btn icon" data-act="close" title="Close"><i class="ph ph-x"></i></button>
+      </div>
+      <textarea spellcheck="false"></textarea>
+      <p class="hint">Recognised automatically, so check it before you use it.</p>
+      <div class="foot">
+        <button class="btn" data-act="close">Close</button>
+        <button class="btn primary" data-act="copy"><i class="ph ph-copy-simple"></i> Copy</button>
+      </div>
+    </div>`;
+  const area = overlay.querySelector('textarea');
+  area.value = text;
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', async (e) => {
+    if (e.target === overlay) return close();
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'close') close();
+    if (act === 'copy') {
+      try {
+        await navigator.clipboard.writeText(area.value);
+      } catch {
+        area.select();
+        document.execCommand('copy');
+      }
+      toast('Copied');
+      close();
+    }
+  });
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+  app.append(overlay);
+  area.focus();
+  area.select();
 }
 
 async function makeTextEditable(scope) {
@@ -9223,6 +9347,10 @@ function updateChrome() {
     $(id).hidden = !(objSel || paraSel || multiSel);
   for (const id of ['flipH', 'flipV', 'front', 'back']) $(id).hidden = !objSel;
   $('replImg').hidden = !(objSel && state.selection.type === OBJ.IMAGE);
+  for (const id of ['imgEditText', 'imgCopyText']) {
+    $(id).hidden = !(objSel && state.selection.type === OBJ.IMAGE);
+    $(id).disabled = !!scan.busy;
+  }
   $('extEdit').hidden = !(
     objSel &&
     state.selection.type === OBJ.IMAGE &&
@@ -9945,6 +10073,8 @@ function wireUI() {
     return false;
   };
   $('replImg').addEventListener('click', () => $('replImgFile').click());
+  $('imgEditText').addEventListener('click', () => void imageTextAction('edit'));
+  $('imgCopyText').addEventListener('click', () => void imageTextAction('copy'));
   $('replImgFile').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     e.target.value = '';
