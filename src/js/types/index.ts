@@ -62,7 +62,6 @@ export * from './canvas-editor-type.ts';
 export * from './edit-pdf-type.ts';
 export * from './redact-type.ts';
 export * from './shortcuts-type.ts';
-export * from './ui-type.ts';
 export * from './markdown-editor-type.ts';
 export * from './sanitize-type.ts';
 export * from './overlay-pdf-type.ts';

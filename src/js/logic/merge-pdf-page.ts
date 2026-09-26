@@ -123,16 +123,7 @@ async function renderPageMergeThumbnails() {
 
   cleanupLazyRendering();
 
-  let totalPages = 0;
-  for (let i = 0; i < state.files.length; i++) {
-    const fileKey = `${i}_${state.files[i].name}`;
-    const doc = mergeState.pdfDocs[fileKey];
-    if (doc) totalPages += doc.numPages;
-  }
-
   try {
-    let currentPageNumber = 0;
-
     // Function to create wrapper element for each page
     const createWrapper = (
       canvas: HTMLCanvasElement,
@@ -198,7 +189,6 @@ async function renderPageMergeThumbnails() {
           useLazyLoading: true,
           lazyLoadMargin: '300px',
           onProgress: () => {
-            currentPageNumber++;
             showLoader(`Rendering page previews...`);
           },
           onBatchComplete: () => {
@@ -608,11 +598,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const processBtn = document.getElementById('process-btn');
 
-  const fileControls = document.getElementById('file-controls');
   const addMoreBtn = document.getElementById('add-more-btn');
   const clearFilesBtn = document.getElementById('clear-files-btn');
   const backBtn = document.getElementById('back-to-tools');
-  const mergeOptions = document.getElementById('merge-options');
 
   if (backBtn) {
     backBtn.addEventListener('click', () => {

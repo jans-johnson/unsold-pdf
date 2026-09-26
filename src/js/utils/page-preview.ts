@@ -1,4 +1,3 @@
-import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { PreviewState } from '@/types';
 import './setup-pdf-worker.js';

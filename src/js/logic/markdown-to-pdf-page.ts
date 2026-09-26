@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const editor = new MarkdownEditor(container, {});
+    new MarkdownEditor(container, {});
 
     console.log('Markdown editor initialized');
 

@@ -650,8 +650,6 @@ export async function applyPlan(originalBytes, pageIndex, plan) {
   ]);
 }
 
-export const spliceDeletion = applyPlan;
-
 const bin = (s) => Uint8Array.from(s, (c) => c.charCodeAt(0) & 0xff);
 
 function xrefStyle(src) {

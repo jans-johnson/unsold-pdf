@@ -1,7 +1,6 @@
 import { showLoader, hideLoader, showAlert } from '../ui.js';
 import { t } from '../i18n/i18n';
 import { createIcons, icons } from 'lucide';
-import * as pdfjsLib from 'pdfjs-dist';
 import {
   downloadFile,
   getPDFDocument,

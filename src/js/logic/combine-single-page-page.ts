@@ -7,7 +7,6 @@ import {
 } from '../utils/helpers.js';
 import { createIcons, icons } from 'lucide';
 import { PDFDocument as PDFLibDocument, rgb } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist';
 import { CombineSinglePageState } from '@/types';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';

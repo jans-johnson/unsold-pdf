@@ -1,7 +1,6 @@
 import { showLoader, hideLoader, showAlert } from '../ui.ts';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { icons, createIcons } from 'lucide';
-import * as pdfjsLib from 'pdfjs-dist';
 import { CompareState } from '@/types';
 import type {
   CompareFilterType,
@@ -23,7 +22,6 @@ import '../utils/setup-pdf-worker.js';
 import {
   getElement,
   computeComparisonForPair,
-  getComparisonCacheKey,
 } from './compare-render.ts';
 
 const pageState: CompareState = {
@@ -516,39 +514,6 @@ async function buildPagePairs() {
   pageState.currentPage = 1;
 }
 
-async function buildReportResults() {
-  const results: ComparePageResult[] = [];
-  const ctx = getRenderContext();
-
-  for (const pair of pageState.pagePairs) {
-    const cached = caches.comparisonResultsCache.get(pair.pairIndex);
-    if (cached) {
-      results.push(cached);
-      continue;
-    }
-
-    const cacheKey = getComparisonCacheKey(pair, pageState.useOcr);
-    const cachedResult = caches.comparisonCache.get(cacheKey);
-    if (cachedResult) {
-      results.push(cachedResult);
-      continue;
-    }
-
-    const comparison = await computeComparisonForPair(
-      pageState.pdfDoc1,
-      pageState.pdfDoc2,
-      pair,
-      caches,
-      ctx
-    );
-    caches.comparisonCache.set(cacheKey, comparison);
-    caches.comparisonResultsCache.set(pair.pairIndex, comparison);
-    results.push(comparison);
-  }
-
-  return results;
-}
-
 async function renderBothPages() {
   if (!pageState.pdfDoc1 || !pageState.pdfDoc2) return;
 
@@ -847,9 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const flickerBtn = getElement<HTMLButtonElement>('flicker-btn');
-  const canvas2 = getElement<HTMLCanvasElement>(
-    'canvas-compare-2'
-  ) as HTMLCanvasElement;
   const opacitySlider = getElement<HTMLInputElement>(
     'opacity-slider'
   ) as HTMLInputElement;

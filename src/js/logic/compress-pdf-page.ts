@@ -11,7 +11,6 @@ import { PDFDocument } from 'pdf-lib';
 import { createIcons, icons } from 'lucide';
 import { showWasmRequiredDialog } from '../utils/wasm-provider.js';
 import { loadPyMuPDF, isPyMuPDFAvailable } from '../utils/pymupdf-loader.js';
-import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import '../utils/setup-pdf-worker.js';
 
@@ -340,9 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const compress = async () => {
     const level = (
       document.getElementById('compression-level') as HTMLSelectElement
-    ).value;
-    const algorithm = (
-      document.getElementById('compression-algorithm') as HTMLSelectElement
     ).value;
     const convertToGrayscale =
       (document.getElementById('convert-to-grayscale') as HTMLInputElement)

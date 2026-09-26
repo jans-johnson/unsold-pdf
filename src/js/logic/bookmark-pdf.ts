@@ -1,5 +1,4 @@
 import { PDFDocument, PDFName, PDFNumber, PDFHexString, PDFRef } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist';
 import { PDFDocumentProxy, PageViewport } from 'pdfjs-dist';
 import Sortable from 'sortablejs';
 import { createIcons, icons } from 'lucide';

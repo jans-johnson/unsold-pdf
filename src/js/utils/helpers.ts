@@ -1,8 +1,6 @@
 import createModule from '@neslinesli93/qpdf-wasm';
 import type { QpdfInstanceExtended } from '@/types';
 import { showLoader, hideLoader, showAlert } from '../ui.js';
-import { createIcons } from 'lucide';
-import { state, resetState } from '../state.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import DOMPurify from 'dompurify';
 import type { DocumentInitParameters } from 'pdfjs-dist/types/src/display/api';
@@ -189,22 +187,6 @@ export async function initializeQpdf(): Promise<QpdfInstanceExtended> {
   return qpdfInstance;
 }
 
-export function initializeIcons(): void {
-  createIcons({
-    attrs: {
-      class: 'unacrobat-icon',
-      'stroke-width': '1.5',
-    },
-  });
-}
-
-export function formatStars(num: number) {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
-  }
-  return num.toLocaleString();
-}
-
 /**
  * Truncates a filename to a maximum length, adding ellipsis if needed.
  * Preserves the file extension.
@@ -247,23 +229,6 @@ export function formatShortcutDisplay(
     .split('+')
     .map((k) => k.charAt(0).toUpperCase() + k.slice(1))
     .join(isMac ? '' : '+');
-}
-
-export function resetAndReloadTool(preResetCallback?: () => void) {
-  const toolid = state.activeTool;
-
-  if (preResetCallback) {
-    preResetCallback();
-  }
-
-  resetState();
-
-  if (toolid) {
-    const element = document.querySelector(
-      `[data-tool-id="${toolid}"]`
-    ) as HTMLElement;
-    if (element) element.click();
-  }
 }
 
 /**

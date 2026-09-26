@@ -112,11 +112,11 @@ describe('Map upsert polyfill', () => {
       'utf8'
     );
     const polyfillImport = "import './utils/map-upsert-polyfill.js';";
-    const pdfjsImport = "import * as pdfjsLib from 'pdfjs-dist';";
+    const pdfjsImport = mainSource.search(/from 'pdfjs-dist'/);
 
     expect(mainSource.startsWith(polyfillImport)).toBe(true);
-    expect(mainSource.indexOf(polyfillImport)).toBeLessThan(
-      mainSource.indexOf(pdfjsImport)
-    );
+    if (pdfjsImport !== -1) {
+      expect(mainSource.indexOf(polyfillImport)).toBeLessThan(pdfjsImport);
+    }
   });
 });

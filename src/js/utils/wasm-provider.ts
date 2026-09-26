@@ -432,16 +432,3 @@ export function showWasmRequiredDialog(
     }
   });
 }
-
-export function requireWasm(
-  packageName: WasmPackage,
-  onAvailable?: () => void
-): boolean {
-  if (WasmProvider.isConfigured(packageName)) {
-    onAvailable?.();
-    return true;
-  }
-
-  showWasmRequiredDialog(packageName);
-  return false;
-}

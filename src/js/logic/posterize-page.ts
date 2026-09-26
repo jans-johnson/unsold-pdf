@@ -6,7 +6,6 @@ import {
 } from '../utils/helpers.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { PDFDocument, PageSizes } from 'pdf-lib';
-import * as pdfjsLib from 'pdfjs-dist';
 import { createIcons, icons } from 'lucide';
 import { PosterizeState } from '@/types';
 import '../utils/setup-pdf-worker.js';

@@ -43,19 +43,6 @@ export interface SanitizeOptions {
   removeFonts: boolean;
 }
 
-export const defaultSanitizeOptions: SanitizeOptions = {
-  flattenForms: true,
-  removeMetadata: true,
-  removeAnnotations: true,
-  removeJavascript: true,
-  removeEmbeddedFiles: true,
-  removeLayers: true,
-  removeLinks: true,
-  removeStructureTree: true,
-  removeMarkInfo: true,
-  removeFonts: false,
-};
-
 function removeMetadataFromDoc(pdfDoc: PDFDocument) {
   const infoDict = (pdfDoc as unknown as PDFDocumentInternal).getInfoDict();
   const allKeys = infoDict.keys();

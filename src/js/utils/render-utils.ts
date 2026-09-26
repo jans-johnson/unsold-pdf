@@ -364,22 +364,6 @@ export async function renderPagesProgressively(
 }
 
 /**
- * Manually observe a placeholder element (useful for dynamically created placeholders)
- */
-export function observePlaceholder(
-  placeholder: HTMLElement,
-  task: PageTask
-): void {
-  if (!lazyLoadState.observer) {
-    console.warn('No active observer to register placeholder');
-    return;
-  }
-  lazyLoadState.pendingTasks.set(placeholder, task);
-  lazyLoadState.pendingTasksByPageNumber.set(task.pageNumber, task);
-  lazyLoadState.observer.observe(placeholder);
-}
-
-/**
  * Eagerly renders the next batch in the background
  */
 function renderEagerBatch(config: RenderConfig): void {

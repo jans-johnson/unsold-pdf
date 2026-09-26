@@ -200,10 +200,6 @@ export async function pickFontsForText(text: string): Promise<string[]> {
   return out;
 }
 
-export async function pickFontForText(text: string): Promise<string> {
-  return (await pickFontsForText(text))[0] ?? '';
-}
-
 async function fetchFontBytes(
   postscriptName: string
 ): Promise<Uint8Array | null> {

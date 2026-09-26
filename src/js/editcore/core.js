@@ -1,6 +1,5 @@
-import { createEngineModule, ENGINE_BUILD } from './engine-loader.js';
+import { createEngineModule } from './engine-loader.js';
 
-export const EC_BUILD = ENGINE_BUILD;
 const createEditCore = createEngineModule;
 const devBust = '';
 
@@ -1725,7 +1724,6 @@ export class PdfEngine {
     const M = this.M;
     const handle = M._FPDFPageObj_NewImageObj(this.doc);
     if (!handle) return 0;
-    const FPDFBitmap_BGRA = 4;
     const bmp = M._FPDFBitmap_Create(pxW, pxH, 1);
     const buf = M._FPDFBitmap_GetBuffer(bmp);
     const stride = M._FPDFBitmap_GetStride(bmp);

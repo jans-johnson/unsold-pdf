@@ -3,7 +3,6 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import http from 'http';
 import https from 'https';
 import type { Connect, Plugin } from 'vite';
-// import basicSsl from '@vitejs/plugin-basic-ssl';
 import tailwindcss from '@tailwindcss/vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import viteCompression from 'vite-plugin-compression';
@@ -512,12 +511,10 @@ export default defineConfig(() => {
       format: 'es' as const,
     },
     plugins: [
-      // basicSsl(),
       handlebars({
         partialDirectory: resolve(__dirname, 'src/partials'),
         context: {
           baseUrl: (process.env.BASE_URL || '/').replace(/\/?$/, '/'),
-          simpleMode: true,
           brandName: process.env.VITE_BRAND_NAME || '',
           brandLogo: process.env.VITE_BRAND_LOGO || '',
           footerText: process.env.VITE_FOOTER_TEXT || '',
@@ -563,11 +560,6 @@ export default defineConfig(() => {
       }),
     ],
     define: {
-      __SIMPLE_MODE__: JSON.stringify(true),
-      __DISABLE_GITHUB_STARS__: JSON.stringify(
-        process.env.DISABLE_GITHUB_STARS === 'true'
-      ),
-      __BRAND_NAME__: JSON.stringify(process.env.VITE_BRAND_NAME || ''),
       __DISABLED_TOOLS__: JSON.stringify(
         (process.env.DISABLE_TOOLS || '')
           .split(',')
@@ -585,7 +577,6 @@ export default defineConfig(() => {
       },
     },
     optimizeDeps: {
-      include: ['pdfkit', 'blob-stream'],
       exclude: ['coherentpdf', 'wasm-vips', 'unacrobat-pdfium'],
     },
     server: {

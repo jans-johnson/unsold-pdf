@@ -26,10 +26,6 @@ export function setCachedGsModule(module: GhostscriptModule): void {
   cachedGsModule = module;
 }
 
-export function getCachedGsModule(): GhostscriptModule | null {
-  return cachedGsModule;
-}
-
 export async function loadGsModule(): Promise<GhostscriptModule> {
   const gsBaseUrl = getWasmBaseUrl('ghostscript')!;
   const normalizedUrl = gsBaseUrl.endsWith('/') ? gsBaseUrl : `${gsBaseUrl}/`;

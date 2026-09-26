@@ -2,7 +2,6 @@ import type {
   CompareAnnotation,
   CompareContentCategory,
   CompareImageRef,
-  ComparePageModel,
   CompareRectangle,
   CompareTextChange,
 } from '../types.ts';
@@ -183,44 +182,6 @@ function imagesOverlap(a: CompareRectangle, b: CompareRectangle): boolean {
   const bArea = b.width * b.height;
   const smallerArea = Math.min(aArea, bArea);
   return smallerArea > 0 && overlapArea / smallerArea > 0.3;
-}
-
-export function detectBackgroundChanges(
-  leftModel: ComparePageModel,
-  rightModel: ComparePageModel,
-  visualMismatchRatio: number,
-  textChangeRects: CompareRectangle[],
-  baseId: number
-): CompareTextChange[] {
-  if (visualMismatchRatio < 0.01) return [];
-
-  const textCoverage = textChangeRects.reduce(
-    (sum, r) => sum + r.width * r.height,
-    0
-  );
-  const pageArea = leftModel.width * leftModel.height;
-  const textRatio = pageArea > 0 ? textCoverage / pageArea : 0;
-
-  if (visualMismatchRatio > textRatio + 0.05) {
-    return [
-      {
-        id: `background-changed-${baseId}`,
-        type: 'modified',
-        category: 'background',
-        description: 'Page background or layout changed',
-        beforeText: '',
-        afterText: '',
-        beforeRects: [
-          { x: 0, y: 0, width: leftModel.width, height: leftModel.height },
-        ],
-        afterRects: [
-          { x: 0, y: 0, width: rightModel.width, height: rightModel.height },
-        ],
-      },
-    ];
-  }
-
-  return [];
 }
 
 export function buildCategorySummary(changes: CompareTextChange[]) {

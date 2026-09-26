@@ -24,7 +24,6 @@ import { initializeGlobalShortcuts } from '../utils/shortcuts-init.js';
 import { downloadFile, escapeHtml, hexToRgb } from '../utils/helpers.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { createIcons, icons } from 'lucide';
-import * as pdfjsLib from 'pdfjs-dist';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import * as bwipjs from 'bwip-js/browser';
 import 'pdfjs-dist/web/pdf_viewer.css';

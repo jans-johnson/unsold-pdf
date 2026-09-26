@@ -470,11 +470,3 @@ export async function computeComparisonForPair(
 
   return comparison;
 }
-
-export function getComparisonCacheKey(pair: ComparePagePair, useOcr: boolean) {
-  const leftKey = pair.leftPageNumber ? `left-${pair.leftPageNumber}` : 'none';
-  const rightKey = pair.rightPageNumber
-    ? `right-${pair.rightPageNumber}`
-    : 'none';
-  return `${leftKey}:${rightKey}:${useOcr ? 'ocr' : 'no-ocr'}`;
-}

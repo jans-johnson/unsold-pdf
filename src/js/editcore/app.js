@@ -1386,8 +1386,6 @@ async function runRepro() {
       top = Math.min(top, pl.y);
       bot = Math.max(bot, pl.y + pl.h);
     }
-    const chrome = sel.parentElement;
-    const y = parseFloat(chrome.style.top) + parseFloat(sel.style.top);
     const h = parseFloat(sel.style.height);
     const wantH = bot - top + 2 * BOX_PAD;
     const ok = Math.abs(h - wantH) < 2.5;
@@ -2875,7 +2873,6 @@ async function runE2E() {
     );
 
     setTool('addText');
-    const pCount = state.paragraphs.length;
     beginNewTextBox(120, 400, 14);
     check(
       !!state.editing && !!state.editing.newGeom,
@@ -2951,7 +2948,6 @@ async function runE2E() {
       dt.items.add(new File([buf], 'dropped.pdf', { type: 'application/pdf' }));
       const ev = new Event('drop', { bubbles: true, cancelable: true });
       ev.dataTransfer = dt;
-      const nameBefore = state.fileName;
       window.dispatchEvent(
         Object.defineProperty(ev, 'dataTransfer', { value: dt })
       );
@@ -4233,7 +4229,6 @@ function buildLockedLineExact(div, segs, cx, runs, z) {
   let lineText = '';
   const charRun = [];
   for (const sg of segs) {
-    const r = runs[sg.src];
     for (const ch of sg.text) {
       lineText += ch;
       charRun.push(sg.src);
@@ -5924,20 +5919,6 @@ function replaceParagraph(id, updated) {
 function runsDiffer(a, b) {
   runsDiffer.why = null;
   const lvl = (v) => (v === 2 ? 2 : v ? 1 : 0);
-  const same = (x, y) =>
-    x.family === y.family &&
-    Math.round(x.size) === Math.round(y.size) &&
-    x.rgba >>> 0 === y.rgba >>> 0 &&
-    lvl(x.bold) === lvl(y.bold) &&
-    lvl(x.italic) === lvl(y.italic) &&
-    !!x.underline === !!y.underline &&
-    !!x.strike === !!y.strike &&
-    (x.script | 0) === (y.script | 0) &&
-    (x.renderMode | 0) === (y.renderMode | 0) &&
-    (x.strokeRgba || 0) >>> 0 === (y.strokeRgba || 0) >>> 0 &&
-    Math.abs((x.strokeWidth ?? 1) - (y.strokeWidth ?? 1)) <= 0.05 &&
-    Math.abs((x.hScale ?? 1) - (y.hScale ?? 1)) <= 0.005 &&
-    Math.abs((x.rise ?? 0) - (y.rise ?? 0)) <= 0.05;
   const flat = (list) => {
     const out = [];
     for (const r of list) {
@@ -6616,12 +6597,6 @@ function selectObject(o) {
   drawOverlay();
   updateChrome();
 }
-function selectParagraph(p) {
-  state.selection = p ? { kind: 'para', para: p } : null;
-  drawOverlay();
-  updateChrome();
-}
-
 const sameItem = (a, b) =>
   a.t === b.t &&
   (a.t === 'para' ? a.para.id === b.para.id : a.handle === b.handle);
@@ -8149,8 +8124,6 @@ function findStepScan(needle, dir) {
   }
   return null;
 }
-const findNext = (needle) => findStep(needle, 1);
-
 function replaceAll(needle, replacement) {
   scanningPages = true;
   try {
@@ -8692,41 +8665,6 @@ function wireBlockClipboard() {
 }
 
 const SNAP_TOL = 4;
-function snapDelta(env, dx, dy) {
-  if (!env) return { dx, dy };
-  let bestX = null,
-    bestY = null;
-  for (const gx of state.guides.v) {
-    for (const cand of [
-      env.x + dx,
-      env.x + env.w + dx,
-      env.x + env.w / 2 + dx,
-    ]) {
-      const d = gx - cand;
-      if (
-        Math.abs(d) <= SNAP_TOL &&
-        (bestX == null || Math.abs(d) < Math.abs(bestX))
-      )
-        bestX = d;
-    }
-  }
-  for (const gy of state.guides.h) {
-    for (const cand of [
-      env.y + dy,
-      env.y + env.h + dy,
-      env.y + env.h / 2 + dy,
-    ]) {
-      const d = gy - cand;
-      if (
-        Math.abs(d) <= SNAP_TOL &&
-        (bestY == null || Math.abs(d) < Math.abs(bestY))
-      )
-        bestY = d;
-    }
-  }
-  return { dx: dx + (bestX || 0), dy: dy + (bestY || 0) };
-}
-
 function collectSmartTargets(opts = {}) {
   const eng = P();
   const t = [];
@@ -8936,7 +8874,6 @@ function drawRulers() {
           drag0 = val;
           drawGuides();
         };
-        let drag0 = null;
         const arr = vertical ? state.guides.v : state.guides.h;
         const up = (ev) => {
           window.removeEventListener('mousemove', move);
@@ -9951,24 +9888,6 @@ function nudgeSelection(dx, dy) {
     return;
   }
   refreshAfterMutation();
-}
-
-function hasRealVariant(family, bold, italic) {
-  const std14 = [
-    'helvetica',
-    'arial',
-    'times',
-    'times new roman',
-    'courier',
-    'courier new',
-    'symbol',
-    'zapfdingbats',
-  ];
-  if (std14.includes((family || '').toLowerCase())) return true;
-  const styles = localFontMeta.get(family);
-  if (!styles) return false;
-  const key = (bold ? 'b' : '') + (italic ? 'i' : '');
-  return styles.has(key || 'r') || styles.has(key);
 }
 
 function toggleStyle(t) {

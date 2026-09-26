@@ -5,7 +5,6 @@ import { dom, switchView, hideAlert } from './ui.js';
 import { ShortcutsManager } from './logic/shortcuts.js';
 import { createIcons, icons } from 'lucide';
 import '@phosphor-icons/web/regular';
-import * as pdfjsLib from 'pdfjs-dist';
 import '../css/styles.css';
 import { escapeHtml, formatShortcutDisplay } from './utils/helpers.js';
 import {
@@ -25,7 +24,6 @@ import {
   setStoredItem,
   removeStoredItem,
 } from './utils/safe-storage.js';
-declare const __BRAND_NAME__: string;
 
 const init = async () => {
   await initI18n();
@@ -50,81 +48,6 @@ const init = async () => {
       </div>
     `;
     return;
-  }
-
-  if (__SIMPLE_MODE__) {
-    const hideBrandingSections = () => {
-      const heroSection = document.getElementById('hero-section');
-      if (heroSection) {
-        heroSection.style.display = 'none';
-      }
-
-      const featuresSection = document.getElementById('features-section');
-      if (featuresSection) {
-        featuresSection.style.display = 'none';
-      }
-
-      const securitySection = document.getElementById(
-        'security-compliance-section'
-      );
-      if (securitySection) {
-        securitySection.style.display = 'none';
-      }
-
-      const faqSection = document.getElementById('faq-accordion');
-      if (faqSection) {
-        faqSection.style.display = 'none';
-      }
-
-      const testimonialsSection = document.getElementById(
-        'testimonials-section'
-      );
-      if (testimonialsSection) {
-        testimonialsSection.style.display = 'none';
-      }
-
-      const supportSection = document.getElementById('support-section');
-      if (supportSection) {
-        supportSection.style.display = 'none';
-      }
-
-      // Hide "Used by companies" section
-      const usedBySection = document.querySelector(
-        '.hide-section'
-      ) as HTMLElement;
-      if (usedBySection) {
-        usedBySection.style.display = 'none';
-      }
-
-      const sectionDividers = document.querySelectorAll('.section-divider');
-      sectionDividers.forEach((divider) => {
-        (divider as HTMLElement).style.display = 'none';
-      });
-
-      const brandName = __BRAND_NAME__ || 'UnAcrobat';
-      document.title = `${brandName} - ${t('simpleMode.title')}`;
-
-      const toolsHeader = document.getElementById('tools-header');
-      if (toolsHeader) {
-        const title = toolsHeader.querySelector('h2');
-        const subtitle = toolsHeader.querySelector('p');
-        if (title) {
-          title.textContent = t('simpleMode.title');
-          title.className = 'text-4xl md:text-5xl font-bold text-white mb-3';
-        }
-        if (subtitle) {
-          subtitle.textContent = t('simpleMode.subtitle');
-          subtitle.className = 'text-lg text-gray-400';
-        }
-      }
-
-      const app = document.getElementById('app');
-      if (app) {
-        app.style.paddingTop = '1rem';
-      }
-    };
-
-    hideBrandingSections();
   }
 
   // Hide shortcuts buttons on mobile devices (Android/iOS)
@@ -1111,14 +1034,6 @@ const init = async () => {
             ShortcutsManager.setShortcut(toolId, combo);
             // Re-render to update all inputs (show conflicts in real-time)
             renderShortcutsList();
-          }
-        };
-
-        input.onkeyup = (e) => {
-          // If the user releases a modifier without pressing a main key, revert to saved
-          const key = e.key.toLowerCase();
-          if (['control', 'shift', 'alt', 'meta'].includes(key)) {
-            const currentSaved = ShortcutsManager.getShortcut(toolId);
           }
         };
 
