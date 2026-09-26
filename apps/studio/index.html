@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UnAcrobat</title>
+  </head>
+  <body>
+    <!-- Title bar with tabs (draggable, traffic lights sit at the left) -->
+    <header id="titlebar" data-tauri-drag-region>
+      <div class="traffic-space" data-tauri-drag-region></div>
+      <nav id="tabstrip">
+        <button class="tab fixed" data-tab="home" title="Home">
+          <i class="ph ph-house"></i><span>Home</span>
+        </button>
+        <button class="tab fixed" data-tab="tools" title="All tools">
+          <i class="ph ph-squares-four"></i><span>All tools</span>
+        </button>
+        <div class="tab-sep"></div>
+        <div id="doc-tabs"></div>
+      </nav>
+      <div class="titlebar-fill" data-tauri-drag-region></div>
+      <button class="title-btn" id="title-open" title="Open file">
+        <i class="ph ph-folder-open"></i>
+      </button>
+    </header>
+
+    <main id="views">
+      <!-- HOME -->
+      <section id="view-home" class="view">
+        <div class="home-scroll">
+          <div class="home-inner">
+            <div class="home-hero">
+              <div>
+                <h1 id="greeting">Welcome</h1>
+                <p class="muted" id="home-privacy"></p>
+              </div>
+              <button class="btn primary lg" id="home-open">
+                <i class="ph ph-folder-open"></i> Open a file
+              </button>
+            </div>
+
+            <h2 class="section-title">Recommended tools for you</h2>
+            <div id="recommended" class="rec-grid"></div>
+
+            <div id="home-drop" class="drop-card">
+              <i class="ph ph-file-arrow-up"></i>
+              <div>
+                <strong>Drop a PDF here to open it</strong>
+                <span class="muted"
+                  >or drop Word, Excel, images and more to convert them to
+                  PDF</span
+                >
+              </div>
+              <button class="btn" id="home-open-2">Select a file</button>
+            </div>
+
+            <div class="recent-head">
+              <h2 class="section-title">Recent</h2>
+              <div class="recent-actions">
+                <input
+                  id="recent-filter"
+                  class="search-input sm"
+                  placeholder="Filter recent files"
+                />
+                <button class="btn ghost sm" id="recent-clear">
+                  Clear recent
+                </button>
+              </div>
+            </div>
+            <div id="recent-table" class="recent-table"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ALL TOOLS -->
+      <section id="view-tools" class="view" hidden>
+        <aside class="tools-nav">
+          <div class="search-wrap">
+            <i class="ph ph-magnifying-glass"></i>
+            <input
+              id="tools-search"
+              class="search-input"
+              placeholder="Find a tool"
+            />
+          </div>
+          <div id="tools-cats"></div>
+        </aside>
+        <div class="tools-main" id="tools-main"></div>
+      </section>
+
+      <!-- DOCUMENT / TOOL TABS -->
+      <section id="view-doc" class="view" hidden>
+        <div id="doc-toolbar" class="doc-toolbar">
+          <div class="tb-group">
+            <button class="icon-btn" data-cmd="toggle-left" title="Tools pane">
+              <i class="ph ph-sidebar-simple"></i>
+            </button>
+            <div class="tb-sep"></div>
+            <button class="icon-btn" data-cmd="save" title="Save">
+              <i class="ph ph-floppy-disk"></i>
+            </button>
+            <button class="icon-btn" data-cmd="print" title="Print">
+              <i class="ph ph-printer"></i>
+            </button>
+            <button class="icon-btn" data-cmd="undo" title="Undo">
+              <i class="ph ph-arrow-counter-clockwise"></i>
+            </button>
+            <button class="icon-btn" data-cmd="redo" title="Redo">
+              <i class="ph ph-arrow-clockwise"></i>
+            </button>
+          </div>
+          <div class="tb-group center viewer-only">
+            <button class="icon-btn" data-cmd="prev-page" title="Previous page">
+              <i class="ph ph-caret-up"></i>
+            </button>
+            <button class="icon-btn" data-cmd="next-page" title="Next page">
+              <i class="ph ph-caret-down"></i>
+            </button>
+            <input id="page-input" class="page-input" value="1" />
+            <span class="muted" id="page-count">/ 1</span>
+            <div class="tb-sep"></div>
+            <button class="icon-btn" data-cmd="zoom-out" title="Zoom out">
+              <i class="ph ph-minus-circle"></i>
+            </button>
+            <select id="zoom-select" class="zoom-select">
+              <option value="auto">Automatic</option>
+              <option value="page-fit">Fit Page</option>
+              <option value="page-width">Fit Width</option>
+              <option value="0.5">50%</option>
+              <option value="0.75">75%</option>
+              <option value="1">100%</option>
+              <option value="1.25">125%</option>
+              <option value="1.5">150%</option>
+              <option value="2">200%</option>
+              <option value="3">300%</option>
+              <option value="4">400%</option>
+              <option value="custom" hidden></option>
+            </select>
+            <button class="icon-btn" data-cmd="zoom-in" title="Zoom in">
+              <i class="ph ph-plus-circle"></i>
+            </button>
+            <div class="tb-sep"></div>
+            <button
+              class="icon-btn"
+              data-cmd="rotate-ccw"
+              title="Rotate view counterclockwise"
+            >
+              <i class="ph ph-arrow-u-up-left"></i>
+            </button>
+            <button
+              class="icon-btn"
+              data-cmd="rotate-cw"
+              title="Rotate view clockwise"
+            >
+              <i class="ph ph-arrow-u-up-right"></i>
+            </button>
+            <button
+              class="icon-btn"
+              data-cmd="spread"
+              title="Single / two-page view"
+            >
+              <i class="ph ph-book-open"></i>
+            </button>
+          </div>
+          <div class="tb-group right">
+            <div class="find-box viewer-only">
+              <i class="ph ph-magnifying-glass"></i>
+              <input id="find-input" placeholder="Find text" />
+              <span id="find-count" class="muted"></span>
+              <button
+                class="icon-btn sm"
+                data-cmd="find-prev"
+                title="Previous match"
+              >
+                <i class="ph ph-caret-up"></i>
+              </button>
+              <button
+                class="icon-btn sm"
+                data-cmd="find-next"
+                title="Next match"
+              >
+                <i class="ph ph-caret-down"></i>
+              </button>
+            </div>
+            <button
+              class="btn primary sm"
+              data-cmd="share-export"
+              title="Export a copy"
+            >
+              <i class="ph ph-export"></i> Export
+            </button>
+          </div>
+        </div>
+
+        <div class="doc-body">
+          <!-- Acrobat-style quick tools rail -->
+          <nav id="quick-rail" class="rail left"></nav>
+
+          <!-- All tools pane -->
+          <aside id="tools-pane" class="tools-pane">
+            <div class="pane-head">
+              <span>All tools</span>
+              <button class="icon-btn sm" data-cmd="toggle-left" title="Hide">
+                <i class="ph ph-x"></i>
+              </button>
+            </div>
+            <div class="search-wrap sm">
+              <i class="ph ph-magnifying-glass"></i>
+              <input
+                id="pane-search"
+                class="search-input sm"
+                placeholder="Find a tool"
+              />
+            </div>
+            <div id="pane-list" class="pane-list"></div>
+          </aside>
+
+          <!-- Stage: viewer / tool iframe for the active tab -->
+          <div id="stage" class="stage"></div>
+
+          <!-- Right side panel -->
+          <aside id="side-panel" class="side-panel" hidden>
+            <div class="pane-head">
+              <span id="side-title">Page thumbnails</span>
+              <button class="icon-btn sm" data-cmd="close-panel" title="Close">
+                <i class="ph ph-x"></i>
+              </button>
+            </div>
+            <div id="side-body" class="side-body"></div>
+          </aside>
+          <nav id="right-rail" class="rail right">
+            <button
+              class="rail-btn"
+              data-panel="thumbnails"
+              title="Page thumbnails"
+            >
+              <i class="ph ph-squares-four"></i>
+            </button>
+            <button class="rail-btn" data-panel="bookmarks" title="Bookmarks">
+              <i class="ph ph-bookmark-simple"></i>
+            </button>
+            <button
+              class="rail-btn"
+              data-panel="attachments"
+              title="Attachments"
+            >
+              <i class="ph ph-paperclip"></i>
+            </button>
+            <button
+              class="rail-btn"
+              data-panel="properties"
+              title="Document properties"
+            >
+              <i class="ph ph-info"></i>
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+
+    <div id="drop-overlay" hidden>
+      <div>
+        <i class="ph ph-file-arrow-down"></i>
+        <p>Drop to open</p>
+      </div>
+    </div>
+    <div id="toasts"></div>
+    <div id="modal-root"></div>
+    <div id="print-root"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

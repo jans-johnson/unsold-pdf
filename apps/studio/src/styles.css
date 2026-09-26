@@ -1216,3 +1216,9 @@ body {
     break-after: page;
   }
 }
+
+/* ---------------------------------------------------------------- platforms */
+/* Only macOS draws window controls inside the title bar. */
+:root:not([data-platform='macos']) .traffic-space {
+  width: 8px;
+}

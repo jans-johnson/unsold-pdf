@@ -22,7 +22,9 @@ const toBytes = (buf: ArrayBuffer | Uint8Array) =>
   buf instanceof Uint8Array ? buf : new Uint8Array(buf);
 
 async function read(ref: DocumentRef): Promise<OpenedDocument> {
-  const data = await invoke<ArrayBuffer>('read_document', { handle: ref.handle });
+  const data = await invoke<ArrayBuffer>('read_document', {
+    handle: ref.handle,
+  });
   return { handle: ref.handle, name: ref.name, data: toBytes(data) };
 }
 
@@ -56,7 +58,9 @@ export async function createTauriBridge(): Promise<HostBridge> {
       return ref ? read(ref) : null;
     },
     async save(handle, data) {
-      await invoke('save_document', data, { headers: { 'x-handle': header(handle) } });
+      await invoke('save_document', data, {
+        headers: { 'x-handle': header(handle) },
+      });
     },
     saveAs(suggestedName, data) {
       return invoke<SavedDocument | null>('save_document_as', data, {
@@ -78,18 +82,24 @@ export async function createTauriBridge(): Promise<HostBridge> {
     setTitle: (title) => win.setTitle(title),
 
     async fetch(req) {
-      const res = await invoke<{ status: number; contentType: string; body: string }>(
-        'net_fetch',
-        req.body ?? new Uint8Array(),
-        {
-          headers: {
-            'x-url': header(req.url),
-            'x-method': req.method,
-            ...(req.contentType ? { 'x-content-type': header(req.contentType) } : {}),
-          },
-        }
-      );
-      return { status: res.status, contentType: res.contentType, body: decodeBase64(res.body) };
+      const res = await invoke<{
+        status: number;
+        contentType: string;
+        body: string;
+      }>('net_fetch', req.body ?? new Uint8Array(), {
+        headers: {
+          'x-url': header(req.url),
+          'x-method': req.method,
+          ...(req.contentType
+            ? { 'x-content-type': header(req.contentType) }
+            : {}),
+        },
+      });
+      return {
+        status: res.status,
+        contentType: res.contentType,
+        body: decodeBase64(res.body),
+      };
     },
 
     onDocumentsOpened(listener) {
@@ -99,7 +109,9 @@ export async function createTauriBridge(): Promise<HostBridge> {
       return () => void off.then((f) => f());
     },
     onCommand(listener) {
-      const off = listen<HostCommand>('host-command', (e) => listener(e.payload));
+      const off = listen<HostCommand>('host-command', (e) =>
+        listener(e.payload)
+      );
       return () => void off.then((f) => f());
     },
     onCloseRequested(guard) {

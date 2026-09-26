@@ -8,7 +8,13 @@
  * behind one interface.
  */
 
-export type Platform = 'macos' | 'windows' | 'linux' | 'android' | 'ios' | 'web';
+export type Platform =
+  | 'macos'
+  | 'windows'
+  | 'linux'
+  | 'android'
+  | 'ios'
+  | 'web';
 
 /**
  * Opaque reference to a file the host has granted access to: an absolute path
@@ -81,7 +87,10 @@ export interface HostBridge {
   /** Overwrite a document the user opened or saved earlier. */
   save(handle: FileHandle, data: Uint8Array): Promise<void>;
   /** Ask where to save a PDF; `null` if the user cancelled. */
-  saveAs(suggestedName: string, data: Uint8Array): Promise<SavedDocument | null>;
+  saveAs(
+    suggestedName: string,
+    data: Uint8Array
+  ): Promise<SavedDocument | null>;
   /** Save a non-document output (ZIP, image, DOCX…); resolves with its name or `null`. */
   exportFile(suggestedName: string, data: Uint8Array): Promise<string | null>;
 

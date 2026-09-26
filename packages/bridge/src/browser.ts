@@ -9,12 +9,17 @@ import type {
  * Plain-browser host, used by `npm run dev` and tests. Files have no lasting
  * location, so saving always downloads a copy and there are no recents.
  */
-export function createBrowserBridge(options: { proxyUrl?: string } = {}): HostBridge {
+export function createBrowserBridge(
+  options: { proxyUrl?: string } = {}
+): HostBridge {
   const proxyUrl = options.proxyUrl ?? '/cors-proxy';
 
   function download(name: string, data: Uint8Array) {
     const url = URL.createObjectURL(new Blob([data as BlobPart]));
-    const a = Object.assign(document.createElement('a'), { href: url, download: name });
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: name,
+    });
     document.body.append(a);
     a.click();
     a.remove();
@@ -75,14 +80,18 @@ export function createBrowserBridge(options: { proxyUrl?: string } = {}): HostBr
     },
 
     fetch: async (req: NetRequest): Promise<NetResponse> => {
-      const res = await fetch(`${proxyUrl}?url=${encodeURIComponent(req.url)}`, {
-        method: req.method,
-        headers: req.contentType ? { 'Content-Type': req.contentType } : {},
-        body: req.body as BodyInit | undefined,
-      });
+      const res = await fetch(
+        `${proxyUrl}?url=${encodeURIComponent(req.url)}`,
+        {
+          method: req.method,
+          headers: req.contentType ? { 'Content-Type': req.contentType } : {},
+          body: req.body as BodyInit | undefined,
+        }
+      );
       return {
         status: res.status,
-        contentType: res.headers.get('content-type') ?? 'application/octet-stream',
+        contentType:
+          res.headers.get('content-type') ?? 'application/octet-stream',
         body: new Uint8Array(await res.arrayBuffer()),
       };
     },
