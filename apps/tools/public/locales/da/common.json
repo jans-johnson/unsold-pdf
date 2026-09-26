@@ -11,10 +11,6 @@
     "searchLanguage": "Søg sprog…",
     "noLanguagesFound": "Ingen sprog fundet"
   },
-  "donation": {
-    "message": "Elsker du UnAcrobat? Hjælp os med at holde det gratis og open source!",
-    "button": "Donér"
-  },
   "hero": {
     "title": "Den",
     "pdfToolkit": "PDF-værktøjskasse",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "Bruges af virksomheder og personer der arbejder hos"
-  },
-  "features": {
-    "title": "Hvorfor vælge",
-    "UnAcrobat": "UnAcrobat?",
-    "noSignup": {
-      "title": "Ingen tilmelding",
-      "description": "Start med det samme, ingen konti eller e-mails."
-    },
-    "noUploads": {
-      "title": "Ingen uploads",
-      "description": "100% klientside – dine filer forlader aldrig din enhed."
-    },
-    "foreverFree": {
-      "title": "Altid gratis",
-      "description": "Alle værktøjer, ingen prøveperioder, ingen betalingsmure."
-    },
-    "noLimits": {
-      "title": "Ingen begrænsninger",
-      "description": "Brug det så meget du vil, ingen skjulte grænser."
-    },
-    "batchProcessing": {
-      "title": "Batchbehandling",
-      "description": "Håndter ubegrænsede PDF'er på én gang."
-    },
-    "lightningFast": {
-      "title": "Lynhurtigt",
-      "description": "Behandl PDF’er øjeblikkeligt, uden ventetid eller forsinkelser."
-    }
   },
   "tools": {
     "title": "Kom i gang med",
@@ -182,59 +150,16 @@
       "description": "Fastlægger krav til håndtering af følsomme sundhedsoplysninger i USA."
     }
   },
-  "faq": {
-    "title": "Ofte stillede",
-    "questions": "Spørgsmål",
-    "sectionTitle": "Ofte stillede spørgsmål",
-    "isFree": {
-      "question": "Er UnAcrobat virkelig gratis?",
-      "answer": "Ja, absolut. Alle værktøjer er 100% gratis at bruge, uden filgrænser, uden tilmeldinger og uden vandmærker."
-    },
-    "areFilesSecure": {
-      "question": "Er mine filer sikre? Hvor bliver de behandlet?",
-      "answer": "Dine filer er så sikre som muligt, fordi de aldrig forlader din computer. Alt behandles direkte i din browser."
-    },
-    "platforms": {
-      "question": "Virker det på Mac, Windows og mobil?",
-      "answer": "Ja! UnAcrobat virker på alle moderne browsere, uanset styresystem."
-    },
-    "gdprCompliant": {
-      "question": "Er UnAcrobat GDPR-kompatibel?",
-      "answer": "Ja. Da vi ikke indsamler eller behandler dine filer på vores servere, er dine data altid under din kontrol."
-    },
-    "dataStorage": {
-      "question": "Gemmer eller sporer I mine filer?",
-      "answer": "Nej. Vi gemmer eller sporer aldrig dine filer. Alt foregår i din browser."
-    },
-    "different": {
-      "question": "Hvad gør UnAcrobat anderledes?",
-      "answer": "De fleste PDF-værktøjer uploader dine filer til en server. UnAcrobat gør det hele lokalt i din browser."
-    },
-    "browserBased": {
-      "question": "Hvordan gør browserbaseret behandling mig sikker?",
-      "answer": "Dine filer forlader aldrig enheden, hvilket fjerner risikoen for datalæk, hacks eller uautoriseret adgang."
-    },
-    "analytics": {
-      "question": "Bruger I cookies eller analyseværktøjer?",
-      "answer": "Nej. UnAcrobat sporer dig slet ikke. Vi bruger hverken cookies, analyseværktøjer eller sporingsscripts – heller ikke på den live hjemmeside unacrobat.com. Vi ved aldrig, hvem du er, eller hvad du bruger værktøjerne til."
-    }
-  },
   "testimonials": {
     "title": "Hvad vores",
     "users": "Brugere",
     "say": "Siger"
-  },
-  "support": {
-    "title": "Kan du lide mit arbejde?",
-    "description": "UnAcrobat er et passioneret projekt, bygget for at tilbyde et gratis og privat PDF-værktøj til alle.",
-    "buyMeCoffee": "Køb en kaffe til mig"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "Version",
     "company": "Virksomhed",
     "aboutUs": "Om os",
-    "faqLink": "FAQ",
     "contactUs": "Kontakt os",
     "legal": "Juridisk",
     "termsAndConditions": "Terms and Conditions",
@@ -280,47 +205,6 @@
     "close": "Luk",
     "convert": "Konvertér",
     "unknownError": "Ukendt fejl"
-  },
-  "about": {
-    "hero": {
-      "title": "Vi mener PDF-værktøjer bør være",
-      "subtitle": "hurtige, private og gratis.",
-      "noCompromises": "Ingen kompromiser."
-    },
-    "mission": {
-      "title": "Vores",
-      "titleDim": "mission",
-      "description": "At give den mest komplette PDF-værktøjskasse uden betaling og med fuldt fokus på privatliv."
-    },
-    "philosophy": {
-      "label": "Vores kernefilosofi",
-      "title": "Privatliv først. Altid.",
-      "description": "Alt sker lokalt i din browser. Dine dokumenter er 100% private."
-    },
-    "whyUnAcrobat": {
-      "title": "Hvorfor",
-      "speed": {
-        "title": "Bygget til hastighed",
-        "description": "Ingen ventetid på uploads eller downloads — alt behandles lokalt."
-      },
-      "free": {
-        "title": "Fuldstændig gratis",
-        "description": "Ingen abonnementer, ingen skjulte gebyrer, ingen premiumlås."
-      },
-      "noAccount": {
-        "title": "Ingen konto nødvendig",
-        "description": "Brug værktøjerne med det samme — helt uden login."
-      },
-      "openSource": {
-        "title": "Open source-ånd",
-        "description": "Bygget med gennemsigtighed og baseret på stærke open source-biblioteker."
-      }
-    },
-    "cta": {
-      "title": "Klar til at komme i gang?",
-      "description": "Prøv selv den hurtige og private PDF-oplevelse.",
-      "button": "Udforsk alle værktøjer"
-    }
   },
   "contact": {
     "title": "Kontakt os",

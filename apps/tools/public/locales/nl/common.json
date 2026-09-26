@@ -11,10 +11,6 @@
     "searchLanguage": "Taal zoeken…",
     "noLanguagesFound": "Geen talen gevonden"
   },
-  "donation": {
-    "message": "Vind je UnAcrobat geweldig? Help ons het gratis en open source te houden!",
-    "button": "Donatie"
-  },
   "hero": {
     "title": "De",
     "pdfToolkit": "PDF Toolkit",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "Gebruikt door bedrijven en personen werkzaam bij"
-  },
-  "features": {
-    "title": "Waarom",
-    "UnAcrobat": "UnAcrobat?",
-    "noSignup": {
-      "title": "Geen aanmelding",
-      "description": "Direct aan de slag, zonder account of e-mails."
-    },
-    "noUploads": {
-      "title": "Geen uploads",
-      "description": "100% client-side, jouw bestanden blijven op jouw apparaat."
-    },
-    "foreverFree": {
-      "title": "Voor altijd gratis",
-      "description": "Alle tools, geen proef, geen betaalmuur."
-    },
-    "noLimits": {
-      "title": "Geen beperkingen",
-      "description": "Gebruik het zoveel je wilt, geen verborgen beperkingen."
-    },
-    "batchProcessing": {
-      "title": "Reeksen verwerken",
-      "description": "Verwerk in een keer een onbeperkt aantal PDF's."
-    },
-    "lightningFast": {
-      "title": "Bliksemsnel",
-      "description": "Verwerk PDF's direct, zonder wachten of vertraging."
-    }
   },
   "tools": {
     "title": "Aan de slag met",
@@ -182,59 +150,16 @@
       "description": "Stelt waarborgen in voor het omgaan met gevoelige gezondheidsinformatie in het gezondheidszorgsysteem van de Verenigde Staten."
     }
   },
-  "faq": {
-    "title": "Veelgestelde",
-    "questions": "Vragen",
-    "sectionTitle": "Veelgestelde vragen",
-    "isFree": {
-      "question": "Is UnAcrobat echt gratis?",
-      "answer": "Ja, absoluut. Alle tools op UnAcrobat zijn 100% gratis te gebruiken, zonder bestandslimieten, zonder aanmeldingen en zonder watermerken. Wij vinden dat iedereen toegang verdient tot eenvoudige, krachtige PDF-tools zonder betaalmuur."
-    },
-    "areFilesSecure": {
-      "question": "Zijn mijn bestanden veilig? Waar worden ze verwerkt?",
-      "answer": "Je bestanden zijn zo veilig mogelijk omdat ze je computer nooit verlaten. Alle verwerking gebeurt direct in je webbrowser (client-side). Je bestanden worden nooit naar een server ge-upload, zodat je volledige privacy en controle over je documenten behoudt."
-    },
-    "platforms": {
-      "question": "Werkt het op Mac, Windows en mobiel?",
-      "answer": "Ja! Omdat UnAcrobat volledig in je browser werkt, werkt het op elk besturingssysteem met een moderne webbrowser, inclusief Windows, macOS, Linux, iOS en Android."
-    },
-    "gdprCompliant": {
-      "question": "Is UnAcrobat AVG-conform?",
-      "answer": "Ja. UnAcrobat voldoet volledig aan de AVG. Omdat alle bestandsverwerking lokaal in je browser gebeurt en we nooit je bestanden naar een server sturen of verzamelen, hebben wij geen toegang tot je gegevens. Zo houd jij altijd de controle over je documenten."
-    },
-    "dataStorage": {
-      "question": "Slaan jullie mijn bestanden op of volgen jullie die?",
-      "answer": "Nee. We slaan je bestanden nooit op, volgen ze niet en houden er geen logboek van bij. Alles wat je op UnAcrobat doet, gebeurt in het geheugen van je browser en verdwijnt zodra je de pagina sluit. Er is geen upload, geen geschiedenislogboek en geen servers bij betrokken."
-    },
-    "different": {
-      "question": "Wat maakt UnAcrobat anders dan andere PDF-tools?",
-      "answer": "De meeste PDF-tools verlangen dat je je bestanden voor verwerking naar een server uploadt. UnAcrobat doet dat nooit. Wij gebruiken veilige, moderne webtechnologie om je bestanden direct in je browser te verwerken. Dit betekent snellere prestaties, betere privacy en totale gemoedsrust."
-    },
-    "browserBased": {
-      "question": "Hoe zorgt browsergebaseerde verwerking ervoor dat ik veilig blijf?",
-      "answer": "Omdat UnAcrobat helemaal in je browser draait, blijven je bestanden altijd op je apparaat. Daardoor hoef je je geen zorgen te maken over hacks, datalekken of ongeoorloofde toegang. Je bestanden zijn altijd van jou."
-    },
-    "analytics": {
-      "question": "Gebruikt UnAcrobat cookies of analytics om mij te volgen?",
-      "answer": "Nee. UnAcrobat volgt je helemaal niet. We gebruiken geen cookies, analytics of trackingscripts – ook niet op de live website unacrobat.com. We weten nooit wie je bent of wat je met de tools doet."
-    }
-  },
   "testimonials": {
     "title": "Wat onze",
     "users": "Gebruikers",
     "say": "Vertellen"
-  },
-  "support": {
-    "title": "Vind je mijn werk leuk?",
-    "description": "UnAcrobat is een project van passie, gemaakt om iedereen een gratis, privé en krachtig PDF-gereedschap te bieden. Als je het handig vindt, overweeg dan om de ontwikkeling te steunen. Elke koffie helpt!",
-    "buyMeCoffee": "Koop een kopje koffie voor me"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "Versie",
     "company": "Bedrijf",
     "aboutUs": "Over ons",
-    "faqLink": "Veelgestelde vragen",
     "contactUs": "Contact",
     "legal": "Juridisch",
     "termsAndConditions": "Algemene voorwaarden",
@@ -280,47 +205,6 @@
     "close": "Sluiten",
     "convert": "Converteren",
     "unknownError": "Onbekende fout"
-  },
-  "about": {
-    "hero": {
-      "title": "Wij vinden dat PDF-tools",
-      "subtitle": "snel, privé en gratis moeten zijn.",
-      "noCompromises": "Geen compromissen."
-    },
-    "mission": {
-      "title": "Onze",
-      "titleDim": "missie",
-      "description": "Ons doel is om de meest complete PDF-toolbox te bieden die je privacy respecteert en nooit om betaling vraagt. Wij geloven dat essentiële documententools voor iedereen, overal en zonder obstakels toegankelijk moeten zijn."
-    },
-    "philosophy": {
-      "label": "Onze kernfilosofie",
-      "title": "Privacy First. Altijd.",
-      "description": "In een tijdperk waarin data een handelswaar is, doen wij het net even anders. Alle verwerking voor UnAcrobat-tools gebeurt lokaal in je browser. Dat betekent dat je bestanden nooit oop onze servers terechtkomen, dat wij je documenten nooit zien en niets volgen van wat je doet. Je documenten blijven volledig privé, punt. Het is niet zomaar een functie; het is onze basis."
-    },
-    "whyUnAcrobat": {
-      "title": "Waarom",
-      "speed": {
-        "title": "Gemaakt voor snelheid",
-        "description": "Geen wachttijd voor uploads of downloads naar een server. Door bestanden direct in je browser te verwerken met moderne webtechnologieën zoals WebAssembly, bieden we ongeëvenaarde snelheid voor al onze tools."
-      },
-      "free": {
-        "title": "Volledig gratis",
-        "description": "Geen proefversies, geen abonnementen, geen verborgen kosten en geen \"premium\" functies die vworden achtergehouden. Wij vinden dat krachtige PDF-tools een openbare dienst moeten zijn, geen winstmachine."
-      },
-      "noAccount": {
-        "title": "Geen account vereist",
-        "description": "Begin meteen met het gebruiken van een tool. Je e-mail, wachtwoord of persoonlijke gegevens hebben we niet nodig. Je workflow kan soepel en anoniem zijn."
-      },
-      "openSource": {
-        "title": "De geest van Open Source",
-        "description": "Gebouwd met transparantie in gedachten. We maken gebruik van geweldige open-source bibliotheken zoals PDF-lib en PDF.js en geloven in de communitygedreven inspanning om krachtige tools voor iedereen toegankelijk te maken."
-      }
-    },
-    "cta": {
-      "title": "Klaar om te beginnen?",
-      "description": "Sluit je aan bij duizenden gebruikers die UnAcrobat vertrouwen voor hun dagelijkse documentbehoeften. Ervaar zelf het verschil dat privacy en prestaties kunnen maken.",
-      "button": "Ontdek alle tools"
-    }
   },
   "contact": {
     "title": "Neem contact op",

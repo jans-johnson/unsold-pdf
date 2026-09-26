@@ -11,10 +11,6 @@
     "searchLanguage": "Dil ara…",
     "noLanguagesFound": "Dil bulunamadı"
   },
-  "donation": {
-    "message": "UnAcrobat'i seviyor musunuz? Ücretsiz ve açık kaynaklı kalmasına yardımcı olun!",
-    "button": "Bağış Yap"
-  },
   "hero": {
     "title": " ",
     "pdfToolkit": "PDF Toolkit",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "Şu şirketler ve çalışanları tarafından kullanılıyor"
-  },
-  "features": {
-    "title": "Neden",
-    "UnAcrobat": "UnAcrobat'yi seçmelisiniz?",
-    "noSignup": {
-      "title": "Kayıt Gerekmez",
-      "description": "Hemen başlayın, hesap veya e-posta gerekmez."
-    },
-    "noUploads": {
-      "title": "Yükleme Yok",
-      "description": "%100 istemci tarafında çalışır, dosyalarınız cihazınızı asla terk etmez."
-    },
-    "foreverFree": {
-      "title": "Tamamen Ücretsiz",
-      "description": "Tüm araçlar, deneme sürümü yok, ödeme duvarı yok."
-    },
-    "noLimits": {
-      "title": "Sınırsız",
-      "description": "İstediğiniz kadar kullanın, gizli sınırlar yok."
-    },
-    "batchProcessing": {
-      "title": "Toplu İşlem",
-      "description": "Sınırsız sayıda PDF'yi tek seferde işleyin."
-    },
-    "lightningFast": {
-      "title": "Şimşek Hızında",
-      "description": "PDF'leri anında işleyin, bekleme veya gecikme olmadan."
-    }
   },
   "tools": {
     "title": "Araçlarla",
@@ -182,59 +150,16 @@
       "description": "ABD sağlık sisteminde hassas sağlık bilgilerinin işlenmesi için güvenlik önlemleri belirler."
     }
   },
-  "faq": {
-    "title": "Sıkça Sorulan",
-    "questions": "Sorular",
-    "sectionTitle": "Sıkça Sorulan Sorular",
-    "isFree": {
-      "question": "UnAcrobat gerçekten ücretsiz mi?",
-      "answer": "Evet, kesinlikle. UnAcrobat'deki tüm araçlar %100 ücretsizdir, dosya sınırı yoktur, kayıt gerekmez ve filigran eklenmez. Herkesin ödeme duvarı olmadan basit, güçlü PDF araçlarına erişimi hak ettiğine inanıyoruz."
-    },
-    "areFilesSecure": {
-      "question": "Dosyalarım güvende mi? Nerede işleniyorlar?",
-      "answer": "Dosyalarınız mümkün olan en güvenli şekildedir çünkü bilgisayarınızı asla terk etmezler. Tüm işlemler doğrudan web tarayıcınızda (istemci tarafında) gerçekleşir. Dosyalarınızı asla bir sunucuya yüklemeyiz, böylece gizliliğiniz ve belgeleriniz üzerindeki kontrolünüz tam olarak sizde kalır."
-    },
-    "platforms": {
-      "question": "Mac, Windows ve Mobil'de çalışıyor mu?",
-      "answer": "Evet! UnAcrobat tamamen tarayıcınızda çalıştığı için, Windows, macOS, Linux, iOS ve Android dahil modern bir web tarayıcısı olan herhangi bir işletim sisteminde çalışır."
-    },
-    "gdprCompliant": {
-      "question": "UnAcrobat GDPR uyumlu mu?",
-      "answer": "Evet. UnAcrobat tamamen GDPR uyumludur. Tüm dosya işlemleri tarayıcınızda yerel olarak gerçekleştiği ve dosyalarınızı herhangi bir sunucuya asla iletmediğimiz için verilerinize erişimimiz yoktur. Bu, belgeleriniz üzerindeki kontrolün her zaman sizde olduğundan emin olur."
-    },
-    "dataStorage": {
-      "question": "Dosyalarımı saklıyor veya takip ediyor musunuz?",
-      "answer": "Hayır. Dosyalarınızı asla saklamıyor, takip etmiyor veya kaydetmiyoruz. UnAcrobat'de yaptığınız her şey tarayıcı belleğinizde gerçekleşir ve sayfayı kapattığınızda silinir. Yükleme, geçmiş kaydı veya sunucu yoktur."
-    },
-    "different": {
-      "question": "UnAcrobat'yi diğer PDF araçlarından farklı kılan nedir?",
-      "answer": "Çoğu PDF aracı, işlem için dosyalarınızı bir sunucuya yükler. UnAcrobat asla böyle yapmaz. Dosyalarınızı doğrudan tarayıcınızda işlemek için güvenli, modern web teknolojileri kullanırız. Bu, daha hızlı performans, daha güçlü gizlilik ve tam bir gönül rahatlığı anlamına gelir."
-    },
-    "browserBased": {
-      "question": "Tarayıcı tabanlı işlem beni nasıl korur?",
-      "answer": "Tamamen tarayıcınızın içinde çalışarak, UnAcrobat dosyalarınızın cihazınızı asla terk etmemesini sağlar. Bu, sunucu saldırıları, veri ihlalleri veya yetkisiz erişim risklerini ortadan kaldırır. Dosyalarınız her zaman sizin kalır."
-    },
-    "analytics": {
-      "question": "Beni takip etmek için çerez veya analiz kullanıyor musunuz?",
-      "answer": "Hayır. UnAcrobat sizi hiçbir şekilde takip etmez. Çerez, analiz aracı veya izleme betiği kullanmıyoruz; canlı web sitesi unacrobat.com'da bile. Kim olduğunuzu veya araçlarla ne yaptığınızı asla bilmeyiz."
-    }
-  },
   "testimonials": {
     "title": "Kullanıcılarımız",
     "users": "Ne Diyor",
     "say": " "
-  },
-  "support": {
-    "title": "Çalışmamı Beğendiniz mi?",
-    "description": "UnAcrobat, herkes için ücretsiz, özel ve güçlü bir PDF araç seti sağlamak amacıyla oluşturulmuş bir tutku projesidir. Faydalı bulduysanız, geliştirilmesini desteklemeyi düşünebilirsiniz. Her kahve yardımcı olur!",
-    "buyMeCoffee": "Bana Kahve Ismarla"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "Sürüm",
     "company": "Şirket",
     "aboutUs": "Hakkımızda",
-    "faqLink": "SSS",
     "contactUs": "İletişim",
     "legal": "Yasal",
     "termsAndConditions": "Kullanım Koşulları",
@@ -280,47 +205,6 @@
     "close": "Kapat",
     "convert": "Dönüştür",
     "unknownError": "Bilinmeyen hata"
-  },
-  "about": {
-    "hero": {
-      "title": "PDF araçlarının",
-      "subtitle": "hızlı, özel ve ücretsiz olması gerektiğine inanıyoruz.",
-      "noCompromises": "Taviz yok."
-    },
-    "mission": {
-      "title": "Misyonumuz",
-      "titleDim": " ",
-      "description": "Gizliliğinize saygı duyan ve asla ödeme talep etmeyen en kapsamlı PDF araç setini sağlamak. Temel belge araçlarının her yerde, herkes için erişilebilir olması gerektiğine inanıyoruz."
-    },
-    "philosophy": {
-      "label": "Temel Felsefemiz",
-      "title": "Öncelik Her Zaman Gizlilik.",
-      "description": "Verinin bir meta olarak kabul edildiği bir çağda, farklı bir yaklaşım benimsiyoruz. UnAcrobat araçları için tüm işlemler tarayıcınızda yerel olarak gerçekleşir. Bu, dosyalarınızın sunucularımıza asla dokunmadığı, belgelerinizi asla görmediğimiz ve ne yaptığınızı takip etmediğimiz anlamına gelir. Belgeleriniz tamamen ve kesinlikle özel kalır. Bu sadece bir özellik değil, temelimizdir."
-    },
-    "whyUnAcrobat": {
-      "title": "Neden",
-      "speed": {
-        "title": "Hız İçin Tasarlandı",
-        "description": "Sunucuya yükleme veya indirme için bekleme yok. WebAssembly gibi modern web teknolojilerini kullanarak dosyaları doğrudan tarayıcınızda işleyerek, tüm araçlarımız için benzersiz bir hız sunuyoruz."
-      },
-      "free": {
-        "title": "Tamamen Ücretsiz",
-        "description": "Deneme sürümü yok, abonelik yok, gizli ücret yok ve \"premium\" özellikler rehin alınmamış. Güçlü PDF araçlarının bir kar merkezi değil, bir kamu hizmeti olması gerektiğine inanıyoruz."
-      },
-      "noAccount": {
-        "title": "Hesap Gerekmez",
-        "description": "Hemen herhangi bir aracı kullanmaya başlayın. E-postanıza, şifrenize veya herhangi bir kişisel bilginize ihtiyacımız yok. İş akışınız sürtünmesiz ve anonim olmalıdır."
-      },
-      "openSource": {
-        "title": "Açık Kaynak Ruhu",
-        "description": "Şeffaflık düşünülerek oluşturuldu. PDF-lib ve PDF.js gibi inanılmaz açık kaynaklı kütüphanelerden yararlanıyoruz ve güçlü araçları herkes için erişilebilir kılmak için topluluk odaklı çabaya inanıyoruz."
-      }
-    },
-    "cta": {
-      "title": "Başlamaya hazır mısınız?",
-      "description": "Günlük belge ihtiyaçları için UnAcrobat'ye güvenen binlerce kullanıcıya katılın. Gizlilik ve performansın yaratabileceği farkı deneyimleyin.",
-      "button": "Tüm Araçları Keşfet"
-    }
   },
   "contact": {
     "title": "İletişime Geçin",

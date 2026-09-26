@@ -435,69 +435,6 @@ const init = async () => {
     dom.alertOkBtn.addEventListener('click', hideAlert);
   }
 
-  const faqAccordion = document.getElementById('faq-accordion');
-  if (faqAccordion) {
-    faqAccordion.addEventListener('click', (e) => {
-      // @ts-expect-error TS(2339) FIXME: Property 'closest' does not exist on type 'EventTa... Remove this comment to see the full error message
-      const questionButton = e.target.closest('.faq-question');
-      if (!questionButton) return;
-
-      const faqItem = questionButton.parentElement;
-      const answer = faqItem.querySelector('.faq-answer');
-
-      faqItem.classList.toggle('open');
-
-      if (faqItem.classList.contains('open')) {
-        answer.style.maxHeight = answer.scrollHeight + 'px';
-      } else {
-        answer.style.maxHeight = '0px';
-      }
-    });
-  }
-
-  const faqDetails =
-    document.querySelectorAll<HTMLDetailsElement>('details.faq-d');
-  if (
-    faqDetails.length > 0 &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  ) {
-    faqDetails.forEach((detail) => {
-      const summary = detail.querySelector('summary');
-      const body = detail.querySelector<HTMLElement>('.faq-d-a');
-      if (!summary || !body) return;
-
-      let animation: Animation | null = null;
-
-      summary.addEventListener('click', (event) => {
-        event.preventDefault();
-        animation?.cancel();
-
-        const wasOpen = detail.open;
-        if (!wasOpen) detail.open = true;
-
-        const fullHeight = `${body.scrollHeight}px`;
-        const fullPadding = window.getComputedStyle(body).paddingBottom;
-        const collapsed = { height: '0px', paddingBottom: '0px', opacity: 0 };
-        const expanded = {
-          height: fullHeight,
-          paddingBottom: fullPadding,
-          opacity: 1,
-        };
-
-        body.style.overflow = 'hidden';
-        animation = body.animate(
-          wasOpen ? [expanded, collapsed] : [collapsed, expanded],
-          { duration: 280, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)' }
-        );
-        animation.onfinish = () => {
-          if (wasOpen) detail.open = false;
-          body.style.overflow = '';
-          animation = null;
-        };
-      });
-    });
-  }
-
   createIcons({ icons });
   // Initialize Shortcuts System
   ShortcutsManager.init();

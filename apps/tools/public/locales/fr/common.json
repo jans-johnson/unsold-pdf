@@ -11,10 +11,6 @@
     "searchLanguage": "Rechercher une langue…",
     "noLanguagesFound": "Aucune langue trouvée"
   },
-  "donation": {
-    "message": "Vous aimez UnAcrobat ? Aidez-nous à le garder open source !",
-    "button": "Soutenir"
-  },
   "hero": {
     "title": "La",
     "pdfToolkit": "palette d’outils PDF",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "Utilisé par des entreprises et des professionnels de"
-  },
-  "features": {
-    "title": "Pourquoi choisir",
-    "UnAcrobat": "UnAcrobat ?",
-    "noSignup": {
-      "title": "Sans inscription",
-      "description": "Utilisation immédiate, sans compte ni email."
-    },
-    "noUploads": {
-      "title": "Aucun envoi de fichiers",
-      "description": "100 % côté navigateur, vos fichiers ne quittent jamais votre appareil."
-    },
-    "foreverFree": {
-      "title": "Gratuit pour toujours",
-      "description": "Tous les outils, sans essai, sans paiement, sans restrictions."
-    },
-    "noLimits": {
-      "title": "Sans limites",
-      "description": "Utilisez autant que vous voulez, sans plafonds cachés."
-    },
-    "batchProcessing": {
-      "title": "Traitement par lots",
-      "description": "Gérez un nombre illimité de PDF en une seule fois."
-    },
-    "lightningFast": {
-      "title": "Ultra rapide",
-      "description": "Traitez vos PDF instantanément, sans attente."
-    }
   },
   "tools": {
     "title": "Commencer avec",
@@ -182,59 +150,16 @@
       "description": "Définit des règles strictes pour la gestion des données de santé aux États-Unis."
     }
   },
-  "faq": {
-    "title": "Questions",
-    "questions": "fréquentes",
-    "sectionTitle": "Questions fréquemment posées",
-    "isFree": {
-      "question": "UnAcrobat est-il vraiment gratuit ?",
-      "answer": "Oui, totalement. Tous les outils UnAcrobat sont 100 % gratuits, sans limite de fichiers, sans inscription et sans filigrane. Nous pensons que chacun doit avoir accès à des outils PDF simples et puissants, sans barrière payante."
-    },
-    "areFilesSecure": {
-      "question": "Mes fichiers sont-ils en sécurité ? Où sont-ils traités ?",
-      "answer": "Vos fichiers sont parfaitement sécurisés car ils ne quittent jamais votre ordinateur. Tous les traitements se font directement dans votre navigateur. Aucun fichier n’est envoyé sur un serveur."
-    },
-    "platforms": {
-      "question": "Est-ce compatible avec Mac, Windows et mobile ?",
-      "answer": "Oui ! UnAcrobat fonctionne entièrement dans le navigateur et est compatible avec Windows, macOS, Linux, iOS et Android."
-    },
-    "gdprCompliant": {
-      "question": "UnAcrobat est-il conforme au RGPD ?",
-      "answer": "Oui. Comme tous les traitements sont locaux et qu’aucune donnée n’est collectée ou transmise, vous restez entièrement maître de vos documents."
-    },
-    "dataStorage": {
-      "question": "Stockez-vous ou suivez-vous mes fichiers ?",
-      "answer": "Non. Aucun stockage, aucun suivi, aucun historique. Tout disparaît dès que vous fermez la page."
-    },
-    "different": {
-      "question": "Qu’est-ce qui différencie UnAcrobat des autres outils PDF ?",
-      "answer": "La plupart des outils envoient vos fichiers sur un serveur. UnAcrobat traite tout localement dans votre navigateur, pour plus de rapidité, de confidentialité et de tranquillité d’esprit."
-    },
-    "browserBased": {
-      "question": "Pourquoi le traitement dans le navigateur est-il plus sûr ?",
-      "answer": "Parce que vos fichiers restent sur votre appareil. Aucun risque de fuite, de piratage ou d’accès non autorisé."
-    },
-    "analytics": {
-      "question": "Utilisez-vous des cookies ou des outils de suivi ?",
-      "answer": "Nous respectons votre vie privée. UnAcrobat utilise uniquement des statistiques anonymes pour connaître le nombre de visites, sans jamais identifier les utilisateurs."
-    }
-  },
   "testimonials": {
     "title": "Ce que disent",
     "users": "nos utilisateurs",
     "say": " "
-  },
-  "support": {
-    "title": "Vous aimez ce projet ?",
-    "description": "UnAcrobat est un projet passion, créé pour offrir une palette d’outils PDF gratuite, privée et puissante. Si cela vous aide, vous pouvez soutenir son développement. Chaque café compte !",
-    "buyMeCoffee": "M’offrir un café"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "Version",
     "company": "Entreprise",
     "aboutUs": "À propos",
-    "faqLink": "FAQ",
     "contactUs": "Nous contacter",
     "legal": "Mentions légales",
     "termsAndConditions": "Conditions générales",
@@ -280,47 +205,6 @@
     "close": "Fermer",
     "convert": "Convertir",
     "unknownError": "Erreur inconnue"
-  },
-  "about": {
-    "hero": {
-      "title": "Nous pensons que les outils PDF doivent être",
-      "subtitle": "rapides, privés et gratuits.",
-      "noCompromises": "Sans compromis."
-    },
-    "mission": {
-      "title": "Notre",
-      "titleDim": "mission",
-      "description": "Proposer la palette d’outils PDF la plus complète, tout en respectant votre vie privée et sans jamais demander de paiement. Les outils essentiels doivent être accessibles à tous, partout, sans barrières."
-    },
-    "philosophy": {
-      "label": "Notre philosophie",
-      "title": "La confidentialité avant tout. Toujours.",
-      "description": "À une époque où les données sont devenues une monnaie, nous faisons un choix différent. Tous les traitements des outils UnAcrobat sont effectués localement dans votre navigateur. Vos fichiers ne passent jamais par nos serveurs, nous ne voyons jamais vos documents et nous ne suivons pas votre activité. Ce n’est pas une option, c’est notre fondation."
-    },
-    "whyUnAcrobat": {
-      "title": "Pourquoi",
-      "speed": {
-        "title": "Pensé pour la vitesse",
-        "description": "Aucune attente liée aux envois ou téléchargements serveur. Grâce au traitement local et aux technologies web modernes comme WebAssembly, nos outils sont extrêmement rapides."
-      },
-      "free": {
-        "title": "Entièrement gratuit",
-        "description": "Aucun essai, aucun abonnement, aucun coût caché, aucune fonctionnalité « premium » bloquée. Les outils PDF doivent être un service public, pas un produit de luxe."
-      },
-      "noAccount": {
-        "title": "Aucun compte requis",
-        "description": "Utilisez n’importe quel outil immédiatement. Pas d’email, pas de mot de passe, aucune donnée personnelle. Votre flux de travail reste fluide et anonyme."
-      },
-      "openSource": {
-        "title": "Esprit open source",
-        "description": "Conçu dans un esprit de transparence. Nous utilisons des bibliothèques open source reconnues comme PDF-lib et PDF.js, et croyons en la force de la communauté."
-      }
-    },
-    "cta": {
-      "title": "Prêt à commencer ?",
-      "description": "Rejoignez des milliers d’utilisateurs qui font confiance à UnAcrobat au quotidien. Découvrez la différence qu’apportent la confidentialité et la performance.",
-      "button": "Explorer tous les outils"
-    }
   },
   "contact": {
     "title": "Nous contacter",

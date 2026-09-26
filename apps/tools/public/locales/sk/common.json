@@ -11,10 +11,6 @@
     "searchLanguage": "Hľadať jazyk…",
     "noLanguagesFound": "Nenašli sa žiadne jazyky"
   },
-  "donation": {
-    "message": "Páči sa vám UnAcrobat? Pomôžte nám udržať ho bezplatný a open source!",
-    "button": "Prispieť"
-  },
   "hero": {
     "title": "Sada",
     "pdfToolkit": "PDF nástrojov",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "Používajú spoločnosti a ľudia, ktorí pracujú v"
-  },
-  "features": {
-    "title": "Prečo si vybrať",
-    "UnAcrobat": "UnAcrobat?",
-    "noSignup": {
-      "title": "Žiadna registrácia",
-      "description": "Začnite okamžite, nepotrebujete žiadne účty ani e-maily."
-    },
-    "noUploads": {
-      "title": "Žiadne nahrávanie na server",
-      "description": "100% lokálne spracovanie, vaše súbory nikdy neopustia vaše zariadenie."
-    },
-    "foreverFree": {
-      "title": "Navždy zadarmo",
-      "description": "Všetky nástroje, žiadne skúšobné verzie, žiadne skryté poplatky."
-    },
-    "noLimits": {
-      "title": "Bez obmedzení",
-      "description": "Používajte koľko chcete, bez skrytých limitov."
-    },
-    "batchProcessing": {
-      "title": "Dávkové spracovanie",
-      "description": "Spracujte neobmedzené množstvo PDF dokumentov naraz."
-    },
-    "lightningFast": {
-      "title": "Bleskovo rýchle",
-      "description": "Spracujte PDF okamžite, bez zbytočného čakania."
-    }
   },
   "tools": {
     "title": "Začnite s",
@@ -182,59 +150,16 @@
       "description": "Stanovuje ochranné opatrenia pre nakladanie s citlivými zdravotnými informáciami v systéme zdravotnej starostlivosti v USA."
     }
   },
-  "faq": {
-    "title": "Často kladené",
-    "questions": "otázky",
-    "sectionTitle": "Často kladené otázky",
-    "isFree": {
-      "question": "Je UnAcrobat naozaj zadarmo?",
-      "answer": "Áno, absolútne. Všetky nástroje na UnAcrobat sú na 100% bezplatné, bez obmedzení súborov, bez registrácie a bez vodotlače. Veríme, že každý si zaslúži prístup k jednoduchým a výkonným nástrojom PDF bez poplatkov."
-    },
-    "areFilesSecure": {
-      "question": "Sú moje súbory v bezpečí? Kde sa spracúvajú?",
-      "answer": "Vaše súbory sú v maximálnom bezpečí, pretože nikdy neopustia váš počítač. Všetko spracovanie prebieha priamo vo vašom webovom prehliadači (na strane klienta). Nikdy nenahrávame vaše súbory na server, takže máte úplné súkromie a kontrolu nad svojimi dokumentmi."
-    },
-    "platforms": {
-      "question": "Funguje to na Macu, vo Windows a na mobilných zariadeniach?",
-      "answer": "Áno! Keďže UnAcrobat beží výlučne vo vašom prehliadači, funguje na akomkoľvek operačnom systéme s moderným webovým prehliadačom vrátane Windows, macOS, Linux, iOS a Android."
-    },
-    "gdprCompliant": {
-      "question": "Je UnAcrobat v súlade s GDPR?",
-      "answer": "Áno. UnAcrobat je plne v súlade s GDPR. Keďže všetko spracovanie súborov prebieha lokálne vo vašom prehliadači a my vaše súbory nikdy nezhromažďujeme ani neprenášame na žiadny server, nemáme prístup k vašim údajom. To zaisťuje, že máte svoje dokumenty vždy pod kontrolou."
-    },
-    "dataStorage": {
-      "question": "Ukladáte alebo sledujete nejaké moje súbory?",
-      "answer": "Nie. Vaše súbory nikdy neukladáme, nesledujeme ani nezaznamenávame. Všetko, čo v UnAcrobat urobíte, sa odohráva v pamäti vášho prehliadača a po zatvorení stránky zmizne. Nedochádza k žiadnemu nahrávaniu, logovaniu ani sa nevyužívajú žiadne servery."
-    },
-    "different": {
-      "question": "V čom je UnAcrobat odlišné od iných PDF nástrojov?",
-      "answer": "Väčšina PDF nástrojov nahráva vaše súbory na spracovanie na server. UnAcrobat to nerobí. Na spracovanie vašich súborov priamo vo vašom prehliadači používame bezpečné moderné webové technológie. Znamená to vyšší výkon, silnejšiu ochranu súkromia a úplný pokoj v duši."
-    },
-    "browserBased": {
-      "question": "Ako ma spracovanie založené na prehliadači chráni?",
-      "answer": "Tým, že UnAcrobat beží výlučne vnútri vášho prehliadača, zabezpečuje, že vaše súbory nikdy neopustia vaše zariadenie. Tým sa eliminujú riziká napadnutia serverov, úniku dát alebo neoprávneného prístupu. Vaše súbory zostávajú vždy vaše."
-    },
-    "analytics": {
-      "question": "Používate súbory cookie alebo analytiku na moje sledovanie?",
-      "answer": "Nie. UnAcrobat vás vôbec nesleduje. Nepoužívame cookies, analytiku ani sledovacie skripty – ani na živej webovej stránke unacrobat.com. Nikdy nevieme, kto ste ani čo s nástrojmi robíte."
-    }
-  },
   "testimonials": {
     "title": "Čo hovoria",
     "users": "naši",
     "say": "používatelia"
-  },
-  "support": {
-    "title": "Páči sa vám moja práca?",
-    "description": "UnAcrobat je srdcový projekt, vytvorený s cieľom poskytnúť bezplatnú, súkromnú a výkonnú sadu PDF nástrojov pre každého. Ak sa vám zdá užitočný, zvážte podporu jeho vývoja. Každá káva pomôže!",
-    "buyMeCoffee": "Kúpte mi kávu"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "Verzia",
     "company": "Spoločnosť",
     "aboutUs": "O nás",
-    "faqLink": "Časté otázky",
     "contactUs": "Kontaktujte nás",
     "legal": "Právne informácie",
     "termsAndConditions": "Obchodné podmienky",
@@ -280,47 +205,6 @@
     "close": "Zavrieť",
     "convert": "Konvertovať",
     "unknownError": "Neznáma chyba"
-  },
-  "about": {
-    "hero": {
-      "title": "Veríme, že PDF nástroje by mali byť",
-      "subtitle": "rýchle, súkromné a bezplatné.",
-      "noCompromises": "Bez kompromisov."
-    },
-    "mission": {
-      "title": "Naša",
-      "titleDim": "misia",
-      "description": "Poskytnúť najkomplexnejšiu sadu PDF nástrojov, ktorá rešpektuje vaše súkromie a nikdy nepožaduje platbu. Veríme, že základné nástroje pre prácu s dokumentmi by mali byť dostupné pre každého, všade a bez bariér."
-    },
-    "philosophy": {
-      "label": "Naša hlavná filozofia",
-      "title": "Súkromie na prvom mieste. Vždy.",
-      "description": "V dobe, kedy sú dáta komoditou, k tomu pristupujeme inak. Všetko spracovanie nástrojov UnAcrobat prebieha lokálne vo vašom prehliadači. To znamená, že vaše súbory sa nikdy nedotknú našich serverov, nikdy nevidíme vaše dokumenty a nesledujeme, čo robíte. Vaše dokumenty zostávajú úplne a jednoznačne súkromné. Nie je to len funkcia, je to náš základ."
-    },
-    "whyUnAcrobat": {
-      "title": "Prečo",
-      "speed": {
-        "title": "Zostavené pre rýchlosť",
-        "description": "Žiadne čakanie na nahrávanie alebo sťahovanie zo servera. Spracovaním súborov priamo vo vašom prehliadači pomocou moderných webových technológií ako WebAssembly, ponúkame bezkonkurenčnú rýchlosť pre všetky naše nástroje."
-      },
-      "free": {
-        "title": "Úplne zadarmo",
-        "description": "Žiadne skúšobné verzie, žiadne predplatné, žiadne skryté poplatky a žiadne „prémiové“ funkcie držané ako rukojemníci. Veríme, že výkonné PDF nástroje by mali byť verejnou službou, nie centrom zisku."
-      },
-      "noAccount": {
-        "title": "Nevyžaduje sa žiadny účet",
-        "description": "Začnite používať akýkoľvek nástroj okamžite. Nepotrebujeme váš e-mail, heslo ani žiadne osobné údaje. Váš pracovný postup by mal byť plynulý a anonymný."
-      },
-      "openSource": {
-        "title": "Duch open-source",
-        "description": "Vytvorené s ohľadom na transparentnosť. Využívame neuveriteľné open-source knižnice ako PDF-lib a PDF.js, a veríme v úsilie poháňané komunitou s cieľom sprístupniť výkonné nástroje všetkým."
-      }
-    },
-    "cta": {
-      "title": "Ste pripravení začať?",
-      "description": "Pridajte sa k tisícom používateľov, ktorí dôverujú UnAcrobat vo svojich každodenných potrebách s dokumentmi. Vyskúšajte, aký rozdiel môže urobiť súkromie a výkon.",
-      "button": "Preskúmať všetky nástroje"
-    }
   },
   "contact": {
     "title": "Kontaktujte nás",

@@ -11,10 +11,6 @@
     "searchLanguage": "搜索语言…",
     "noLanguagesFound": "未找到语言"
   },
-  "donation": {
-    "message": "喜欢 UnAcrobat？帮助我们保持免费和开源！",
-    "button": "捐赠"
-  },
   "hero": {
     "title": "专为隐私打造的",
     "pdfToolkit": "PDF 工具箱",
@@ -26,34 +22,6 @@
   },
   "usedBy": {
     "title": "被众多公司和个人信赖，包括"
-  },
-  "features": {
-    "title": "为什么选择",
-    "UnAcrobat": "UnAcrobat?",
-    "noSignup": {
-      "title": "无需注册",
-      "description": "即刻开始，无需账户或电子邮件。"
-    },
-    "noUploads": {
-      "title": "无需上传",
-      "description": "100% 客户端处理，您的文件从未离开您的设备。"
-    },
-    "foreverFree": {
-      "title": "永久免费",
-      "description": "所有工具免费，无试用期，无付费墙。"
-    },
-    "noLimits": {
-      "title": "无限制",
-      "description": "随心使用，无任何隐形限制。"
-    },
-    "batchProcessing": {
-      "title": "批量处理",
-      "description": "一次处理无限数量的 PDF 文件。"
-    },
-    "lightningFast": {
-      "title": "极速处理",
-      "description": "瞬间处理 PDF, 无需等待。"
-    }
   },
   "tools": {
     "title": "开始使用",
@@ -182,59 +150,16 @@
       "description": "制定美国医疗系统中处理敏感健康信息的保障措施。"
     }
   },
-  "faq": {
-    "title": "常见",
-    "questions": "问题",
-    "sectionTitle": "常见问题",
-    "isFree": {
-      "question": "UnAcrobat 真的免费吗？",
-      "answer": "是的，完全免费。UnAcrobat 上的所有工具均可 100% 免费使用，没有文件限制，无需注册，也没有水印。我们相信每个人都应该能够使用简单、强大的 PDF 工具，而无需通过付费墙。"
-    },
-    "areFilesSecure": {
-      "question": "我的文件安全吗？它们在哪里处理？",
-      "answer": "您的文件非常安全，因为它们从未离开您的电脑。所有处理都直接在您的网络浏览器（客户端）中进行。我们从不将您的文件上传到服务器，因此您可以对文档保持完全的隐私和控制。"
-    },
-    "platforms": {
-      "question": "它适用于 Mac、Windows 和手机吗？",
-      "answer": "是的！由于 UnAcrobat 完全在您的浏览器中运行，因此它适用于任何带有现代网络浏览器的操作系统，包括 Windows、macOS、Linux、iOS 和 Android。"
-    },
-    "gdprCompliant": {
-      "question": "UnAcrobat 符合 GDPR 吗？",
-      "answer": "是的。UnAcrobat 完全符合 GDPR。由于所有文件处理都在您的浏览器中本地进行，并且我们从不收集或将您的文件传输到任何服务器，因此我们无法访问您的数据。这确保您始终掌控您的文档。"
-    },
-    "dataStorage": {
-      "question": "你们会存储或跟踪我的任何文件吗？",
-      "answer": "不。我们从不存储、跟踪或记录您的文件。您在 UnAcrobat 上所做的所有操作都在您的浏览器内存中进行，并在您关闭页面后消失。没有上传，没有历史记录，也没有涉及服务器。"
-    },
-    "different": {
-      "question": "UnAcrobat 与其他 PDF 工具有何不同？",
-      "answer": "大多数 PDF 工具将您的文件上传到服务器进行处理。UnAcrobat 从不这样做。我们使用安全、现代的网络技术直接在您的浏览器中处理您的文件。这意味着更快的性能、更强的隐私和完全的安心。"
-    },
-    "browserBased": {
-      "question": "基于浏览器的处理如何保护我的安全？",
-      "answer": "通过完全在您的浏览器内部运行，UnAcrobat 确保您的文件从未离开您的设备。这消除了服务器黑客攻击、数据泄露或未经授权访问的风险。您的文件始终属于您。"
-    },
-    "analytics": {
-      "question": "你们使用 Cookie 或分析来跟踪我吗？",
-      "answer": "不会。UnAcrobat 完全不会追踪您。我们不使用 Cookie、分析工具或任何追踪脚本，即使在正式网站 unacrobat.com 上也是如此。我们永远不知道您是谁，也不知道您用这些工具做了什么。"
-    }
-  },
   "testimonials": {
     "title": "我们的",
     "users": "用户",
     "say": "评价"
-  },
-  "support": {
-    "title": "喜欢这个项目？",
-    "description": "UnAcrobat 是一个充满激情的项目，旨在为每个人提供免费、私密且强大的 PDF 工具箱。如果您觉得它有用，请考虑支持它的开发。每一杯咖啡都是莫大的支持！",
-    "buyMeCoffee": "请我喝杯咖啡"
   },
   "footer": {
     "copyright": "Free software under the GNU AGPL v3.",
     "version": "版本",
     "company": "公司",
     "aboutUs": "关于我们",
-    "faqLink": "常见问题",
     "contactUs": "联系我们",
     "legal": "法律",
     "termsAndConditions": "服务条款",
@@ -280,47 +205,6 @@
     "close": "关闭",
     "convert": "转换",
     "unknownError": "未知错误"
-  },
-  "about": {
-    "hero": {
-      "title": "我们相信 PDF 工具应该是",
-      "subtitle": "快速、私密且免费的。",
-      "noCompromises": "绝不妥协。"
-    },
-    "mission": {
-      "title": "我们的使命",
-      "titleDim": " ",
-      "description": "提供最全面的 PDF 工具箱，尊重您的隐私，且永不收费。我们相信基本的文档工具应该对所有人、在任何地方都触手可及，没有任何障碍。"
-    },
-    "philosophy": {
-      "label": "我们的核心理念",
-      "title": "隐私至上。始终如一。",
-      "description": "在数据被商品化的时代，我们采取不同的方式。UnAcrobat 工具的所有处理都在您的浏览器本地进行。这意味着您的文件从未接触我们的服务器，我们从不查看您的文档，也不跟踪您的操作。您的文档保持绝对的私密性。这不仅是一项功能；这是我们的基石。"
-    },
-    "whyUnAcrobat": {
-      "title": "为什么选择",
-      "speed": {
-        "title": "为速度而生",
-        "description": "无需等待上传或从服务器下载。通过使用 WebAssembly 等现代网络技术直接在您的浏览器中处理文件，我们为所有工具提供了无与伦比的速度。"
-      },
-      "free": {
-        "title": "完全免费",
-        "description": "无试用，无订阅，无隐藏费用，也没有被锁定的 '高级' 功能。我们相信强大的 PDF 工具应该是一种公共设施，而不是盈利中心。"
-      },
-      "noAccount": {
-        "title": "无需账户",
-        "description": "立即开始使用任何工具。我们不需要您的电子邮件、密码或任何个人信息。您的工作流程应该是无摩擦且匿名的。"
-      },
-      "openSource": {
-        "title": "开源精神",
-        "description": "以透明度为核心构建。我们利用了像 PDF-lib 和 PDF.js 这样优秀的开源库，并相信社区驱动的力量能使强大的工具惠及每一个人。"
-      }
-    },
-    "cta": {
-      "title": "准备好开始了吗？",
-      "description": "加入成千上万信任 UnAcrobat 满足日常文档需求的用户。体验隐私和性能带来的不同。",
-      "button": "探索所有工具"
-    }
   },
   "contact": {
     "title": "联系我们",
