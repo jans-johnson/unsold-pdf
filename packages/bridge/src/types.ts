@@ -76,9 +76,21 @@ export interface NetResponse {
 
 export type Unsubscribe = () => void;
 
+export interface SelfTestCheck {
+  name: string;
+  ok: boolean;
+  detail?: string;
+}
+
+/** Present only when the app was launched with `--self-test` (CI smoke runs). */
+export interface SelfTestHost {
+  report(checks: SelfTestCheck[]): Promise<void>;
+}
+
 export interface HostBridge {
   readonly platform: Platform;
   readonly capabilities: HostCapabilities;
+  readonly selfTest?: SelfTestHost;
 
   /** Show the system picker; resolves with the documents the user chose. */
   pickDocuments(): Promise<OpenedDocument[]>;

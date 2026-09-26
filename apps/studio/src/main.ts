@@ -202,3 +202,8 @@ mountToolsView(studio);
 mountDocumentPanes(studio);
 studio.activate('home');
 await host.ready();
+
+if (host.selfTest) {
+  const { runSelfTest } = await import('./self-test.ts');
+  await runSelfTest(studio, host.selfTest);
+}

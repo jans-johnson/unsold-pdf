@@ -1,13 +1,35 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the Studio window. File and network access go through the app's own commands, which enforce their own checks.",
+  "description": "Permissions for the Studio window. File and network access go through the app's own commands, which enforce their own checks. The loopback origin is used on macOS, iOS and Linux (see src/origin.rs); the window cannot navigate anywhere else.",
   "windows": [
     "main"
   ],
   "permissions": [
     "core:default",
     "core:window:allow-set-title",
-    "core:window:allow-destroy"
-  ]
+    "core:window:allow-destroy",
+    "core:window:allow-start-dragging",
+    "allow-host-info",
+    "allow-self-test-report",
+    "allow-open-external",
+    "allow-quit-app",
+    "allow-host-ready",
+    "allow-pick-documents",
+    "allow-read-document",
+    "allow-open-recent",
+    "allow-save-document",
+    "allow-save-document-as",
+    "allow-export-file",
+    "allow-recents-list",
+    "allow-recents-remove",
+    "allow-recents-clear",
+    "allow-reveal-file",
+    "allow-net-fetch"
+  ],
+  "remote": {
+    "urls": [
+      "http://127.0.0.1:*"
+    ]
+  }
 }

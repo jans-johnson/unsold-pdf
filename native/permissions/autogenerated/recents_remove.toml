@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-recents-remove"
+description = "Enables the recents_remove command without any pre-configured scope."
+commands.allow = ["recents_remove"]
+
+[[permission]]
+identifier = "deny-recents-remove"
+description = "Denies the recents_remove command without any pre-configured scope."
+commands.deny = ["recents_remove"]

@@ -13,6 +13,7 @@ import type {
 
 interface HostInfo {
   platform: Platform;
+  selfTest: boolean;
 }
 
 // Header values must be ASCII; file names and paths often aren't.
@@ -48,6 +49,9 @@ export async function createTauriBridge(): Promise<HostBridge> {
       nativeMenu: desktop,
       saveInPlace: true,
     },
+    selfTest: info.selfTest
+      ? { report: (checks) => invoke('self_test_report', { checks }) }
+      : undefined,
 
     async pickDocuments() {
       const refs = await invoke<DocumentRef[]>('pick_documents');
