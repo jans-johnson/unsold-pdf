@@ -8,10 +8,17 @@ interface WasmProviderConfig {
 
 const STORAGE_KEY = 'unacrobat:wasm-providers';
 
+// The engines ship with the app and are served from /wasm/ on its own origin.
+const bundledEngine = (dir: string) =>
+  new URL(
+    `${import.meta.env.BASE_URL}wasm/${dir}`,
+    globalThis.location?.href ?? 'http://localhost/'
+  ).href;
+
 const CDN_DEFAULTS: Record<WasmPackage, string> = {
-  pymupdf: 'app://unacrobat/wasm/pymupdf/',
-  ghostscript: 'app://unacrobat/wasm/gs/assets/',
-  cpdf: 'app://unacrobat/wasm/cpdf/dist/',
+  pymupdf: bundledEngine('pymupdf/'),
+  ghostscript: bundledEngine('gs/assets/'),
+  cpdf: bundledEngine('cpdf/dist/'),
 };
 
 function envOrDefault(envVar: string | undefined, fallback: string): string {

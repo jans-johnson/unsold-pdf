@@ -4,7 +4,7 @@ import { createIcons, icons } from 'lucide';
 import { initPagePreview } from '../utils/page-preview.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
-import { escapeHtml } from '../utils/helpers.js';
+import { downloadFile, escapeHtml } from '../utils/helpers.js';
 import '../utils/setup-pdf-worker.js';
 
 // State
@@ -51,15 +51,6 @@ function showAlert(
       if (cb) cb();
     });
   }
-}
-
-function downloadFile(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function updateFileDisplay() {

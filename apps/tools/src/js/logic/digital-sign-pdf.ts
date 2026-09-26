@@ -2,6 +2,7 @@ import { PdfSigner, type SignOption } from 'zgapdfsigner';
 import forge from 'node-forge';
 import { CertificateData, SignPdfOptions } from '@/types';
 import { isValidTsaRequestUrl } from '../config/timestamp-tsa.js';
+import { findToolHost, type ToolHost } from '@unacrobat/bridge/tool-host';
 
 export function parsePfxFile(
   pfxBytes: ArrayBuffer,
@@ -99,8 +100,8 @@ export function parseCombinedPem(
  * but those servers often don't have CORS headers. This proxy adds the necessary
  * CORS headers to allow the requests from the browser.
  *
- * The desktop app serves a proxy at /cors-proxy (see desktop/main.cjs), which
- * is used unless VITE_CORS_PROXY_URL overrides it.
+ * Inside the UnAcrobat app these requests go through the native host instead
+ * (see viaToolHost); the proxy is only used when a page runs on its own.
  */
 const DEFAULT_CORS_PROXY_URL = '/cors-proxy';
 
@@ -194,6 +195,30 @@ async function buildCorsProxyUrl(url: string): Promise<string> {
  * If VITE_CORS_PROXY_SECRET is configured, requests include HMAC signatures for anti-spoofing.
  *
  */
+async function bodyBytes(body: BodyInit | null | undefined): Promise<Uint8Array | undefined> {
+  if (body == null) return undefined;
+  return new Uint8Array(await new Response(body).arrayBuffer());
+}
+
+/** Performs a certificate / timestamp request through the native app. */
+async function viaToolHost(
+  host: ToolHost,
+  url: string,
+  init?: RequestInit
+): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  const res = await host.fetch({
+    url,
+    method: (init?.method ?? 'GET').toUpperCase() === 'POST' ? 'POST' : 'GET',
+    contentType: headers.get('Content-Type') ?? undefined,
+    body: await bodyBytes(init?.body),
+  });
+  return new Response(res.body as BodyInit, {
+    status: res.status,
+    headers: { 'Content-Type': res.contentType },
+  });
+}
+
 let fetchWrapRefCount = 0;
 let savedOriginalFetch: typeof fetch | null = null;
 
@@ -245,6 +270,11 @@ function createCorsAwareFetch(): {
         !isAlreadyProxied &&
         (isExternalCertificateUrl || isTsaRequest) &&
         !url.startsWith(window.location.origin);
+
+      const host = shouldProxy ? findToolHost() : null;
+      if (host) {
+        return viaToolHost(host, url, init);
+      }
 
       if (shouldProxy && CORS_PROXY_URL) {
         const proxyUrl = await buildCorsProxyUrl(url);
@@ -364,7 +394,9 @@ export async function timestampPdf(
     typeof window !== 'undefined' && window.location?.protocol === 'https:';
   const tsaIsHttp = /^http:\/\//i.test(tsaUrl);
 
-  if (pageIsHttps && tsaIsHttp && !CORS_PROXY_URL) {
+  const host = findToolHost();
+
+  if (pageIsHttps && tsaIsHttp && !CORS_PROXY_URL && !host) {
     throw new Error(
       `This TSA endpoint uses HTTP (${tsaUrl}). The browser blocks insecure ` +
         `requests from this HTTPS page. Either choose a TSA with an HTTPS ` +
@@ -375,7 +407,8 @@ export async function timestampPdf(
 
   let effectiveUrl = tsaUrl;
 
-  if (CORS_PROXY_URL) {
+  // In the app the fetch wrapper hands the TSA request to the native host.
+  if (CORS_PROXY_URL && !host) {
     effectiveUrl = await buildCorsProxyUrl(tsaUrl);
 
     if (CORS_PROXY_SECRET) {

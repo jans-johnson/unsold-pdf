@@ -6,11 +6,13 @@
  * conflicts with Vite's HMR (Hot Module Replacement)
  */
 
-// Skip service worker registration in development mode
+// Skip service worker registration in development mode, and inside the
+// UnAcrobat app (pages are embedded in the Studio and every file is local).
 const isDevelopment =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1' ||
-  window.location.port !== '';
+  window.location.port !== '' ||
+  window.top !== window;
 
 function collectTrustedWasmHosts(): string[] {
   const hosts = new Set<string>();

@@ -139,9 +139,9 @@ describe('timestampPdf', () => {
     Object.defineProperty(window, 'location', {
       configurable: true,
       value: {
-        protocol: 'app:',
-        origin: 'app://unacrobat',
-        hostname: 'unacrobat',
+        protocol: 'http:',
+        origin: 'http://localhost:5173',
+        hostname: 'localhost',
       },
     });
     vi.resetModules();
@@ -154,9 +154,52 @@ describe('timestampPdf', () => {
     const callArg = vi.mocked(PdfSigner).mock.calls[0][0] as {
       signdate: { url: string };
     };
-    expect(callArg.signdate.url).toMatch(/^app:\/\/unacrobat\/cors-proxy\?url=/);
+    expect(callArg.signdate.url).toMatch(
+      /^http:\/\/localhost:5173\/cors-proxy\?url=/
+    );
     expect(callArg.signdate.url).toContain(
       encodeURIComponent('http://timestamp.digicert.com')
     );
+  });
+
+  it('sends TSA requests through the app host when embedded in the Studio', async () => {
+    const hostFetch = vi.fn().mockResolvedValue({
+      status: 200,
+      contentType: 'application/timestamp-reply',
+      body: new Uint8Array([9, 9]),
+    });
+    const fakeTop = { unacrobat: { fetch: hostFetch, deliverOutput: vi.fn() } };
+    const realTop = Object.getOwnPropertyDescriptor(window, 'top');
+    Object.defineProperty(window, 'top', { configurable: true, value: fakeTop });
+    try {
+      vi.resetModules();
+      const { timestampPdf: fresh } = await import('@/js/logic/digital-sign-pdf');
+
+      let reply: Uint8Array | null = null;
+      mockSign.mockImplementationOnce(async () => {
+        const res = await window.fetch('http://timestamp.digicert.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/timestamp-query' },
+          body: new Uint8Array([1, 2, 3]),
+        });
+        reply = new Uint8Array(await res.arrayBuffer());
+        return new Uint8Array([1]);
+      });
+      await fresh(samplePdfBytes, 'http://timestamp.digicert.com');
+
+      const callArg = vi.mocked(PdfSigner).mock.calls[0][0] as {
+        signdate: { url: string };
+      };
+      expect(callArg.signdate.url).toBe('http://timestamp.digicert.com');
+      expect(hostFetch).toHaveBeenCalledWith({
+        url: 'http://timestamp.digicert.com',
+        method: 'POST',
+        contentType: 'application/timestamp-query',
+        body: new Uint8Array([1, 2, 3]),
+      });
+      expect(reply).toEqual(new Uint8Array([9, 9]));
+    } finally {
+      if (realTop) Object.defineProperty(window, 'top', realTop);
+    }
   });
 });

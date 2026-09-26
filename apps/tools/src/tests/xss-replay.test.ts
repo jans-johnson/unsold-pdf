@@ -186,7 +186,7 @@ describe('XSS replay — WASM provider localStorage poisoning', () => {
 
     const got = WasmProvider.getUrl('pymupdf');
     expect(got).not.toContain('attacker.test');
-    expect(got).toBe('app://unacrobat/wasm/pymupdf/');
+    expect(got).toBe(new URL('/wasm/pymupdf/', window.location.href).href);
 
     const remaining = JSON.parse(
       localStorage.getItem('unacrobat:wasm-providers') || '{}'

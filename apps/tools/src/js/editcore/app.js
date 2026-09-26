@@ -15,6 +15,7 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 import { PdfEngine, OBJ } from './core.js';
 import { applyTagSurgery } from './tagsurgery.js';
+import { downloadFile } from '../utils/deliver-output.ts';
 import { pageHasPatternFill, protectPatternArtwork } from './shadingsurgery.js';
 import {
   protectType3Text,
@@ -9294,11 +9295,7 @@ async function saveFile() {
     console.warn('tag surgery skipped:', e);
   }
   const blob = new Blob([bytes], { type: 'application/pdf' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = state.fileName;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  downloadFile(blob, state.fileName);
   state.dirty = false;
   const savedKb = (bytes.length / 1024) | 0;
   if (onSaved) onSaved(savedKb, state.fileName);

@@ -11,6 +11,7 @@ import type {
 } from './types';
 import { WORKFLOW_VERSION } from './types';
 import { wfError } from './errors';
+import { downloadFile } from '../utils/deliver-output';
 
 type AreaExtra = LitArea2D<ClassicScheme>;
 
@@ -211,12 +212,7 @@ export function exportWorkflow(
   const data = serializeWorkflow(editor, area);
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'workflow.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadFile(blob, 'workflow.json');
 }
 
 export async function importWorkflow(
