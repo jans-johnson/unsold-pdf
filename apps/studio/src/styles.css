@@ -329,7 +329,7 @@ body {
 .home-inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 34px 40px 60px;
+  padding: 34px 40px 0;
 }
 .home-hero {
   display: flex;
@@ -1344,12 +1344,17 @@ button.chip:hover {
 
 /* Home footer: the Unsold promise and the tip button, as a quiet sign-off */
 .home-footer {
+  /* Pinned to the bottom of the window; the page scrolls underneath. */
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background: var(--bg-app);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 48px;
-  padding-top: 18px;
+  margin-top: 40px;
+  padding: 14px 0 16px;
   border-top: 1px solid var(--border-soft);
   color: var(--text-faint);
   font-size: 12px;
