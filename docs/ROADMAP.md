@@ -43,14 +43,20 @@ Studio can drive tool pages in frames and exchange blobs without copying.
   sections (~25k lines of HTML), the full navbar/footer, the FAQ modal.
 - Removed the third-party referral badge, Discord invite and hosted-site references.
 
-### Phase 1: Monorepo + Tauri shell (in progress)
-1. Move the web app to `apps/tools`, the Electron shell UI to `apps/studio`; root becomes a workspace.
-2. `@unacrobat/bridge`: typed `HostBridge` (open/save/share files, recents, confirm, window title, close guard, external links, allow-listed fetch) with `tauri` and `browser` implementations.
-3. Port the Studio from untyped JS on `window.desktop` to TypeScript modules on `HostBridge`.
-4. Tool pages talk to the host through the Studio (`window.top.unacrobat`): results go to `deliverOutput()` instead of anchor downloads; certificate/TSA fetches go through the bridge.
-5. WASM engine URLs become base-relative (`/wasm/…`) instead of Electron's `app://unacrobat`.
-6. `native/`: Tauri 2 app with COOP/COEP headers, dialog/fs/http/store/opener/single-instance plugins, file associations, macOS "open with", menus on desktop.
-7. Verify macOS build; then delete `desktop/` (Electron).
+### Phase 1: Monorepo + Tauri shell ✅
+1. Web app in `apps/tools`, workspace UI in `apps/studio`, root is an npm workspace.
+2. `@unacrobat/bridge`: typed `HostBridge` with `tauri` and `browser` implementations, plus the `ToolHost` contract tool pages use.
+3. Studio ported from untyped JS on `window.desktop` to TypeScript modules on `HostBridge`.
+4. Tool results go through `deliverOutput()`; certificate/TSA fetches go through the native `net_fetch`.
+5. WASM engines resolve to `/wasm/…` on the app origin.
+6. `native/`: Tauri 2 shell. Granted-path file access, SSRF-safe fetch, desktop menus, Open With / single instance, close guard, navigation lock, `--self-test`.
+7. Verified on macOS (shipping-mode build, all self-test checks pass); Electron removed.
+
+**Finding:** WebKit (macOS, iOS, Linux) never cross-origin-isolates custom
+schemes such as `tauri://`, even with COOP/COEP headers, and the threaded WASM
+tools (LibreOffice, wasm-vips) need isolation. On those platforms the app is
+served from its own loopback HTTP origin (`native/src/origin.rs`); Windows and
+Android use Tauri's `http://tauri.localhost`, which Chromium isolates.
 
 ### Phase 2: Engine extraction
 - Move DOM-free code (`utils/pdf-operations`, `compare/engine`, `editcore` core, WASM loaders, workers) into `packages/engine` with its own tests.
@@ -60,6 +66,12 @@ Studio can drive tool pages in frames and exchange blobs without copying.
 - `packages/kit`: a tool is `{ id, category, accepts, options schema, needs: ['libreoffice'|'threads'|…], run() }` plus an optional custom panel.
 - Studio renders options panels from the schema, runs tools on the open document, and gets undo and batch processing for free.
 - Migrate tools by category (organise → convert → edit → secure); delete each legacy page as it moves. `apps/tools` disappears at the end.
+
+### Next up (before Phase 2)
+- Verify Windows, Linux, Android and iOS builds with `--self-test` (needs those machines / simulators, or CI).
+- `tauri android init` / `tauri ios init` and wire document-type registration.
+- Trim Phosphor icon fonts to woff2 only (~7 MB of unused formats).
+- The Compress tool's "Compression Algorithm" selector is read by nothing; decide whether to wire it or remove it.
 
 ### Phase 4: Mobile experience
 - Adaptive Studio layout: single pane, bottom sheets, touch-sized targets, share-sheet export, Files/SAF open.

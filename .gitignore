@@ -16,9 +16,5 @@ native/target/
 native/www/
 native/gen/schemas/
 
-# Legacy Electron shell outputs (removed after the Tauri migration)
-desktop/node_modules/
-desktop/release/
-desktop/wasm/
-desktop/shell/generated/
-desktop/shell/vendor/
+# Old Electron release builds, kept locally
+desktop/
