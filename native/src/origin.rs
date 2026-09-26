@@ -15,6 +15,7 @@
 use tauri::{AppHandle, Runtime, WebviewUrl};
 
 /// Security headers sent with every asset (mirrors tauri.conf.json).
+#[cfg(any(target_os = "macos", target_os = "ios", target_os = "linux"))]
 pub const HEADERS: &[(&str, &str)] = &[
     ("Cross-Origin-Opener-Policy", "same-origin"),
     ("Cross-Origin-Embedder-Policy", "require-corp"),

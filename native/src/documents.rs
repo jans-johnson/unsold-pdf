@@ -119,6 +119,7 @@ impl Library {
         }
     }
 
+    #[cfg_attr(target_os = "android", allow(dead_code))]
     /// Registers documents that arrived from the OS and forwards them to the
     /// UI, or queues them until `host_ready`.
     pub fn deliver_opened<R: Runtime>(&self, app: &AppHandle<R>, paths: Vec<FilePath>) {
@@ -413,6 +414,7 @@ pub fn host_ready<R: Runtime>(app: AppHandle<R>, library: State<'_, Library>) {
     }
 }
 
+#[cfg(desktop)]
 /// Paths passed on the command line (Windows/Linux file associations, and the
 /// arguments forwarded by a second instance).
 pub fn paths_from_args(args: &[String], cwd: Option<&std::path::Path>) -> Vec<FilePath> {

@@ -142,6 +142,7 @@ fn create_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Re
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg_attr(mobile, allow(unused_mut))]
     let mut builder = tauri::Builder::default();
 
     // A second launch (e.g. double-clicking another PDF) hands its arguments

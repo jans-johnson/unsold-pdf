@@ -9,6 +9,7 @@
     "apps/*"
   ],
   "scripts": {
+    "tauri": "tauri",
     "engines": "node scripts/engines.mjs",
     "dev": "npm run engines && npm run build -w @unacrobat/tools && npm run dev -w @unacrobat/studio",
     "build:web": "npm run engines && npm run build -w @unacrobat/tools && npm run build -w @unacrobat/studio && node scripts/assemble.mjs",
