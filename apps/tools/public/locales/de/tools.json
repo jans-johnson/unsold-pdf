@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDF-Formular ausfüllen",
     "subtitle": "Formulare direkt im Browser ausfüllen. Unterstützt auch XFA-Formulare.",
-    "uploadHint": "Laden Sie eine PDF mit Formularfeldern hoch. Füllen Sie sie direkt im untenstehenden Viewer aus und klicken Sie dann auf die Schaltfläche, um das ausgefüllte Formular zu speichern und herunterzuladen. Unterstützt auch XFA-Formulare.",
-    "xfaNoteTitle": "Hinweis zu XFA-Formularen:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) ist ein älteres Format, das nur von bestimmten PDF-Viewern wie UnAcrobat und Firefox unterstützt wird. Wenn Sie eine XFA-PDF in anderer Software öffnen und leere Seiten oder keine Formularfelder sehen, bedeutet das, dass dieser Viewer XFA nicht unterstützt. Um XFA-Formulare korrekt anzuzeigen und auszufüllen, verwenden Sie Firefox oder den Formular-Ausfüller von UnAcrobat."
+    "uploadHint": "Laden Sie eine PDF mit Formularfeldern hoch. Füllen Sie sie direkt im untenstehenden Viewer aus und klicken Sie dann auf die Schaltfläche, um das ausgefüllte Formular zu speichern und herunterzuladen. Unterstützt auch XFA-Formulare."
   },
   "createPdfForm": {
     "name": "PDF-Formular erstellen",

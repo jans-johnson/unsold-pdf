@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "Pengisi Formulir PDF",
     "subtitle": "Isi formulir langsung di browser. Juga mendukung formulir XFA.",
-    "uploadHint": "Unggah PDF dengan bidang formulir. Isi langsung di penampil di bawah, lalu klik tombol untuk menyimpan dan mengunduh formulir yang telah diisi. Juga mendukung formulir XFA.",
-    "xfaNoteTitle": "Catatan tentang Formulir XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) adalah format lama yang hanya didukung oleh penampil PDF tertentu seperti UnAcrobat dan Firefox. Jika Anda membuka PDF XFA di perangkat lunak lain dan melihat halaman kosong atau tidak ada bidang formulir, itu berarti penampil tersebut tidak mendukung XFA. Untuk melihat dan mengisi formulir XFA dengan benar, gunakan Firefox atau Form Filler UnAcrobat."
+    "uploadHint": "Unggah PDF dengan bidang formulir. Isi langsung di penampil di bawah, lalu klik tombol untuk menyimpan dan mengunduh formulir yang telah diisi. Juga mendukung formulir XFA."
   },
   "createPdfForm": {
     "name": "Buat Formulir PDF",

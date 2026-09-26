@@ -1,11 +1,24 @@
 // Self-contained Form Filler logic for standalone page
 import { createIcons, icons } from 'lucide';
-import { getPDFDocument } from '../utils/helpers.js';
+import { getPDFDocument, getCleanPdfFilename } from '../utils/helpers.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
+import { downloadFile } from '../utils/deliver-output.js';
+import { t } from '../i18n/i18n';
+import {
+  buildAcroFormPdf,
+  detectXfa,
+  removeXfa,
+  snapshotXfaPages,
+  type XfaKind,
+  type XfaPdfDocument,
+  type XfaViewerWindow,
+} from '../utils/xfa-convert.js';
 
 let viewerIframe: HTMLIFrameElement | null = null;
 let viewerReady = false;
 let currentFile: File | null = null;
+let xfaKind: XfaKind = 'none';
+let saving = false;
 
 // UI helpers
 function showLoader(message: string = 'Processing...') {
@@ -102,6 +115,8 @@ function resetState() {
   viewerIframe = null;
   viewerReady = false;
   currentFile = null;
+  xfaKind = 'none';
+  document.getElementById('xfa-notice')?.classList.add('hidden');
   const displayArea = document.getElementById('file-display-area');
   if (displayArea) displayArea.innerHTML = '';
   document.getElementById('form-filler-options')?.classList.add('hidden');
@@ -203,9 +218,11 @@ async function setupFormViewer() {
     viewerIframe.style.height = '100%';
     viewerIframe.style.border = 'none';
 
-    viewerIframe.onload = () => {
+    const iframe = viewerIframe;
+    iframe.onload = () => {
       viewerReady = true;
       hideLoader();
+      void prepareViewer(iframe);
     };
 
     pdfViewerContainer.appendChild(viewerIframe);
@@ -219,6 +236,97 @@ async function setupFormViewer() {
   }
 }
 
+async function waitForPdfDocument(
+  win: XfaViewerWindow
+): Promise<XfaPdfDocument | null> {
+  for (let i = 0; i < 600; i++) {
+    const doc = win.PDFViewerApplication?.pdfDocument;
+    if (doc) return doc;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return null;
+}
+
+/**
+ * Once the viewer has the document: flag XFA forms, and route the viewer's
+ * own download/save controls through our save so they convert too.
+ */
+async function prepareViewer(iframe: HTMLIFrameElement) {
+  const win = iframe.contentWindow as XfaViewerWindow | null;
+  if (!win) return;
+  const doc = await waitForPdfDocument(win);
+  if (!doc || iframe !== viewerIframe) return;
+
+  win.document.addEventListener(
+    'click',
+    (e) => {
+      const target = e.target as Element | null;
+      if (!target?.closest('#downloadButton, #secondaryDownload')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void processAndDownloadForm();
+    },
+    true
+  );
+  if (win.PDFViewerApplication) {
+    win.PDFViewerApplication.downloadOrSave = () => processAndDownloadForm();
+  }
+
+  try {
+    xfaKind = await detectXfa(doc);
+  } catch (e) {
+    console.warn('Could not detect XFA:', e);
+    xfaKind = 'none';
+  }
+  const notice = document.getElementById('xfa-notice');
+  const noticeText = document.getElementById('xfa-notice-text');
+  if (notice && noticeText && xfaKind !== 'none') {
+    noticeText.textContent =
+      xfaKind === 'pure'
+        ? t('tools:pdfFormFiller.xfaPureNotice')
+        : t('tools:pdfFormFiller.xfaHybridNotice');
+    notice.classList.remove('hidden');
+  }
+}
+
+async function saveFilledPdf(win: XfaViewerWindow): Promise<Uint8Array> {
+  const app = win.PDFViewerApplication;
+  const doc = app?.pdfDocument;
+  if (!app || !doc) throw new Error('PDF viewer is not ready');
+
+  const keepXfa =
+    (document.getElementById('keep-xfa') as HTMLInputElement | null)?.checked ??
+    false;
+
+  if (xfaKind === 'pure' && !keepXfa) {
+    const pages = await snapshotXfaPages(win, (page, total) =>
+      showLoader(t('tools:pdfFormFiller.convertingPage', { page, total }))
+    );
+    showLoader(t('tools:pdfFormFiller.buildingPdf'));
+    return buildAcroFormPdf(
+      pages,
+      getCleanPdfFilename(currentFile?.name ?? '')
+    );
+  }
+
+  await app.pdfScriptingManager?.dispatchWillSave();
+  let data: Uint8Array;
+  try {
+    data =
+      doc.annotationStorage.size > 0
+        ? await doc.saveDocument()
+        : await doc.getData();
+  } finally {
+    await app.pdfScriptingManager?.dispatchDidSave();
+  }
+
+  if (xfaKind === 'hybrid' && !keepXfa) {
+    showLoader(t('tools:pdfFormFiller.buildingPdf'));
+    return removeXfa(data);
+  }
+  return data;
+}
+
 async function processAndDownloadForm() {
   if (!viewerIframe || !viewerReady) {
     showAlert(
@@ -227,56 +335,35 @@ async function processAndDownloadForm() {
     );
     return;
   }
-
-  try {
-    const viewerWindow = viewerIframe.contentWindow;
-    if (!viewerWindow) {
-      console.error('Cannot access iframe window');
-      showAlert(
-        'Download',
-        'Please use the Download button in the PDF viewer toolbar above.'
-      );
-      return;
-    }
-
-    const viewerDoc = viewerWindow.document;
-    if (!viewerDoc) {
-      console.error('Cannot access iframe document');
-      showAlert(
-        'Download',
-        'Please use the Download button in the PDF viewer toolbar above.'
-      );
-      return;
-    }
-
-    const downloadBtn = viewerDoc.getElementById(
-      'downloadButton'
-    ) as HTMLButtonElement | null;
-
-    if (downloadBtn) {
-      console.log('Clicking download button...');
-      downloadBtn.click();
-    } else {
-      console.error('Download button not found in viewer');
-      const secondaryDownload = viewerDoc.getElementById(
-        'secondaryDownload'
-      ) as HTMLButtonElement | null;
-      if (secondaryDownload) {
-        console.log('Clicking secondary download button...');
-        secondaryDownload.click();
-      } else {
-        showAlert(
-          'Download',
-          'Please use the Download button in the PDF viewer toolbar above.'
-        );
-      }
-    }
-  } catch (e) {
-    console.error('Failed to trigger download:', e);
+  const win = viewerIframe.contentWindow as XfaViewerWindow | null;
+  if (!win?.PDFViewerApplication?.pdfDocument) {
     showAlert(
-      'Download',
-      'Cannot access viewer controls. Please use the Download button in the PDF viewer toolbar above.'
+      'Viewer not ready',
+      'Please wait for the form to finish loading.'
     );
+    return;
+  }
+  if (saving) return;
+  saving = true;
+
+  showLoader('Saving form...');
+  try {
+    const data = await saveFilledPdf(win);
+    const name = `${getCleanPdfFilename(currentFile?.name ?? 'form') || 'form'}.pdf`;
+    downloadFile(
+      new Blob([data as Uint8Array<ArrayBuffer>], { type: 'application/pdf' }),
+      name
+    );
+  } catch (e) {
+    console.error('Failed to save form:', e);
+    showAlert(
+      'Error',
+      'Could not save the filled form. ' +
+        (e instanceof Error ? e.message : String(e))
+    );
+  } finally {
+    saving = false;
+    hideLoader();
   }
 }
 

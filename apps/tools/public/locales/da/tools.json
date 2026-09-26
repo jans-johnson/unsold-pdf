@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDF-formularudfylder",
     "subtitle": "Udfyld formularer direkte i browseren. Understøtter også XFA-formularer.",
-    "uploadHint": "Upload en PDF med formularfelter. Udfyld dem direkte i fremviseren nedenfor, og klik derefter på knappen for at gemme og downloade den udfyldte formular. Understøtter også XFA-formularer.",
-    "xfaNoteTitle": "Bemærkning om XFA-formularer:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) er et ældre format, der kun understøttes af visse PDF-fremvisere som UnAcrobat og Firefox. Hvis du åbner en XFA-PDF i anden software og ser tomme sider eller ingen formularfelter, betyder det, at fremviseren ikke understøtter XFA. Brug Firefox eller UnAcrobats Form Filler for korrekt visning og udfyldning af XFA-formularer."
+    "uploadHint": "Upload en PDF med formularfelter. Udfyld dem direkte i fremviseren nedenfor, og klik derefter på knappen for at gemme og downloade den udfyldte formular. Understøtter også XFA-formularer."
   },
   "createPdfForm": {
     "name": "Opret PDF-formular",

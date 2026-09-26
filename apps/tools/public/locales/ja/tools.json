@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDFフォーム入力機能",
     "subtitle": "ブラウザでフォームに直接入力します。XFAフォームもサポートします。",
-    "uploadHint": "フォームフィールドのあるPDFをアップロードしてください。下のビューアで直接入力し、ボタンをクリックして入力済みフォームを保存・ダウンロードします。XFAフォームにも対応しています。",
-    "xfaNoteTitle": "XFAフォームに関する注意:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) はレガシー形式で、UnAcrobatやFirefoxなど特定のPDFビューアーのみが対応しています。他のソフトでXFA PDFを開いて空白ページまたはフォームフィールドが表示されない場合、そのビューアーはXFAに対応していません。XFAフォームを正しく表示・入力するには、FirefoxまたはUnAcrobatのフォーム入力ツールを使用してください。"
+    "uploadHint": "フォームフィールドのあるPDFをアップロードしてください。下のビューアで直接入力し、ボタンをクリックして入力済みフォームを保存・ダウンロードします。XFAフォームにも対応しています。"
   },
   "createPdfForm": {
     "name": "PDFフォームの作成",

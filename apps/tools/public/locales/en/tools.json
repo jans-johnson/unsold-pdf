@@ -360,9 +360,13 @@
   "pdfFormFiller": {
     "name": "PDF Form Filler",
     "subtitle": "Fill in forms directly in the browser. Also supports XFA forms.",
-    "uploadHint": "Upload a PDF with form fields. Fill them directly in the viewer below, then click the button to save and download the filled form. Also supports XFA forms.",
-    "xfaNoteTitle": "Note on XFA Forms:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) is a legacy format that's only supported by certain PDF viewers like UnAcrobat and Firefox. If you open an XFA PDF in other software and see blank pages or no form fields, it means that viewer doesn't support XFA. To view and fill XFA forms properly, use Firefox or UnAcrobat's Form Filler."
+    "uploadHint": "Upload a PDF with form fields. Fill them directly in the viewer below, then click the button to save and download the filled form. XFA forms are saved as standard PDFs that open in any viewer.",
+    "xfaNoticeTitle": "XFA form detected.",
+    "xfaPureNotice": "When you save, UnAcrobat turns it into a standard fillable PDF that opens in any viewer. Pages are saved as images with searchable text, and XFA-only behaviour such as growing sections and built-in calculations is dropped.",
+    "xfaHybridNotice": "When you save, UnAcrobat removes the XFA layer and keeps the standard form fields, so the filled form opens in any viewer.",
+    "keepXfa": "Keep the original XFA form instead (only opens in Adobe Acrobat and Firefox)",
+    "convertingPage": "Converting page {{page}} of {{total}}...",
+    "buildingPdf": "Building PDF..."
   },
   "createPdfForm": {
     "name": "Create PDF Form",

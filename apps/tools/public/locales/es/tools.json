@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "Rellenar Formularios PDF",
     "subtitle": "Rellena formularios directamente en el navegador. También soporta formularios XFA.",
-    "uploadHint": "Sube un PDF con campos de formulario. Rellénalos directamente en el visor de abajo, luego haz clic en el botón para guardar y descargar el formulario completado. También admite formularios XFA.",
-    "xfaNoteTitle": "Nota sobre formularios XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) es un formato heredado solo compatible con ciertos visores de PDF como UnAcrobat y Firefox. Si abres un PDF XFA en otro software y ves páginas en blanco o ningún campo de formulario, significa que ese visor no admite XFA. Para ver y rellenar correctamente formularios XFA, usa Firefox o el llenador de formularios de UnAcrobat."
+    "uploadHint": "Sube un PDF con campos de formulario. Rellénalos directamente en el visor de abajo, luego haz clic en el botón para guardar y descargar el formulario completado. También admite formularios XFA."
   },
   "createPdfForm": {
     "name": "Crear Formulario PDF",

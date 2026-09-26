@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDF 表单填写器",
     "subtitle": "直接在浏览器中填写表单。也支持 XFA 表单。",
-    "uploadHint": "上传带有表单字段的 PDF。在下方查看器中直接填写，然后点击按钮保存并下载填写好的表单。也支持 XFA 表单。",
-    "xfaNoteTitle": "关于 XFA 表单的说明：",
-    "xfaNoteDescription": "XFA（XML Forms Architecture）是一种旧版格式，仅 UnAcrobat 和 Firefox 等部分 PDF 查看器支持。如果您在其他软件中打开 XFA PDF，看到空白页面或没有表单字段，则表示该查看器不支持 XFA。要正确查看和填写 XFA 表单，请使用 Firefox 或 UnAcrobat 的表单填写器。"
+    "uploadHint": "上传带有表单字段的 PDF。在下方查看器中直接填写，然后点击按钮保存并下载填写好的表单。也支持 XFA 表单。"
   },
   "createPdfForm": {
     "name": "创建 PDF 表单",

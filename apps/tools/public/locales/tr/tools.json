@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDF Form Doldurucu",
     "subtitle": "Formları doğrudan tarayıcıda doldurun. XFA formlarını da destekler.",
-    "uploadHint": "Form alanları olan bir PDF yükleyin. Aşağıdaki görüntüleyicide doğrudan doldurun, ardından doldurulmuş formu kaydetmek ve indirmek için düğmeye tıklayın. XFA formlarını da destekler.",
-    "xfaNoteTitle": "XFA Formları Hakkında Not:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture), yalnızca UnAcrobat ve Firefox gibi belirli PDF görüntüleyicileri tarafından desteklenen eski bir biçimdir. XFA bir PDF'yi başka yazılımda açtığınızda boş sayfalar veya form alanı görmüyorsanız, görüntüleyicinin XFA'yı desteklemediği anlamına gelir. XFA formlarını doğru görüntülemek ve doldurmak için Firefox veya UnAcrobat'in Form Doldurucu'yu kullanın."
+    "uploadHint": "Form alanları olan bir PDF yükleyin. Aşağıdaki görüntüleyicide doğrudan doldurun, ardından doldurulmuş formu kaydetmek ve indirmek için düğmeye tıklayın. XFA formlarını da destekler."
   },
   "createPdfForm": {
     "name": "PDF Formu Oluştur",

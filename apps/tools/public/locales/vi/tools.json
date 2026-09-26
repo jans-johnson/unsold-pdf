@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "Điền form PDF",
     "subtitle": "Điền form trực tiếp trong trình duyệt. Cũng hỗ trợ form XFA.",
-    "uploadHint": "Tải lên PDF có trường biểu mẫu. Điền trực tiếp vào trình xem bên dưới, sau đó nhấp vào nút để lưu và tải xuống biểu mẫu đã điền. Cũng hỗ trợ biểu mẫu XFA.",
-    "xfaNoteTitle": "Lưu ý về biểu mẫu XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) là định dạng cũ chỉ được hỗ trợ bởi một số trình xem PDF nhất định như UnAcrobat và Firefox. Nếu bạn mở PDF XFA trong phần mềm khác và thấy trang trống hoặc không có trường biểu mẫu, có nghĩa là trình xem đó không hỗ trợ XFA. Để xem và điền biểu mẫu XFA đúng cách, hãy sử dụng Firefox hoặc Form Filler của UnAcrobat."
+    "uploadHint": "Tải lên PDF có trường biểu mẫu. Điền trực tiếp vào trình xem bên dưới, sau đó nhấp vào nút để lưu và tải xuống biểu mẫu đã điền. Cũng hỗ trợ biểu mẫu XFA."
   },
   "createPdfForm": {
     "name": "Tạo form PDF",

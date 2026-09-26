@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "Compilatore Moduli PDF",
     "subtitle": "Compila i moduli direttamente nel browser. Supporta anche i moduli XFA.",
-    "uploadHint": "Carica un PDF con campi modulo. Compilali direttamente nel visualizzatore qui sotto, quindi clicca sul pulsante per salvare e scaricare il modulo compilato. Supporta anche moduli XFA.",
-    "xfaNoteTitle": "Nota sui moduli XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) è un formato legacy supportato solo da alcuni visualizzatori PDF come UnAcrobat e Firefox. Se apri un PDF XFA in altri software e vedi pagine vuote o nessun campo modulo, significa che quel visualizzatore non supporta XFA. Per visualizzare e compilare correttamente i moduli XFA, usa Firefox o il Form Filler di UnAcrobat."
+    "uploadHint": "Carica un PDF con campi modulo. Compilali direttamente nel visualizzatore qui sotto, quindi clicca sul pulsante per salvare e scaricare il modulo compilato. Supporta anche moduli XFA."
   },
   "createPdfForm": {
     "name": "Crea Modulo PDF",

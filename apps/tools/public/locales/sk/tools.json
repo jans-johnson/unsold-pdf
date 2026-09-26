@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "Vypĺňanie PDF formulárov",
     "subtitle": "Vyplňte formuláre priamo v prehliadači. Podporuje aj formuláre XFA.",
-    "uploadHint": "Nahrajte PDF s formulárovými poľami. Vyplňte ich priamo v prehliadači nižšie, potom kliknite na tlačidlo pre uloženie a stiahnutie vyplneného formulára. Podporuje aj formuláre XFA.",
-    "xfaNoteTitle": "Poznámka k formulárom XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) je starší formát, ktorý podporujú len niektoré prehliadače PDF, napríklad UnAcrobat a Firefox. Ak otvoríte XFA PDF v inom softvéri a uvidíte prázdne strany alebo žiadne formulárové polia, znamená to, že tento prehliadač nepodporuje XFA. Pre správne zobrazenie a vyplnenie XFA formulárov použite Firefox alebo Vypĺňanie formulárov v UnAcrobat."
+    "uploadHint": "Nahrajte PDF s formulárovými poľami. Vyplňte ich priamo v prehliadači nižšie, potom kliknite na tlačidlo pre uloženie a stiahnutie vyplneného formulára. Podporuje aj formuláre XFA."
   },
   "createPdfForm": {
     "name": "Vytvoriť PDF formulár",

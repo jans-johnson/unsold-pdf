@@ -92,26 +92,9 @@
           data-i18n="tools:pdfFormFiller.uploadHint"
         >
           Upload a PDF with form fields. Fill them directly in the viewer below,
-          then click the button to save and download the filled form. Also
-          supports XFA forms.
+          then click the button to save and download the filled form. XFA forms
+          are saved as standard PDFs that open in any viewer.
         </p>
-
-        <div
-          class="mb-6 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg"
-        >
-          <p class="text-sm text-blue-300">
-            <strong data-i18n="tools:pdfFormFiller.xfaNoteTitle"
-              >Note on XFA Forms:</strong
-            >
-            <span data-i18n="tools:pdfFormFiller.xfaNoteDescription"
-              >XFA (XML Forms Architecture) is a legacy format that's only
-              supported by certain PDF viewers like UnAcrobat and Firefox. If you
-              open an XFA PDF in other software and see blank pages or no form
-              fields, it means that viewer doesn't support XFA. To view and fill
-              XFA forms properly, use Firefox or UnAcrobat's Form Filler.</span
-            >
-          </p>
-        </div>
 
         <div
           id="drop-zone"
@@ -146,6 +129,28 @@
         <div id="file-display-area" class="mt-4 space-y-2"></div>
 
         <div id="form-filler-options" class="hidden mt-6">
+          <div
+            id="xfa-notice"
+            class="hidden mb-4 p-3 bg-blue-900/20 border border-blue-700/50 rounded-lg text-sm"
+          >
+            <p class="text-blue-300">
+              <strong data-i18n="tools:pdfFormFiller.xfaNoticeTitle"
+                >XFA form detected.</strong
+              >
+              <span id="xfa-notice-text"></span>
+            </p>
+            <label class="flex items-center gap-2 mt-2 text-gray-400">
+              <input
+                type="checkbox"
+                id="keep-xfa"
+                class="w-4 h-4 rounded border-gray-600 bg-gray-700"
+              />
+              <span data-i18n="tools:pdfFormFiller.keepXfa"
+                >Keep the original XFA form instead (only opens in Adobe Acrobat
+                and Firefox)</span
+              >
+            </label>
+          </div>
           <div
             id="pdf-viewer-container"
             class="relative w-full overflow-auto bg-gray-900 rounded-lg border border-gray-600 min-h-[600px]"

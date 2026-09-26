@@ -241,9 +241,7 @@
   "pdfFormFiller": {
     "name": "Wypełnianie formularzy PDF",
     "subtitle": "Wypełniaj formularze bezpośrednio w przeglądarce. Obsługuje również formularze XFA.",
-    "uploadHint": "Prześlij plik PDF z polami formularza. Wypełnij je bezpośrednio w przeglądarce poniżej, a następnie kliknij przycisk, aby zapisać i pobrać wypełniony formularz. Obsługuje również formularze XFA.",
-    "xfaNoteTitle": "Uwaga dotycząca formularzy XFA:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) to starszy format obsługiwany tylko przez niektóre przeglądarki PDF, takie jak UnAcrobat i Firefox. Jeśli otworzysz plik PDF z XFA w innym oprogramowaniu i zobaczysz puste strony lub brak pól formularza, oznacza to, że dana przeglądarka nie obsługuje XFA. Aby poprawnie wyświetlać i wypełniać formularze XFA, użyj Firefoksa lub narzędzia Form Filler w UnAcrobat."
+    "uploadHint": "Prześlij plik PDF z polami formularza. Wypełnij je bezpośrednio w przeglądarce poniżej, a następnie kliknij przycisk, aby zapisać i pobrać wypełniony formularz. Obsługuje również formularze XFA."
   },
   "createPdfForm": {
     "name": "Utwórz formularz PDF",

@@ -359,9 +359,7 @@
   "pdfFormFiller": {
     "name": "PDF-formulier Invullen",
     "subtitle": "Formulieren invullen vanuit de browser, incl. ondersteuning voor XFA-formulieren.",
-    "uploadHint": "Upload een PDF met formuliervelden. Vul ze direct in in de viewer hieronder en klik op de knop om het ingevulde formulier op te slaan en te downloaden. Ondersteunt ook XFA-formulieren.",
-    "xfaNoteTitle": "Opmerking over XFA-formulieren:",
-    "xfaNoteDescription": "XFA (XML Forms Architecture) is een verouderd formaat dat alleen door bepaalde PDF-viewers zoals UnAcrobat en Firefox wordt ondersteund. Als je een XFA-PDF in andere software opent en lege pagina's of geen formuliervelden ziet, betekent dat dat die viewer XFA niet ondersteunt. Om XFA-formulieren correct te bekijken en in te vullen, gebruik je Firefox of de Form Filler van UnAcrobat."
+    "uploadHint": "Upload een PDF met formuliervelden. Vul ze direct in in de viewer hieronder en klik op de knop om het ingevulde formulier op te slaan en te downloaden. Ondersteunt ook XFA-formulieren."
   },
   "createPdfForm": {
     "name": "PDF-formulier Aanmaken",
