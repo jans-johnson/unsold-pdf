@@ -124,111 +124,38 @@
       <section class="features" id="features">
         <div class="wrap">
           <p class="eyebrow">Everything included</p>
-          <h2 class="section-title">
-            Twenty everyday PDF tasks. None of them&nbsp;Pro.
-          </h2>
-          <div class="groups">
-            <div class="group" style="--c: #c93f9b">
-              <h3>Edit &amp; Sign</h3>
-              <ul>
-                <li>
-                  <strong>Edit PDF</strong> Change text and images, add
-                  comments, highlights and stamps.
-                </li>
-                <li>
-                  <strong>Fill &amp; Sign</strong> Fill in forms, add your
-                  signature, or build a fillable form.
-                </li>
-                <li>
-                  <strong>Page numbers &amp; watermarks</strong> Headers,
-                  footers, watermarks and Bates numbers.
-                </li>
-                <li>
-                  <strong>Colors</strong> Greyscale, dark mode, new backgrounds.
-                </li>
-                <li>
-                  <strong>Bookmarks &amp; attachments</strong> A table of
-                  contents, attached files, layers.
-                </li>
-              </ul>
-            </div>
-            <div class="group" style="--c: #2f7fe6">
-              <h3>Pages</h3>
-              <ul>
-                <li>
-                  <strong>Organize pages</strong> Reorder, delete, insert or
-                  duplicate pages.
-                </li>
-                <li>
-                  <strong>Rotate &amp; crop</strong> Turn pages, trim margins,
-                  even out sizes.
-                </li>
-                <li>
-                  <strong>Combine</strong> Merge PDFs, interleave scans, overlay
-                  pages.
-                </li>
-                <li>
-                  <strong>Split</strong> Split into files, pull out pages, cut
-                  pages in pieces.
-                </li>
-                <li>
-                  <strong>Print layout</strong> Several pages per sheet, or a
-                  folded booklet.
-                </li>
-              </ul>
-            </div>
-            <div class="group" style="--c: #e36a1f">
-              <h3>Convert</h3>
-              <ul>
-                <li>
-                  <strong>Create PDF</strong> From documents, images, e-books
-                  and emails.
-                </li>
-                <li>
-                  <strong>Export PDF</strong> To Word, Excel, images, text and
-                  more.
-                </li>
-              </ul>
-            </div>
-            <div class="group" style="--c: #7b5ce6">
-              <h3>Optimize</h3>
-              <ul>
-                <li><strong>Compress</strong> Make the file smaller.</li>
-                <li>
-                  <strong>Scan &amp; OCR</strong> Make scans searchable and
-                  straighten tilted pages.
-                </li>
-                <li>
-                  <strong>Repair &amp; optimize</strong> Fix damaged files,
-                  archive as PDF/A.
-                </li>
-                <li>
-                  <strong>Compare</strong> See what changed between two PDFs.
-                </li>
-                <li>
-                  <strong>Automate</strong> Chain steps into a reusable
-                  workflow.
-                </li>
-              </ul>
-            </div>
-            <div class="group" style="--c: #c2861a">
-              <h3>Protect</h3>
-              <ul>
-                <li>
-                  <strong>Password &amp; permissions</strong> Lock a file,
-                  control printing and copying.
-                </li>
-                <li>
-                  <strong>Clean up</strong> Remove hidden data, comments and
-                  scripts.
-                </li>
-                <li>
-                  <strong>Digital signatures</strong> Sign with a certificate,
-                  verify, timestamp.
-                </li>
-              </ul>
-            </div>
+          <h2 class="section-title">The good stuff. None of it&nbsp;Pro.</h2>
+          <div class="feature-grid">
+            <article class="feature">
+              <div class="demo" data-demo="edit"></div>
+              <h3>Edit any text.</h3>
+              <p>
+                Click a line and type. The font is matched to the page, even on
+                scans.
+              </p>
+            </article>
+            <article class="feature">
+              <div class="demo" data-demo="sign"></div>
+              <h3>Fill and sign.</h3>
+              <p>Fill in any form, add your signature, and it's done.</p>
+            </article>
+            <article class="feature">
+              <div class="demo" data-demo="pages"></div>
+              <h3>Put pages in order.</h3>
+              <p>Drag pages where they belong and combine files in seconds.</p>
+            </article>
+            <article class="feature">
+              <div class="demo" data-demo="ocr"></div>
+              <h3>Turn scans into text.</h3>
+              <p>
+                Make scans searchable on your own computer, only when you ask.
+              </p>
+            </article>
           </div>
+          <p class="also">
+            <span>Also free:</span> compress, convert to Word and Excel, split,
+            password protect, compare, watermarks, digital signatures, and more.
+          </p>
         </div>
       </section>
 
@@ -343,6 +270,7 @@
 
     <script type="module">
       import { mountMaze } from './maze.js';
+      import { mountFeatures } from './features.js';
 
       // Fill these in when the builds and repo are public. Empty links show as "soon".
       const LINKS = { mac: '', windows: '', linux: '', source: '' };
@@ -362,6 +290,7 @@
         lines: [...document.querySelectorAll('.story .line')],
         shade: document.querySelector('.story .shade'),
       });
+      mountFeatures();
     </script>
   </body>
 </html>
