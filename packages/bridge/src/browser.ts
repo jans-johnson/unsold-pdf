@@ -51,7 +51,12 @@ export function createBrowserBridge(
 
   return {
     platform: 'web',
-    capabilities: { revealFile: false, nativeMenu: false, saveInPlace: false },
+    capabilities: {
+      revealFile: false,
+      nativeMenu: false,
+      saveInPlace: false,
+      tips: true,
+    },
 
     pickDocuments: pick,
     openRecent: async () => null,

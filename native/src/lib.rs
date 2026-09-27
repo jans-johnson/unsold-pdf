@@ -16,6 +16,10 @@ use documents::Library;
 struct HostInfo {
     platform: &'static str,
     self_test: bool,
+    /// Whether the "buy me a coffee" link may show. App Store and Play Store
+    /// builds leave it out: their rules require tips to go through in-app
+    /// purchase. Direct downloads (desktop, sideloaded APKs) keep it.
+    tips: bool,
 }
 
 /// `--self-test`: the UI runs launch checks, reports them, and the app exits
@@ -72,6 +76,7 @@ fn host_info(self_test: tauri::State<'_, SelfTest>) -> HostInfo {
     HostInfo {
         platform,
         self_test: self_test.0,
+        tips: !cfg!(target_os = "ios") && option_env!("UNSOLD_STORE_BUILD").is_none(),
     }
 }
 

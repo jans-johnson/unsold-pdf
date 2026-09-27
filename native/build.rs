@@ -21,6 +21,8 @@ const COMMANDS: &[&str] = &[
 ];
 
 fn main() {
+    // Read by `host_info` (lib.rs): set for app-store builds.
+    println!("cargo:rerun-if-env-changed=UNSOLD_STORE_BUILD");
     tauri_build::try_build(
         tauri_build::Attributes::new()
             .app_manifest(tauri_build::AppManifest::new().commands(COMMANDS)),

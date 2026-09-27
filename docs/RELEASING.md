@@ -50,6 +50,14 @@ the display is locked.
 - **Linux** turns on SharedArrayBuffer in WebKitGTK itself
   (`JSC_useSharedArrayBuffer`), so no launcher flags are needed.
 
+## Tip link
+
+The "buy me a coffee" link shows on desktop, the web and the directly
+downloaded Android APKs. App Store and Play Store rules require tips to go
+through in-app purchase, so builds for the stores leave it out: iOS always,
+and Android when built with `UNSOLD_STORE_BUILD=1` (`release:android` does
+this for the `.aab`).
+
 ## Signing (needs the owner's accounts)
 
 | Platform | What                                                | Where it plugs in                                                                                                                                            |

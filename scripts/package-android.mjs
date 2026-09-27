@@ -33,7 +33,7 @@ const ndkDir = path.join(sdk, 'ndk');
 const ndk = process.env.NDK_HOME || path.join(ndkDir, fs.readdirSync(ndkDir).sort().at(-1));
 const outputs = path.join(root, 'native/gen/android/app/build/outputs');
 fs.rmSync(outputs, { recursive: true, force: true });
-const tauri = (...flags) =>
+const tauri = (flags, env = {}) =>
   run(
     'npx',
     [
@@ -41,12 +41,13 @@ const tauri = (...flags) =>
       '--target', 'aarch64', 'armv7', 'x86_64',
       '--config', JSON.stringify({ build: { frontendDist: 'www-android', beforeBuildCommand: '' } }),
     ],
-    { ANDROID_HOME: sdk, NDK_HOME: ndk }
+    { ANDROID_HOME: sdk, NDK_HOME: ndk, ...env }
   );
 // One bundle with every CPU type for Play (it serves each device its own),
-// and one small APK per CPU type for direct download.
-tauri('--aab');
-tauri('--apk', '--split-per-abi');
+// and one small APK per CPU type for direct download. Play requires tips to go
+// through its billing, so the Play bundle leaves the coffee link out.
+tauri(['--aab'], { UNSOLD_STORE_BUILD: '1' });
+tauri(['--apk', '--split-per-abi']);
 
 const release = path.join(root, 'release');
 fs.mkdirSync(release, { recursive: true });

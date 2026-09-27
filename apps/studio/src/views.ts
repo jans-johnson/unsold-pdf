@@ -31,10 +31,9 @@ export function mountHome(studio: Studio) {
       : 'computer'
   }. Your files never leave it.`;
 
-  // Tips go through the store's own purchase system on phones, so the
-  // external link is desktop only.
+  // App-store builds leave the tip link out (see HostCapabilities.tips).
   const support = $<HTMLAnchorElement>('#support-link');
-  support.hidden = host.platform === 'android' || host.platform === 'ios';
+  support.hidden = !host.capabilities.tips;
   support.addEventListener('click', (e) => {
     e.preventDefault();
     void host.openExternal(SUPPORT_URL);
@@ -268,8 +267,6 @@ export function mountToolsView(studio: Studio) {
 // ------------------------------------------------------------------ document panes
 
 export function mountDocumentPanes(studio: Studio) {
-  const mobile =
-    studio.host.platform === 'android' || studio.host.platform === 'ios';
   $('#quick-rail').replaceChildren(
     ...QUICK_RAIL.map((item) => {
       if (!item) return h('div', { class: 'rail-sep' });
@@ -322,7 +319,7 @@ export function mountDocumentPanes(studio: Studio) {
         ];
       }),
       // A quiet way to say thanks, at the very end of the list only.
-      q || mobile
+      q || !studio.host.capabilities.tips
         ? ''
         : h(
             'button',

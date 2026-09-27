@@ -53,6 +53,8 @@ export interface HostCapabilities {
   nativeMenu: boolean;
   /** Saving back to the file that was opened (vs. always "save a copy"). */
   saveInPlace: boolean;
+  /** The "buy me a coffee" link may show (not in app-store builds). */
+  tips: boolean;
 }
 
 /** Commands the host can ask the UI to run (menus, OS shortcuts). */
