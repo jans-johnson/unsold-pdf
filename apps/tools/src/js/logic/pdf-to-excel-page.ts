@@ -5,16 +5,31 @@ import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import * as XLSX from 'xlsx';
 
-/** Cells that look like numbers become numbers, so sums work in Excel. */
-function withNumbers(rows: (string | null)[][]): (string | number | null)[][] {
+/**
+ * Cells that look like numbers become numbers, so sums work in Excel, and
+ * keep their look ("$1,440" stays formatted as currency). Codes with a
+ * leading zero ("0800") stay text.
+ */
+function withNumbers(
+  rows: (string | null)[][]
+): (string | null | XLSX.CellObject)[][] {
   return rows.map((row) =>
     row.map((cell) => {
       if (cell == null) return cell;
-      const plain = cell
-        .trim()
-        .replace(/^\$/, '')
-        .replace(/,(?=\d{3}\b)/g, '');
-      return /^-?\d+(\.\d+)?$/.test(plain) ? Number(plain) : cell;
+      const text = cell.trim();
+      if (/^-?0\d/.test(text)) return cell;
+      const currency = /^-?\$/.test(text);
+      const grouped = /\d,\d{3}\b/.test(text);
+      const plain = text.replace('$', '').replace(/,(?=\d{3}\b)/g, '');
+      if (!/^-?\d+(\.\d+)?$/.test(plain)) return cell;
+      const decimals = plain.split('.')[1]?.length ?? 0;
+      const digits = decimals ? `0.${'0'.repeat(decimals)}` : '0';
+      const z = currency
+        ? `"$"#,##${digits}`
+        : grouped
+          ? `#,##${digits}`
+          : undefined;
+      return { t: 'n', v: Number(plain), ...(z ? { z } : {}) };
     })
   );
 }

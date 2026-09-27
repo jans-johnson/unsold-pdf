@@ -1215,7 +1215,7 @@ async function downloadSplitPdfs() {
             originalPageIndex: number;
             rotation: number;
           }
-        | { type: 'blank' }
+        | { type: 'blank'; rotation: number }
       )[] = [];
       for (const index of segment) {
         const pageData = allPages[index];
@@ -1228,7 +1228,7 @@ async function downloadSplitPdfs() {
             rotation: pageData.rotation,
           });
         } else {
-          segSpecs.push({ type: 'blank' });
+          segSpecs.push({ type: 'blank', rotation: pageData.rotation });
         }
       }
 
@@ -1263,7 +1263,9 @@ async function downloadSplitPdfs() {
             page.setRotation(degrees(currentRotation + spec.rotation));
           }
         } else {
-          newPdf.addPage([595, 842]);
+          // Blank pages turn with the rest of the selection too.
+          const blank = newPdf.addPage([595, 842]);
+          if (spec.rotation) blank.setRotation(degrees(spec.rotation));
         }
       }
 
@@ -1299,7 +1301,7 @@ async function downloadPagesAsPdf(indices: number[], filename: string) {
           originalPageIndex: number;
           rotation: number;
         }
-      | { type: 'blank' }
+      | { type: 'blank'; rotation: number }
     )[] = [];
     for (const index of indices) {
       const pageData = allPages[index];
@@ -1312,7 +1314,7 @@ async function downloadPagesAsPdf(indices: number[], filename: string) {
           rotation: pageData.rotation,
         });
       } else {
-        pageSpecs.push({ type: 'blank' });
+        pageSpecs.push({ type: 'blank', rotation: pageData.rotation });
       }
     }
 
@@ -1347,7 +1349,9 @@ async function downloadPagesAsPdf(indices: number[], filename: string) {
           page.setRotation(degrees(currentRotation + spec.rotation));
         }
       } else {
-        newPdf.addPage([595, 842]);
+        // Blank pages turn with the rest of the selection too.
+        const blank = newPdf.addPage([595, 842]);
+        if (spec.rotation) blank.setRotation(degrees(spec.rotation));
       }
     }
 

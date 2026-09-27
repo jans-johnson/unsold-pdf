@@ -10,6 +10,23 @@ import { deduplicateFileName } from '../utils/deduplicate-filename.js';
 import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import type { QpdfInstanceExtended } from '@/types';
 import { PDFDocument } from 'pdf-lib';
+import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
+
+/** MuPDF re-parses broken files (it rebuilds the xref) and writes them clean. */
+async function rebuildWithMuPdf(file: File): Promise<Uint8Array | null> {
+  try {
+    const pymupdf = (await loadPyMuPDF()) as unknown as {
+      repairPdf(pdf: Blob): Promise<Blob>;
+    };
+    const fixed = new Uint8Array(
+      await (await pymupdf.repairPdf(file)).arrayBuffer()
+    );
+    return fixed.length ? fixed : null;
+  } catch (e) {
+    console.warn('MuPDF could not rebuild the file:', e);
+    return null;
+  }
+}
 
 /** Last-resort repair: parse leniently and write a fresh, valid file. */
 async function rebuildWithPdfLib(
@@ -72,9 +89,10 @@ export async function repairPdfFile(file: File): Promise<Uint8Array | null> {
     }
 
     if (!repairedData?.length) {
-      // qpdf gives up on some damage (bad xref offsets, broken startxref)
-      // that pdf-lib's lenient parser can rebuild.
-      repairedData = await rebuildWithPdfLib(uint8Array);
+      // qpdf gives up on some damage (bad xref offsets, broken startxref).
+      // MuPDF rebuilds most of it; pdf-lib's lenient parser is the last try.
+      repairedData =
+        (await rebuildWithMuPdf(file)) ?? (await rebuildWithPdfLib(uint8Array));
     }
     return repairedData;
   } catch (error) {

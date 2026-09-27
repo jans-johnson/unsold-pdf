@@ -429,3 +429,13 @@ export function getCleanPdfFilename(filename: string): string {
   }
   return clean;
 }
+
+/** Name a converted PDF after its source when there's one file ("photo.png" → "photo.pdf"). */
+export function pdfNameFor(
+  files: { name: string }[],
+  fallback: string
+): string {
+  return files.length === 1
+    ? `${files[0].name.replace(/\.[^.]+$/, '')}.pdf`
+    : fallback;
+}

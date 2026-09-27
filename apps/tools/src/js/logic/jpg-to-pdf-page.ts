@@ -1,6 +1,6 @@
 import { createIcons, icons } from 'lucide';
 import { showAlert, showLoader, hideLoader } from '../ui.js';
-import { downloadFile, formatBytes } from '../utils/helpers.js';
+import { downloadFile, formatBytes, pdfNameFor } from '../utils/helpers.js';
 import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
 import type { PyMuPDFInstance } from '@/types';
 import {
@@ -196,7 +196,7 @@ async function convertToPdf() {
 
     const pdfBlob = await mupdf.imagesToPdf(compressedFiles);
 
-    downloadFile(pdfBlob, 'from_jpgs.pdf');
+    downloadFile(pdfBlob, pdfNameFor(files, 'from_jpgs.pdf'));
 
     showAlert('Success', 'PDF created successfully!', 'success', () => {
       resetState();

@@ -1,4 +1,4 @@
-import { CATEGORIES, hasTool, tool } from './catalog.ts';
+import { CATEGORIES, canRun, hasTool, tool } from './catalog.ts';
 
 /**
  * What people see: a small set of tasks, each grouping the tool pages that do
@@ -313,7 +313,8 @@ const SPEC: { name: string; color: string; tasks: TaskSpec[] }[] = [
   },
 ];
 
-const isAvailable = (id: string) => id === CREATE_FROM_FILES || hasTool(id);
+const isAvailable = (id: string) =>
+  id === CREATE_FROM_FILES || (hasTool(id) && canRun(id));
 
 export const GROUPS: TaskGroup[] = SPEC.map((g) => ({
   name: g.name,
@@ -406,6 +407,7 @@ export function convertibleFormats(): string[] {
   const names = (
     CATEGORIES.find((c) => c.name === 'Convert to PDF')?.tools ?? []
   )
+    .filter((t) => canRun(t.id))
     .map((t) => t.name.replace(/ to PDF$/, ''))
     // JSON to PDF only reads the app's own PDF-to-JSON output, not any JSON.
     .filter((n) => n !== 'Images' && n !== 'JSON');

@@ -1071,7 +1071,7 @@ body {
   place-items: center;
 }
 .modal {
-  width: 520px;
+  width: min(520px, calc(100vw - 32px));
   max-height: 80vh;
   overflow: auto;
   background: var(--bg-raised);
@@ -1473,11 +1473,16 @@ button.chip:hover {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
 
-  /* All tools */
+  /* All tools: keep the search box, drop the category list */
   #view-tools {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
   .tools-nav {
+    border-right: 0;
+    padding: 12px 16px 0;
+  }
+  #tools-cats {
     display: none;
   }
   .task-grid {
@@ -1585,6 +1590,18 @@ button.chip:hover {
     border-top: 1px solid var(--border);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Dialogs and toasts fit the screen and clear the bottom bar */
+  .modal-foot {
+    flex-wrap: wrap;
+  }
+  #toasts {
+    bottom: calc(var(--bar-h) + env(safe-area-inset-bottom) + 12px);
+    width: calc(100vw - 24px);
+  }
+  .toast {
+    max-width: 100%;
   }
 
   /* Tool header: keep the title, drop the long subtitle */

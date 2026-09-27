@@ -1,5 +1,5 @@
 import { showLoader, hideLoader, showAlert } from '../ui.js';
-import { downloadFile, formatBytes } from '../utils/helpers.js';
+import { downloadFile, formatBytes, pdfNameFor } from '../utils/helpers.js';
 import { createIcons, icons } from 'lucide';
 import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
 
@@ -128,7 +128,7 @@ async function convert() {
       margins: 72,
     });
 
-    downloadFile(pdfBlob, 'text_to_pdf.pdf');
+    downloadFile(pdfBlob, pdfNameFor(files, 'text_to_pdf.pdf'));
 
     showAlert(
       'Success',

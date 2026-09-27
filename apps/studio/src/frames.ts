@@ -6,6 +6,8 @@ export interface FrameFile {
   data: Uint8Array;
   /** The tool works on just this file: hide its own upload step. */
   only?: boolean;
+  /** Password the user already unlocked it with (tools use it instead of asking). */
+  password?: string;
 }
 
 export interface FrameEvents {
@@ -124,7 +126,9 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  */
 function refeedWhenCleared(iframe: HTMLIFrameElement, file: FrameFile) {
   const win = iframe.contentWindow as (Window & typeof globalThis) | null;
-  const area = iframe.contentDocument?.getElementById('file-display-area');
+  const doc = iframe.contentDocument;
+  const area =
+    doc?.getElementById('file-display-area') ?? doc?.getElementById('fileList');
   if (!win || !area) return;
   let had = area.childElementCount > 0;
   const watch = new win.MutationObserver(() => {
@@ -182,6 +186,10 @@ async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
         type: isPdf ? 'application/pdf' : '',
       })
     );
+    if (file.password) {
+      (win as Window & { __unsoldPassword?: string }).__unsoldPassword =
+        file.password;
+    }
     input.files = dt.files;
     input.dispatchEvent(new win.Event('input', { bubbles: true }));
     input.dispatchEvent(new win.Event('change', { bubbles: true }));

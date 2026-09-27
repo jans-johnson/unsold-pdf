@@ -5,6 +5,7 @@ import {
 } from '@unsold/bridge';
 import { $, h, icon, isPdfBytes, nextId, storage, store } from './dom.ts';
 import {
+  canRun,
   converterFor,
   MULTI_INPUT_TOOLS,
   NEW_DOCUMENT_TOOLS,
@@ -39,6 +40,15 @@ import { createViewer, find } from './viewer.ts';
 type View = 'home' | 'tools';
 
 /** Owns the open tabs and everything that happens to a document. */
+/** Whether a PDF is encrypted (its trailer, near the start or end, names /Encrypt). */
+function hasEncryption(bytes: Uint8Array) {
+  const text = (part: Uint8Array) => new TextDecoder('latin1').decode(part);
+  const edge = 64 * 1024;
+  return /\/Encrypt\b/.test(
+    text(bytes.subarray(0, edge)) + text(bytes.subarray(-edge))
+  );
+}
+
 /** Phone-sized window: the layout shows one pane at a time (see styles.css). */
 const isPhone = () => matchMedia('(max-width: 760px)').matches;
 
@@ -232,7 +242,12 @@ export class Studio {
         continue;
       }
       const converter = converterFor(f.name);
-      if (converter) {
+      if (converter && !canRun(converter)) {
+        toast(
+          `“${f.name}” can’t be converted on this device. Office files convert in Unsold PDF for Mac, Windows and Linux, or on the web.`,
+          { error: true, timeout: 10000 }
+        );
+      } else if (converter) {
         this.openToolTab(converter, { name: f.name, data: f.data });
         toast(`Opened “${f.name}” in ${tool(converter)!.name}`);
       } else {
@@ -266,7 +281,10 @@ export class Studio {
         reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD
       );
       if (pw == null) void task.destroy();
-      else update(pw);
+      else {
+        tab.password = pw;
+        update(pw);
+      }
     };
     let pdfDoc;
     try {
@@ -598,6 +616,7 @@ export class Studio {
       name: tab.name.endsWith('.pdf') ? tab.name : `${tab.name}.pdf`,
       data: tab.bytes,
       only: true,
+      password: tab.password,
     };
     // The first mount happens while buildSurface runs, before `layer` exists.
     let shown: { id: string; frame: HTMLIFrameElement | null } = {
@@ -735,7 +754,14 @@ export class Studio {
       this.closeTool(origin); // the viewer must be visible before it reloads
       this.applyEdit(origin, output.data);
       this.activate(origin.id);
-      toast(`${name} applied to “${origin.name}”`, {
+      // Most tools write an unencrypted result; say so rather than letting
+      // a protected document quietly lose its password.
+      const unprotected = !!origin.password && !hasEncryption(output.data);
+      if (unprotected) origin.password = undefined;
+      const note = unprotected
+        ? ' The result isn’t password-protected any more; use Protect to add a password again.'
+        : '';
+      toast(`${name} applied to “${origin.name}”.${note}`, {
         actions: [
           { label: 'Undo', run: () => this.undo(origin) },
           { label: 'Save', run: () => void this.save(origin) },
@@ -843,12 +869,15 @@ export class Studio {
 
   togglePanel(name: PanelName | null) {
     this.panel = this.panel === name ? null : name;
+    // On phones both are sheets over the document; show one at a time.
+    if (isPhone() && this.panel && this.leftPane) this.leftPane = false;
     store('panel', this.panel ?? '');
     this.syncChrome();
   }
 
   toggleLeftPane() {
     this.leftPane = !this.leftPane;
+    if (isPhone() && this.leftPane) this.panel = null;
     if (!isPhone()) store('leftPane', this.leftPane ? 'open' : 'closed');
     this.syncChrome();
   }

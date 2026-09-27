@@ -3,6 +3,7 @@ import {
   downloadFile,
   formatBytes,
   readFileAsArrayBuffer,
+  pdfNameFor,
 } from '../utils/helpers.js';
 import { createIcons, icons } from 'lucide';
 import { PDFDocument as PDFLibDocument } from 'pdf-lib';
@@ -143,7 +144,7 @@ async function convert() {
     const pdfBytes = await pdfDoc.save();
     downloadFile(
       new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' }),
-      'from_tiff.pdf'
+      pdfNameFor(files, 'from_tiff.pdf')
     );
     showAlert('Success', 'PDF created successfully!', 'success', () => {
       resetState();

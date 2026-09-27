@@ -1075,6 +1075,18 @@ function adaptToStudio() {
     hasChanges: () => appModule?.hasUnsavedChanges() ?? false,
     apply: () => appModule?.saveFile(),
   });
+  // Apply with nothing changed just closes, rather than putting an
+  // identical copy into the document's history.
+  save?.addEventListener(
+    'click',
+    (e) => {
+      if (appModule?.hasUnsavedChanges()) return;
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      findToolHost()?.requestClose(window);
+    },
+    true
+  );
 }
 
 if (document.readyState === 'loading') {

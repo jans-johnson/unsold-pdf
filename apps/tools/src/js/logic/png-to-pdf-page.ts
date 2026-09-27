@@ -4,6 +4,7 @@ import {
   downloadFile,
   readFileAsArrayBuffer,
   formatBytes,
+  pdfNameFor,
 } from '../utils/helpers.js';
 import { PDFDocument as PDFLibDocument } from 'pdf-lib';
 import {
@@ -247,7 +248,7 @@ async function convertToPdf() {
     const pdfBytes = await pdfDoc.save();
     downloadFile(
       new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' }),
-      'from_pngs.pdf'
+      pdfNameFor(files, 'from_pngs.pdf')
     );
     showAlert('Success', 'PDF created successfully!', 'success', () => {
       resetState();

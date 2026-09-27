@@ -51,7 +51,10 @@ export function flattenAnnotations(pdfDoc: PDFDocument): void {
       const annot = pdfDoc.context.lookup(annotRef);
 
       if (!(annot instanceof PDFDict)) {
-        if (annotRef instanceof PDFRef) keptAnnots.push(annotRef);
+        // A reference to an object that no longer exists (e.g. a widget
+        // form.flatten() just removed) is dropped; anything else is kept.
+        if (annot === undefined) hasChanges = true;
+        else if (annotRef instanceof PDFRef) keptAnnots.push(annotRef);
         continue;
       }
 

@@ -5,6 +5,10 @@ import { PasswordResponses } from 'pdfjs-dist';
 import type { LoadedPdf } from '@/types';
 
 let cachedPassword: string | null = null;
+
+/** The password the Unsold PDF app already unlocked this document with. */
+const hostPassword = () =>
+  (window as Window & { __unsoldPassword?: string }).__unsoldPassword ?? null;
 let activeModalPromise: Promise<unknown> | null = null;
 
 function getEl<T extends HTMLElement>(id: string): T | null {
@@ -212,6 +216,7 @@ export async function promptAndDecryptFile(file: File): Promise<File | null> {
 
   const fileBytes = (await readFileAsArrayBuffer(file)) as ArrayBuffer;
 
+  cachedPassword ??= hostPassword();
   if (cachedPassword) {
     const valid = await validatePasswordWithPdfjs(fileBytes, cachedPassword);
     if (valid) {
@@ -391,6 +396,7 @@ export async function promptAndDecryptBatch(
     return decryptedFiles;
   }
 
+  cachedPassword ??= hostPassword();
   if (cachedPassword) {
     let allValid = true;
     for (const idx of encryptedIndices) {

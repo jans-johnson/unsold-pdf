@@ -199,9 +199,15 @@
                 <a class="btn btn-lime" data-link="mac">Download for macOS</a>
                 <a class="btn btn-ghost" data-link="windows">Windows</a>
                 <a class="btn btn-ghost" data-link="linux">Linux</a>
+                <a class="btn btn-ghost" data-link="android">Android</a>
+                <a class="btn btn-ghost" data-link="ios">iPhone &amp; iPad</a>
               </div>
+              <p class="fine web-line">
+                Rather not install anything?
+                <a data-link="web">Use it in your browser</a> — it still runs
+                entirely on your device.
+              </p>
               <p class="fine">
-                iPhone, iPad and Android are on the way.
                 <a data-link="source">View the source code</a>
               </p>
             </div>
@@ -291,12 +297,23 @@
       import { mountTour } from './tour.js';
 
       // Fill these in when the builds and repo are public. Empty links show as "soon".
-      const LINKS = { mac: '', windows: '', linux: '', source: '' };
+      const LINKS = {
+        mac: '',
+        windows: '',
+        linux: '',
+        android: '',
+        ios: '',
+        // The web version (apps/web), deployed at the root of its own domain.
+        web: '',
+        source: '',
+      };
       for (const a of document.querySelectorAll('[data-link]')) {
         const url = LINKS[a.dataset.link];
         if (url) a.href = url;
         else {
           a.classList.add('soon');
+          // A sentence built around a missing link reads oddly; hide it.
+          a.closest('.web-line')?.setAttribute('hidden', '');
           a.setAttribute('aria-disabled', 'true');
           a.title = 'Coming soon';
         }

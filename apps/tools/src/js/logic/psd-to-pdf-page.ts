@@ -1,5 +1,5 @@
 import { showLoader, hideLoader, showAlert } from '../ui.js';
-import { downloadFile, formatBytes } from '../utils/helpers.js';
+import { downloadFile, formatBytes, pdfNameFor } from '../utils/helpers.js';
 import { state } from '../state.js';
 import { createIcons, icons } from 'lucide';
 import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         showLoader('Converting multiple files...');
         const pdfBlob = await mupdf.imagesToPdf(state.files);
-        downloadFile(pdfBlob, 'psd_to_pdf.pdf');
+        downloadFile(pdfBlob, pdfNameFor(state.files, 'psd_to_pdf.pdf'));
         hideLoader();
         showAlert(
           'Conversion Complete',

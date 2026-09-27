@@ -5,7 +5,10 @@ import {
   formatBytes,
   getPDFDocument,
 } from '../utils/helpers.js';
-import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
+import {
+  batchDecryptIfNeeded,
+  loadPdfWithPasswordPrompt,
+} from '../utils/password-prompt.js';
 import { state } from '../state.js';
 import { PDFDocument } from 'pdf-lib';
 import { createIcons, icons } from 'lucide';
@@ -420,6 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // Encrypted files are unlocked first (silently, with the password the
+      // app already has); the engines can't read them otherwise.
+      hideLoader();
+      state.files = await batchDecryptIfNeeded(state.files);
+      if (state.files.length === 0) return;
+
       if (state.files.length === 1) {
         const originalFile = state.files[0];
 
@@ -565,7 +574,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[CompressPDF] Error:', e);
       showAlert(
         'Error',
-        `An error occurred during compression. Error: ${e instanceof Error ? e.message : String(e)}`
+        // Engine errors can be whole Python tracebacks; the last line says it.
+        `Couldn’t compress this PDF: ${(e instanceof Error ? e.message : String(e)).trim().split('\n').pop()}`
       );
     }
   };

@@ -54,7 +54,9 @@ async function fetchAsDecompressedUrl(
 async function servesInflated(basePath: string): Promise<boolean> {
   try {
     const res = await fetch(`${basePath}soffice.wasm`, { method: 'HEAD' });
-    return res.ok;
+    // Some hosts (Tauri's own protocol on Windows and Android) answer any
+    // unknown path with index.html, so check it really is the engine.
+    return res.ok && /wasm/.test(res.headers.get('content-type') ?? '');
   } catch {
     return false;
   }

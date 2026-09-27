@@ -42,10 +42,12 @@ fn self_test_report<R: tauri::Runtime>(
         return;
     }
     let passed = checks.iter().all(|c| c.ok);
-    println!(
-        "{}",
-        serde_json::json!({ "platform": host_info(enabled.clone()).platform, "passed": passed, "checks": checks })
-    );
+    let report = serde_json::json!({ "platform": host_info(enabled.clone()).platform, "passed": passed, "checks": checks });
+    println!("{report}");
+    // Windows GUI builds have no console, so CI can ask for a file as well.
+    if let Some(path) = std::env::var_os("UNSOLD_SELF_TEST_REPORT") {
+        let _ = std::fs::write(path, report.to_string());
+    }
     let _ = std::io::Write::flush(&mut std::io::stdout());
     // AppHandle::exit does not propagate the code, and CI needs it.
     let _ = (app, approved);
@@ -143,6 +145,15 @@ fn create_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Re
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // WebKitGTK keeps SharedArrayBuffer off even for cross-origin-isolated
+    // pages; the threaded engines (Office conversion, TIFF) need it. Its
+    // JavaScript engine reads option overrides from JSC_* variables, and the
+    // web process inherits ours. Set before any other thread starts.
+    #[cfg(target_os = "linux")]
+    if std::env::var_os("JSC_useSharedArrayBuffer").is_none() {
+        std::env::set_var("JSC_useSharedArrayBuffer", "1");
+    }
+
     #[cfg_attr(mobile, allow(unused_mut))]
     let mut builder = tauri::Builder::default();
 

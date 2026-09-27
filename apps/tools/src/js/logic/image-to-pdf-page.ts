@@ -13,6 +13,7 @@ import {
   isValidImageFile,
   preprocessImageFile,
 } from '@/js/utils/image-input-utils.js';
+import { pdfNameFor } from '../utils/helpers.js';
 
 let files: File[] = [];
 let pymupdf: PyMuPDFInstance | null = null;
@@ -201,7 +202,7 @@ async function convertToPdf() {
     showLoader('Converting images to PDF...');
     const pdfBlob = await mupdf.imagesToPdf(processedFiles);
 
-    downloadFile(pdfBlob, 'images_to_pdf.pdf');
+    downloadFile(pdfBlob, pdfNameFor(files, 'images_to_pdf.pdf'));
 
     showAlert('Success', 'PDF created successfully!', 'success', () => {
       resetState();

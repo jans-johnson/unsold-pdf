@@ -110,6 +110,32 @@ const EXT_ALIASES: Record<string, string> = {
   cbr: 'cbz',
 };
 
+/**
+ * Tools whose engines need WebAssembly threads (LibreOffice for Office
+ * formats, wasm-vips for TIFF). Threads need cross-origin isolation, which
+ * Android's WebView can't provide, so there these tools are left out.
+ */
+const NEEDS_THREADS = new Set([
+  'word-to-pdf',
+  'excel-to-pdf',
+  'powerpoint-to-pdf',
+  'odt-to-pdf',
+  'ods-to-pdf',
+  'odp-to-pdf',
+  'odg-to-pdf',
+  'rtf-to-pdf',
+  'pages-to-pdf',
+  'pub-to-pdf',
+  'vsd-to-pdf',
+  'wpd-to-pdf',
+  'wps-to-pdf',
+  'pdf-to-tiff',
+]);
+
+/** Whether this device can run the tool (see NEEDS_THREADS). */
+export const canRun = (id: string) =>
+  !NEEDS_THREADS.has(id) || globalThis.crossOriginIsolated === true;
+
 /** The conversion tool for a non-PDF file, if there is one. */
 export function converterFor(name: string): string | null {
   const ext = name.split('.').pop()?.toLowerCase() ?? '';

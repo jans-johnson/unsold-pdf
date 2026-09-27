@@ -66,6 +66,23 @@ function allowTypingInShadowEditors(host: HTMLElement) {
   style.textContent =
     '[contenteditable=""],[contenteditable="true"]{-webkit-user-select:text!important;user-select:text!important}';
   root.append(style);
+  // When a new box opens, the viewer selects its placeholder with
+  // addRange(), which WebKit ignores inside a shadow root, so typing went
+  // nowhere. Select it ourselves once the viewer is done focusing.
+  root.addEventListener('focusin', (e) => {
+    const el = e.target as HTMLElement | null;
+    if (!el?.isContentEditable) return;
+    setTimeout(() => {
+      const sel = document.getSelection();
+      if (
+        !sel ||
+        sel.rangeCount > 0 ||
+        document.activeElement !== host.querySelector('embedpdf-container')
+      )
+        return;
+      sel.setBaseAndExtent(el, 0, el, el.childNodes.length);
+    }, 0);
+  });
 }
 
 let viewerInstance: EmbedPdfContainer | null = null;
@@ -271,21 +288,33 @@ async function handleFiles(files: FileList) {
       downloadBtn.classList.remove('hidden');
       const saveBtn = downloadBtn;
       // Closing the tool with unsaved mark-up asks to apply or discard.
+      // The viewer commits annotations immediately, so "unsaved" means the
+      // user has done something undoable since the document was loaded.
+      let edited = false;
+      try {
+        (
+          registry.getPlugin('annotation').provides() as unknown as {
+            onAnnotationEvent(cb: (e: { type: string }) => void): unknown;
+          }
+        ).onAnnotationEvent((e) => {
+          if (['create', 'update', 'delete'].includes(e.type)) edited = true;
+        });
+      } catch {
+        /* no annotation events: rely on history below */
+      }
       registerToolPage({
         hasChanges: () => {
           try {
-            const state = (
-              registry
-                .getPlugin('annotation')
-                .provides() as unknown as AnnotationPluginLite
-            ).getState();
-            return Object.values(state.byUid).some((tracked) => {
-              const commit = (tracked as { commitState?: string }).commitState;
-              return !!commit && commit !== 'synced';
-            });
+            const history = (
+              registry.getPlugin('history') as unknown as {
+                provides(): { canUndo(): boolean };
+              } | null
+            )?.provides();
+            if (history) return history.canUndo();
           } catch {
-            return false;
+            /* fall through */
           }
+          return edited;
         },
         apply: () => saveBtn.click(),
       });

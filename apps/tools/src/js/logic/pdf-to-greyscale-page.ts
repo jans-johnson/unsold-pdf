@@ -7,6 +7,7 @@ import {
 } from '../utils/helpers.js';
 import { createIcons, icons } from 'lucide';
 import { PDFDocument } from 'pdf-lib';
+import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
 import { applyGreyscale } from '../utils/image-effects.js';
 import { t } from '../i18n/i18n';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
@@ -85,6 +86,46 @@ const resetState = () => {
   updateUI();
 };
 
+interface Pyodide {
+  FS: {
+    writeFile(path: string, data: Uint8Array): void;
+    readFile(path: string): Uint8Array;
+    unlink(path: string): void;
+  };
+  runPython(code: string): unknown;
+}
+
+/** Greyscale every page's content (text, vectors and images) with MuPDF. */
+async function greyscaleVector(bytes: Uint8Array): Promise<Uint8Array> {
+  const pymupdf = (await loadPyMuPDF()) as unknown as {
+    getPyodide(): Promise<Pyodide>;
+  };
+  const py = await pymupdf.getPyodide();
+  const id = Date.now();
+  const input = `/grey_in_${id}.pdf`;
+  const output = `/grey_out_${id}.pdf`;
+  py.FS.writeFile(input, bytes);
+  try {
+    py.runPython(`
+import pymupdf
+doc = pymupdf.open("${input}")
+for page in doc:
+    page.recolor(1)
+doc.save("${output}", garbage=3, deflate=True)
+doc.close()
+`);
+    return py.FS.readFile(output);
+  } finally {
+    for (const path of [input, output]) {
+      try {
+        py.FS.unlink(path);
+      } catch {
+        /* already gone */
+      }
+    }
+  }
+}
+
 async function convert() {
   if (files.length === 0) {
     showAlert('No File', 'Please upload a PDF file first.');
@@ -95,6 +136,29 @@ async function convert() {
     if (!result) return;
     showLoader('Converting to greyscale...');
     const { pdf: pdfjsDoc } = result;
+
+    // Preferred: recolour the page content itself (MuPDF), so text stays
+    // text and the file stays small. Falls back to images if that fails.
+    try {
+      const grey = await greyscaleVector(await pdfjsDoc.getData());
+      downloadFile(
+        new Blob([new Uint8Array(grey)], { type: 'application/pdf' }),
+        files[0]?.name || 'document.pdf'
+      );
+      showAlert(
+        'Success',
+        'PDF converted to greyscale successfully!',
+        'success',
+        () => resetState()
+      );
+      return;
+    } catch (err) {
+      console.warn(
+        'Vector greyscale unavailable; rendering pages instead',
+        err
+      );
+    }
+
     const newPdfDoc = await PDFDocument.create();
 
     for (let i = 1; i <= pdfjsDoc.numPages; i++) {

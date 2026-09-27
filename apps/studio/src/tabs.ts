@@ -17,6 +17,8 @@ export interface DocTab {
   /** Where the document lives; `null` until it is saved somewhere. */
   handle: string | null;
   bytes: Uint8Array;
+  /** The password the user unlocked it with, handed to tools so they don't ask again. */
+  password?: string;
   savedBytes: Uint8Array | null;
   dirty: boolean;
   history: Uint8Array[];
