@@ -36,11 +36,23 @@ function decodeBase64(b64: string): Uint8Array {
   return out;
 }
 
+function encodeBase64(bytes: Uint8Array): string {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
+}
+
 /** Host backed by the Rust side in `native/src`. */
 export async function createTauriBridge(): Promise<HostBridge> {
   const info = await invoke<HostInfo>('host_info');
   const desktop = !['android', 'ios'].includes(info.platform);
   const win = getCurrentWindow();
+  // Android's WebView has no custom-protocol IPC, so byte payloads would
+  // arrive as JSON number arrays; send base64 there instead.
+  const body = (data: Uint8Array) =>
+    info.platform === 'android' ? { b64: encodeBase64(data) } : data;
 
   const bridge: HostBridge = {
     platform: info.platform,
@@ -62,17 +74,17 @@ export async function createTauriBridge(): Promise<HostBridge> {
       return ref ? read(ref) : null;
     },
     async save(handle, data) {
-      await invoke('save_document', data, {
+      await invoke('save_document', body(data), {
         headers: { 'x-handle': header(handle) },
       });
     },
     saveAs(suggestedName, data) {
-      return invoke<SavedDocument | null>('save_document_as', data, {
+      return invoke<SavedDocument | null>('save_document_as', body(data), {
         headers: { 'x-name': header(suggestedName) },
       });
     },
     exportFile(suggestedName, data) {
-      return invoke<string | null>('export_file', data, {
+      return invoke<string | null>('export_file', body(data), {
         headers: { 'x-name': header(suggestedName) },
       });
     },
@@ -90,7 +102,7 @@ export async function createTauriBridge(): Promise<HostBridge> {
         status: number;
         contentType: string;
         body: string;
-      }>('net_fetch', req.body ?? new Uint8Array(), {
+      }>('net_fetch', body(req.body ?? new Uint8Array()), {
         headers: {
           'x-url': header(req.url),
           'x-method': req.method,

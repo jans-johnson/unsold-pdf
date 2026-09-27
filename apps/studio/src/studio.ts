@@ -132,7 +132,9 @@ export class Studio {
     $('#view-doc').hidden = !tab;
     for (const t of this.tabs) t.stageEl.hidden = t !== tab;
     if (id === 'home') this.onHomeShown();
-    if (id === 'tools') $('#tools-search').focus();
+    // On touch screens focusing would pop the keyboard over the list.
+    if (id === 'tools' && matchMedia('(pointer: fine)').matches)
+      $('#tools-search').focus();
     this.renderTabs();
     this.syncChrome();
     const title = tab
@@ -383,10 +385,28 @@ export class Studio {
         await this.host.save(tab.handle, tab.bytes);
       }
     } catch (err) {
-      toast(`Save failed: ${(err as Error).message ?? err}`, {
-        error: true,
-        timeout: 8000,
-      });
+      // An in-place save can fail where the app only has read access
+      // (e.g. a file another app shared); a copy can still be saved.
+      const inPlace = !as && !!tab.handle && this.host.capabilities.saveInPlace;
+      const detail = (err as Error).message ?? String(err);
+      console.warn('save failed:', detail);
+      toast(
+        inPlace
+          ? `Couldn’t save over “${tab.name}”. Save it as a new file instead.`
+          : `Save failed: ${detail}`,
+        {
+          error: true,
+          timeout: 12000,
+          actions: inPlace
+            ? [
+                {
+                  label: 'Save as…',
+                  run: () => void this.save(tab, { as: true }),
+                },
+              ]
+            : [],
+        }
+      );
       return false;
     }
     tab.savedBytes = tab.bytes;
@@ -395,6 +415,22 @@ export class Studio {
     else this.renderTabs();
     toast(`Saved “${tab.name}”`);
     return true;
+  }
+
+  /** Writes the document to a new file; the tab stays on the original. */
+  async saveCopy(tab: DocTab) {
+    try {
+      const saved = await this.host.saveAs(
+        tab.name.replace(/\.pdf$/i, '') + '.pdf',
+        tab.bytes
+      );
+      if (saved) toast(`Saved “${saved.name}”`);
+    } catch (err) {
+      toast(`Couldn’t save a copy: ${(err as Error).message ?? err}`, {
+        error: true,
+        timeout: 8000,
+      });
+    }
   }
 
   async exportFile(name: string, data: Uint8Array) {
@@ -930,7 +966,7 @@ export class Studio {
       {
         label: 'Save a copy…',
         icon: 'ph-copy',
-        run: () => void this.host.saveAs(tab.name, tab.bytes),
+        run: () => void this.saveCopy(tab),
       },
       {
         label: 'Export to Word (.docx)',

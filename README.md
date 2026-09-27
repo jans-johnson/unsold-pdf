@@ -38,4 +38,6 @@ npm run build -w @unsold/tools
 npm run dev -w @unsold/site    # the website, on http://localhost:5190
 ```
 
+Building installers for each platform: see `docs/RELEASING.md`.
+
 Licensed under the GNU AGPL v3. See `LICENSE`.

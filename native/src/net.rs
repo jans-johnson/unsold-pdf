@@ -12,7 +12,7 @@ use std::time::Duration;
 use base64::Engine;
 use percent_encoding::percent_decode_str;
 use serde::Serialize;
-use tauri::ipc::{InvokeBody, Request};
+use tauri::ipc::Request;
 use url::Url;
 
 const MAX_RESPONSE_BYTES: usize = 10 * 1024 * 1024;
@@ -96,8 +96,8 @@ pub async fn net_fetch(request: Request<'_>) -> Result<NetResponse, String> {
         Some("GET") | None => reqwest::Method::GET,
         Some(other) => return Err(format!("Method {other} is not allowed")),
     };
-    let body = match request.body() {
-        InvokeBody::Raw(bytes) if method == reqwest::Method::POST => bytes.clone(),
+    let body = match method {
+        reqwest::Method::POST => crate::documents::raw_body(&request)?.into_owned(),
         _ => Vec::new(),
     };
 

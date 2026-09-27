@@ -4446,6 +4446,8 @@ name = "unsold-pdf"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
+ "jni",
+ "objc2",
  "percent-encoding",
  "reqwest 0.12.28",
  "serde",

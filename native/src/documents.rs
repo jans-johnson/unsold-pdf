@@ -7,6 +7,7 @@
 //! string form of a `FilePath`, so desktop paths and mobile URIs share one
 //! code path.
 
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fs;
 use std::io::{Read, Write};
@@ -14,6 +15,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::Mutex;
 
+use base64::Engine;
 use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use tauri::ipc::{InvokeBody, Request, Response};
@@ -119,7 +121,6 @@ impl Library {
         }
     }
 
-    #[cfg_attr(target_os = "android", allow(dead_code))]
     /// Registers documents that arrived from the OS and forwards them to the
     /// UI, or queues them until `host_ready`.
     pub fn deliver_opened<R: Runtime>(&self, app: &AppHandle<R>, paths: Vec<FilePath>) {
@@ -151,15 +152,25 @@ fn now_ms() -> u64 {
         .unwrap_or(0)
 }
 
-fn display_name(path: &FilePath) -> String {
+fn display_name<R: Runtime>(app: &AppHandle<R>, path: &FilePath) -> String {
+    #[cfg(not(target_os = "android"))]
+    let _ = app;
     let raw = match path {
         FilePath::Path(p) => p
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
             .unwrap_or_default(),
-        // Android content URIs encode the provider path in the last segment,
-        // e.g. ".../document/primary%3ADownload%2Freport.pdf".
+        // Android content URIs: ask the provider. Failing that, document
+        // URIs encode the path in the last segment, e.g.
+        // ".../document/primary%3ADownload%2Freport.pdf".
         FilePath::Url(u) => {
+            #[cfg(target_os = "android")]
+            if let Some(name) = (u.scheme() == "content")
+                .then(|| crate::android::display_name(app, u.as_str()))
+                .flatten()
+            {
+                return name;
+            }
             let last = u.path_segments().and_then(|mut s| s.next_back()).unwrap_or("");
             let decoded = percent_decode_str(last).decode_utf8_lossy();
             decoded.rsplit(['/', ':']).next().unwrap_or("").to_owned()
@@ -210,7 +221,7 @@ fn describe<R: Runtime>(app: &AppHandle<R>, path: &FilePath) -> Result<DocumentR
     let size = with_file(app, path, read_opts(), |f| f.metadata().map(|m| m.len()))?;
     Ok(DocumentRef {
         handle: path.to_string(),
-        name: display_name(path),
+        name: display_name(app, path),
         size,
     })
 }
@@ -224,10 +235,18 @@ fn header(request: &Request<'_>, name: &str) -> Result<String, String> {
     Ok(percent_decode_str(value).decode_utf8_lossy().into_owned())
 }
 
-fn raw_body<'a>(request: &'a Request<'_>) -> Result<&'a [u8], String> {
+/// The bytes a command was sent. Desktop and iOS pass them raw; Android's
+/// WebView has no custom-protocol IPC, so the bridge sends `{ b64 }` there.
+pub(crate) fn raw_body<'a>(request: &'a Request<'_>) -> Result<Cow<'a, [u8]>, String> {
     match request.body() {
-        InvokeBody::Raw(bytes) => Ok(bytes),
-        _ => Err("expected a binary request body".into()),
+        InvokeBody::Raw(bytes) => Ok(Cow::Borrowed(bytes)),
+        InvokeBody::Json(json) => match json.get("b64").and_then(|v| v.as_str()) {
+            Some(b64) => base64::engine::general_purpose::STANDARD
+                .decode(b64)
+                .map(Cow::Owned)
+                .map_err(|e| format!("bad request body: {e}")),
+            None => Err("expected a binary request body".into()),
+        },
     }
 }
 
@@ -236,6 +255,7 @@ fn extension_filter(name: &str) -> Option<(String, String)> {
     (!ext.is_empty() && ext.len() <= 8).then(|| (ext.to_uppercase(), ext))
 }
 
+#[cfg_attr(target_os = "android", allow(dead_code))]
 const OPENABLE: &[&str] = &[
     "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "odg", "rtf", "txt",
     "md", "markdown", "csv", "xml", "epub", "mobi", "fb2", "cbz", "cbr", "eml", "msg", "pages",
@@ -248,6 +268,12 @@ pub async fn pick_documents<R: Runtime>(
     app: AppHandle<R>,
     library: State<'_, Library>,
 ) -> Result<Vec<DocumentRef>, String> {
+    #[cfg(target_os = "android")]
+    let picked: Vec<FilePath> = crate::android::pick(&app)
+        .iter()
+        .filter_map(|u| FilePath::from_str(u).ok())
+        .collect();
+    #[cfg(not(target_os = "android"))]
     let picked = app
         .dialog()
         .file()
@@ -307,9 +333,9 @@ pub async fn save_document<R: Runtime>(
     library.check(&handle)?;
     let data = raw_body(&request)?;
     let path = parse_handle(&handle);
-    with_file(&app, &path, write_opts(), |f| f.write_all(data))?;
+    with_file(&app, &path, write_opts(), |f| f.write_all(&data))?;
     library.touch_recent(&DocumentRef {
-        name: display_name(&path),
+        name: display_name(&app, &path),
         size: data.len() as u64,
         handle,
     });
@@ -333,10 +359,12 @@ pub async fn save_document_as<R: Runtime>(
     else {
         return Ok(None);
     };
-    with_file(&app, &path, write_opts(), |f| f.write_all(data))?;
+    with_file(&app, &path, write_opts(), |f| f.write_all(&data))?;
+    #[cfg(target_os = "android")]
+    crate::android::keep_access(&app, &path.to_string());
     let doc = DocumentRef {
         handle: path.to_string(),
-        name: display_name(&path),
+        name: display_name(&app, &path),
         size: data.len() as u64,
     };
     library.grant(&doc.handle);
@@ -361,8 +389,8 @@ pub async fn export_file<R: Runtime>(
     let Some(path) = dialog.blocking_save_file() else {
         return Ok(None);
     };
-    with_file(&app, &path, write_opts(), |f| f.write_all(data))?;
-    Ok(Some(display_name(&path)))
+    with_file(&app, &path, write_opts(), |f| f.write_all(&data))?;
+    Ok(Some(display_name(&app, &path)))
 }
 
 #[tauri::command]

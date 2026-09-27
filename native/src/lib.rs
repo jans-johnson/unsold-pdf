@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+mod android;
 mod documents;
 #[cfg(desktop)]
 mod menu;
@@ -127,7 +129,8 @@ fn create_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Re
     let allowed = app_origin(app, &start);
     config.url = start;
     let opener = app.clone();
-    tauri::WebviewWindowBuilder::from_config(app, &config)?
+    #[cfg_attr(not(target_os = "ios"), allow(unused_variables))]
+    let window = tauri::WebviewWindowBuilder::from_config(app, &config)?
         // Keep the webview on the app; links to the web open in the browser.
         .on_navigation(move |url| {
             if origin::is_app_url(url, &allowed) {
@@ -140,6 +143,17 @@ fn create_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Re
             false
         })
         .build()?;
+    // iOS insets the page by the safe areas by default, which shrinks the
+    // layout and hides them from CSS; the Studio lays out around the notch
+    // and home indicator itself with env(safe-area-inset-*).
+    #[cfg(target_os = "ios")]
+    window.with_webview(|webview| unsafe {
+        use objc2::runtime::AnyObject;
+        const NEVER: isize = 2; // UIScrollViewContentInsetAdjustmentNever
+        let wk = webview.inner() as *mut AnyObject;
+        let scroll: *mut AnyObject = objc2::msg_send![wk, scrollView];
+        let _: () = objc2::msg_send![scroll, setContentInsetAdjustmentBehavior: NEVER];
+    })?;
     Ok(())
 }
 
@@ -185,6 +199,8 @@ pub fn run() {
             app.manage(Library::load(documents::data_dir(&handle)));
 
             create_main_window(&handle)?;
+            #[cfg(target_os = "android")]
+            android::attach(&handle);
 
             if app.state::<SelfTest>().0 {
                 std::thread::spawn(|| {

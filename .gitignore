@@ -19,3 +19,4 @@ native/gen/schemas/
 # Old Electron release builds, kept locally
 desktop/
 /release/
+native/www-android/

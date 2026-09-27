@@ -68,8 +68,10 @@ Android use Tauri's `http://tauri.localhost`, which Chromium isolates.
 - Migrate tools by category (organise → convert → edit → secure); delete each legacy page as it moves. `apps/tools` disappears at the end.
 
 ### Next up (before Phase 2)
-- Verify Windows, Linux, Android and iOS builds with `--self-test` (needs those machines / simulators, or CI).
-- `tauri android init` / `tauri ios init` and wire document-type registration.
+- ✅ Builds for every platform, each verified (see `docs/RELEASING.md`).
+- ✅ Android: phone layout, capability tiers, "Open with" / share intents.
+- Signing and store listings (needs the owner's Apple, Windows and Play accounts).
+- Android: run the threaded engines some other way (the WebView can't isolate).
 - Trim Phosphor icon fonts to woff2 only (~7 MB of unused formats).
 - The Compress tool's "Compression Algorithm" selector is read by nothing; decide whether to wire it or remove it.
 

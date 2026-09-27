@@ -179,6 +179,7 @@ async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
   const isPdf = /\.pdf$/i.test(file.name);
   if (isPdf && accept && !/pdf|\*/.test(accept)) return;
   await sleep(250); // let the page finish wiring its listeners
+  if (!iframe.isConnected) return; // the tool closed meanwhile
   try {
     const dt = new win.DataTransfer();
     dt.items.add(

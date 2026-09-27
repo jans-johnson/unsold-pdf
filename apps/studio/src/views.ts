@@ -91,10 +91,25 @@ async function renderRecents(studio: Studio) {
     );
     return;
   }
-  const open = async (handle: string) => {
-    const doc = await host.openRecent(handle);
-    if (doc) studio.openFiles([doc]);
-    else toast('That file is no longer available', { error: true });
+  const open = async (r: (typeof rows)[number]) => {
+    const doc = await host.openRecent(r.handle).catch(() => null);
+    if (doc) return studio.openFiles([doc]);
+    toast(
+      `Can’t open “${r.name}”. It may have moved, or access to it has ended. Open it again from where it’s stored.`,
+      {
+        error: true,
+        timeout: 10000,
+        actions: [
+          {
+            label: 'Remove from recent',
+            run: () =>
+              void host
+                .removeRecent(r.handle)
+                .then(() => renderRecents(studio)),
+          },
+        ],
+      }
+    );
   };
   table.replaceChildren(
     h(
@@ -115,7 +130,7 @@ async function renderRecents(studio: Studio) {
           title: r.exists ? r.handle : 'File not found',
           onclick: (e: Event) => {
             if (!(e.target as Element).closest('.row-actions') && r.exists)
-              void open(r.handle);
+              void open(r);
           },
         },
         icon('ph-file-pdf', 'ph-fill file-ico'),
