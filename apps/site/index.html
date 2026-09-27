@@ -232,29 +232,7 @@
         </div>
       </section>
 
-      <!-- 4. The rent -->
-      <section class="rent" id="rent">
-        <div class="wrap narrow">
-          <p class="eyebrow">Add it up</p>
-          <h2 class="section-title">What are you paying for PDFs?</h2>
-          <p class="section-sub">
-            Tick what you pay for now. The prices are typical monthly prices;
-            change them to yours.
-          </p>
-          <ul class="rent-list" id="rent-list"></ul>
-          <div class="rent-total" aria-live="polite">
-            <p><span id="rent-year">$0</span> a year</p>
-            <p class="rent-five">
-              <strong>$<span id="rent-five">0</span></strong> over five years
-            </p>
-          </div>
-          <p class="rent-note">
-            Unsold PDF does all of these for <strong>$0</strong>.
-          </p>
-        </div>
-      </section>
-
-      <!-- 5. Download -->
+      <!-- 4. Download -->
       <section class="product" id="download">
         <div class="wrap">
           <div class="product-card">
@@ -286,7 +264,7 @@
         </div>
       </section>
 
-      <!-- 6. Questions -->
+      <!-- 5. Questions -->
       <section class="free" id="free">
         <div class="wrap narrow">
           <p class="eyebrow">Fair questions</p>
@@ -325,7 +303,7 @@
         </div>
       </section>
 
-      <!-- 7. Coffee -->
+      <!-- 6. Coffee -->
       <section class="coffee">
         <div class="wrap narrow">
           <p class="coffee-line">
@@ -384,37 +362,6 @@
         lines: [...document.querySelectorAll('.story .line')],
         shade: document.querySelector('.story .shade'),
       });
-
-      // What people typically pay for the things Unsold PDF does. Editable.
-      const RENT = [
-        ['PDF editor', 19.99, true],
-        ['E-signature app', 14.99, false],
-        ['PDF converter', 9.99, false],
-        ['Scanner & OCR app', 4.99, false],
-      ];
-      const list = document.getElementById('rent-list');
-      const money = (n) => Math.round(n).toLocaleString('en-US');
-      const update = () => {
-        let month = 0;
-        for (const li of list.children) {
-          if (li.querySelector('input[type=checkbox]').checked)
-            month += Math.max(
-              0,
-              parseFloat(li.querySelector('input[type=number]').value) || 0
-            );
-        }
-        document.getElementById('rent-year').textContent =
-          '$' + money(month * 12);
-        document.getElementById('rent-five').textContent = money(month * 60);
-      };
-      for (const [name, price, on] of RENT) {
-        const li = document.createElement('li');
-        li.innerHTML = `<label><input type="checkbox" ${on ? 'checked' : ''}/><span class="rent-name">${name}</span></label>
-          <span class="rent-price">$<input type="number" min="0" step="0.01" value="${price}" aria-label="${name} monthly price"/>/mo</span>`;
-        list.append(li);
-      }
-      list.addEventListener('input', update);
-      update();
     </script>
   </body>
 </html>
