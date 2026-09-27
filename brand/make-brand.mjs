@@ -8,100 +8,101 @@ const require = createRequire(path.join(repo, 'package.json'));
 const fontkit = require('@pdf-lib/fontkit');
 const out = path.join(repo, 'brand');
 
-const LIME = '#C8F53B', LIME_DEEP = '#9CBF22', INK = '#111111', PAPER = '#F4F4EE';
+const LIME = '#C8F53B', LIME_DEEP = '#9CBF22', INK = '#111111', TILE = '#1D1D1B', PAPER = '#F4F4EE';
 
-// The brand motif: a shape struck through by one slash. The slash cuts a
-// gap through the shape and pokes out past both edges, like a crossed-out
-// price. Shape and slash mask each other, so they line up at any angle.
-const SLASH_ANGLE = -18;
+// ---- text, outlined so no file depends on a font (DM Sans ExtraBold)
+const font = fontkit.create(fs.readFileSync(path.join(repo, 'node_modules/@fontsource/dm-sans/files/dm-sans-latin-800-normal.woff')));
+function outline(text, size, tracking = 0) {
+  const run = font.layout(text);
+  const s = size / font.unitsPerEm;
+  let x = 0, d = '', minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  run.glyphs.forEach((g, i) => {
+    const p = g.path.scale(s, -s).translate(x, 0);
+    d += p.toSVG();
+    const b = p.bbox;
+    minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+    maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
+    x += run.positions[i].xAdvance * s + tracking;
+  });
+  return { d, minX, minY, w: maxX - minX, h: maxY - minY };
+}
+// Transform that puts a text's ink box centred on (cx, cy).
+const centre = (t, cx, cy) => `translate(${cx - t.minX - t.w / 2} ${cy - t.minY - t.h / 2})`;
+
+// ---- the mark: Zero Orbit. A tall 0 ($0, free forever) with a ring around
+// it, a world of its own. The ring passes behind the 0 at the top right and
+// in front at the bottom left, with a small gap wherever the two cross.
 let uid = 0;
-function struck({ shape, cutouts = '', fill, band, extra = '' }) {
-  const id = `u${++uid}`;
-  const bandRect = (grow = 0) =>
-    `<rect x="${band.x - grow}" y="${band.y - band.h / 2 - grow}" width="${band.w + 2 * grow}" height="${band.h + 2 * grow}" rx="${band.h / 2 + grow}" transform="rotate(${SLASH_ANGLE} ${band.cx} ${band.cy})"/>`;
+function orbit(cx, cy, s, fill) {
+  const id = `o${++uid}`;
+  const W = 370 * s, H = 570 * s, T = 92 * s; // the 0
+  const RX = 360 * s, RY = 82 * s, RT = 40 * s, ANGLE = -20; // the ring
+  const gap = 24 * s;
+  const zero = `<rect x="${cx - W / 2 + T / 2}" y="${cy - H / 2 + T / 2}" width="${W - T}" height="${H - T}" rx="${(W - T) / 2}" fill="none" stroke-width="${T}"/>`;
+  const ring = (sw) => `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RY}" fill="none" stroke-width="${sw}" transform="rotate(${ANGLE} ${cx} ${cy})"/>`;
+  const all = `<rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>`;
   return `
   <defs>
-    <mask id="${id}-shape" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-      <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
-      <g fill="#000">${cutouts}${bandRect(band.gap)}</g>
-    </mask>
-    <mask id="${id}-band" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">
-      <rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/>
-      <g fill="#000" stroke="#000" stroke-linejoin="round">${shape.replace(/fill="[^"]*"|stroke="[^"]*"/g, '')}</g>
-    </mask>
+    <clipPath id="${id}-front"><rect x="${cx - 2 * RX}" y="${cy}" width="${4 * RX}" height="${2 * RY + RT}" transform="rotate(${ANGLE} ${cx} ${cy})"/></clipPath>
+    <mask id="${id}-behind" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">${all}<rect x="${cx - W / 2 - gap}" y="${cy - H / 2 - gap}" width="${W + 2 * gap}" height="${H + 2 * gap}" rx="${W / 2 + gap}" fill="#000"/></mask>
+    <mask id="${id}-under" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000">${all}<g stroke="#000" clip-path="url(#${id}-front)">${ring(RT + 2 * gap)}</g></mask>
   </defs>
-  <g mask="url(#${id}-shape)">${shape}${extra}</g>
-  <g fill="${fill}" mask="url(#${id}-band)">${bandRect()}</g>`;
+  <g stroke="${fill}" mask="url(#${id}-behind)">${ring(RT)}</g>
+  <g stroke="${fill}" mask="url(#${id}-under)">${zero}</g>
+  <g stroke="${fill}" clip-path="url(#${id}-front)">${ring(RT)}</g>`;
 }
 
-// ---- the mark: a price tag, point up-left, struck through
-const TAG = (fill) =>
-  `<path d="M104 190 L190 104 L408 104 L408 408 L104 408 Z" transform="rotate(0)" fill="${fill}" stroke="${fill}" stroke-width="56" stroke-linejoin="round"/>`;
-const tagMark = (fill) =>
-  struck({
-    fill,
-    shape: `<g transform="rotate(0)">${TAG(fill)}</g>`,
-    cutouts: `<circle cx="196" cy="196" r="30"/>`,
-    band: { x: 20, y: 292, w: 472, h: 46, gap: 14, cx: 256, cy: 292 },
-  });
-
-const mark = (fill = LIME) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <title>Unsold</title>${tagMark(fill)}
+const svg = (w, h, title, body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+  <title>${title}</title>${body}
 </svg>
 `;
 
-// ---- the app icon: the page is the tag (clipped corner + hole, folded
-// corner opposite), struck through
-const icon = () => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <title>Unsold PDF</title>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1D1D1B"/>
-      <stop offset="1" stop-color="#0A0A0A"/>
-    </linearGradient>
-  </defs>
-  <rect x="100" y="100" width="824" height="824" rx="188" fill="url(#bg)"/>${struck({
-    fill: LIME,
-    shape: `<path d="M406 250 L584 250 L696 362 L696 774 L328 774 L328 328 Z" fill="${LIME}" stroke="${LIME}" stroke-width="60" stroke-linejoin="round"/>`,
-    cutouts: `<circle cx="428" cy="350" r="40"/>`,
-    extra: `<path d="M584 250 L584 362 L696 362 Z" fill="${LIME_DEEP}" stroke="${LIME_DEEP}" stroke-width="26" stroke-linejoin="round"/>`,
-    band: { x: 196, y: 590, w: 632, h: 62, gap: 18, cx: 512, cy: 590 },
-  })}
-</svg>
-`;
+// The mark on its own, transparent.
+const mark = (fill) => svg(512, 512, 'Unsold', orbit(256, 256, 0.62, fill));
 
-// ---- wordmark: tag + "unsold" (DM Sans ExtraBold, outlined)
-const font = fontkit.create(fs.readFileSync(path.join(repo, 'node_modules/@fontsource/dm-sans/files/dm-sans-latin-800-normal.woff')));
-function outline(text, size, tracking) {
-  const run = font.layout(text);
-  const scale = size / font.unitsPerEm;
-  let x = 0, d = '';
-  run.glyphs.forEach((g, i) => {
-    const p = g.path.scale(scale, -scale).translate(x, 0);
-    d += p.toSVG();
-    x += run.positions[i].xAdvance * scale + tracking;
-  });
-  return { d, width: x - tracking };
-}
-const word = outline('unsold', 300, -8);
-const wordmark = (textFill, markFill = LIME) => {
-  const h = 512, gap = 36, markSize = 512;
-  const w = Math.ceil(markSize + gap + word.width + 24);
-  // baseline so x-height sits visually centred against the tag
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
-  <title>Unsold</title>${tagMark(markFill)}
-  <path transform="translate(${markSize + gap} 330)" d="${word.d}" fill="${textFill}"/>
-</svg>
-`;
+// Stacked logo: mark over "Unsold".
+const word = outline('Unsold', 170, -4);
+const stacked = (fill) => svg(720, 820, 'Unsold', orbit(360, 300, 0.8, fill) + `
+  <path transform="${centre(word, 360, 700)}" d="${word.d}" fill="${fill}"/>`);
+
+// Horizontal wordmark: mark beside "Unsold".
+const wordmark = (fill) => {
+  const w = Math.ceil(512 + 20 + word.w + 30);
+  return svg(w, 512, 'Unsold', orbit(256, 256, 0.62, fill) + `
+  <path transform="${centre(word, 512 + 20 + word.w / 2, 262)}" d="${word.d}" fill="${fill}"/>`);
 };
 
-fs.writeFileSync(path.join(out, 'unsold-mark.svg'), mark());
-fs.writeFileSync(path.join(out, 'unsold-pdf-icon.svg'), icon());
-fs.writeFileSync(path.join(out, 'unsold-wordmark-on-dark.svg'), wordmark(PAPER));
-fs.writeFileSync(path.join(out, 'unsold-wordmark-on-light.svg'), wordmark(INK, INK));
-fs.writeFileSync(path.join(out, 'unsold-mark-ink.svg'), mark(INK));
-// Full-bleed square (no rounded corners) for platforms that mask icons themselves.
-fs.writeFileSync(path.join(out, 'unsold-pdf-icon-square.svg'),
-  icon().replace('<rect x="100" y="100" width="824" height="824" rx="188" fill="url(#bg)"/>', '<rect width="1024" height="1024" fill="url(#bg)"/>')
-        .replace('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="112 112 800 800"'));
-console.log('written', fs.readdirSync(out));
+// App tiles (1024 grid, macOS safe area 100..924). Every Unsold app is a dark
+// tile with the orbit; the tile's top-right corner and the label below say
+// which app it is. Unsold PDF's corner is folded like a page.
+const TILE_RECT = `<rect x="100" y="100" width="824" height="824" rx="188"`;
+const pdfLabel = outline('PDF', 150, 6);
+const pdfBody = (cy = 424) => orbit(512, cy, 0.66, LIME) + `
+  <path transform="${centre(pdfLabel, 512, 792)}" d="${pdfLabel.d}" fill="${PAPER}"/>`;
+
+const brandTile = () => svg(1024, 1024, 'Unsold', `
+  ${TILE_RECT} fill="${TILE}"/>` + orbit(512, 512, 0.95, LIME));
+
+const pdfIcon = () => svg(1024, 1024, 'Unsold PDF', `
+  <defs><clipPath id="page"><path d="M100 100 H704 L924 320 V924 H100 Z"/></clipPath></defs>
+  ${TILE_RECT} fill="${TILE}" clip-path="url(#page)"/>
+  <path d="M704 100 L924 320 H742 Q704 320 704 282 Z" fill="${LIME_DEEP}"/>` + pdfBody());
+
+// Full-bleed square for platforms that round icons themselves (iOS, Android,
+// PWA). Their mask would cut the folded corner, so it's left off here.
+const pdfIconSquare = () => svg(1024, 1024, 'Unsold PDF', `
+  <rect width="1024" height="1024" fill="${TILE}"/>` + pdfBody(430));
+
+const files = {
+  'unsold-mark.svg': mark(LIME),
+  'unsold-mark-ink.svg': mark(INK),
+  'unsold-logo-stacked-on-dark.svg': stacked(LIME),
+  'unsold-logo-stacked-on-light.svg': stacked(INK),
+  'unsold-wordmark-on-dark.svg': wordmark(LIME),
+  'unsold-wordmark-on-light.svg': wordmark(INK),
+  'unsold-tile.svg': brandTile(),
+  'unsold-pdf-icon.svg': pdfIcon(),
+  'unsold-pdf-icon-square.svg': pdfIconSquare(),
+};
+for (const [name, body] of Object.entries(files)) fs.writeFileSync(path.join(out, name), body);
+console.log('written', Object.keys(files));
