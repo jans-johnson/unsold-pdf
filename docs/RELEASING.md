@@ -4,15 +4,15 @@ Every build ships the same bundle, `native/www`, made by `npm run build:web`.
 Build it once. Each platform then wraps it. Finished files go into `release/`,
 which git ignores.
 
-| Platform | Command (run on) | Output in `release/` |
-| --- | --- | --- |
-| macOS | `npm run release:mac` (Mac) | `Unsold-PDF-<v>-mac-universal.dmg` |
-| Windows | `npx tauri build` (Windows) | `bundle/nsis/*-setup.exe`, `bundle/msi/*.msi` → rename to `Unsold-PDF-<v>-windows-x64-setup.exe` / `.msi` |
-| Linux | `npx tauri build` (Linux, or WSL Ubuntu 24.04) | `bundle/{deb,rpm,appimage}` → `Unsold-PDF-<v>-linux-*.{deb,rpm,AppImage}` |
-| Android | `npm run release:android` (Mac) | `*-android.aab` (Play) and one APK per CPU |
-| iOS | `npx tauri ios build` (Mac with Xcode) | `.ipa` (needs signing, below) |
-| Web | `npm run release:web` | `apps/web/dist/`, a static site |
-| Website | `npm run build -w @unsold/site` | `apps/site/dist/`, a static site |
+| Platform | Command (run on)                               | Output in `release/`                                                                                      |
+| -------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| macOS    | `npm run release:mac` (Mac)                    | `Unsold-PDF-<v>-mac-universal.dmg`                                                                        |
+| Windows  | `npx tauri build` (Windows)                    | `bundle/nsis/*-setup.exe`, `bundle/msi/*.msi` → rename to `Unsold-PDF-<v>-windows-x64-setup.exe` / `.msi` |
+| Linux    | `npx tauri build` (Linux, or WSL Ubuntu 24.04) | `bundle/{deb,rpm,appimage}` → `Unsold-PDF-<v>-linux-*.{deb,rpm,AppImage}`                                 |
+| Android  | `npm run release:android` (Mac)                | `*-android.aab` (Play) and one APK per CPU                                                                |
+| iOS      | `npx tauri ios build` (Mac with Xcode)         | `.ipa` (needs signing, below)                                                                             |
+| Web      | `npm run release:web`                          | `apps/web/dist/`, a static site                                                                           |
+| Website  | `npm run build -w @unsold/site`                | `apps/site/dist/`, a static site                                                                          |
 
 On Windows and Linux, copy the repo across along with `native/www`, then run
 `npm ci` and the build there. A Linux build needs the Tauri system packages
@@ -52,12 +52,12 @@ the display is locked.
 
 ## Signing (needs the owner's accounts)
 
-| Platform | What | Where it plugs in |
-| --- | --- | --- |
-| macOS | Developer ID Application certificate + notarization | `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` env vars for `tauri build`; then `xcrun stapler staple` the dmg |
-| Windows | Authenticode certificate | `bundle.windows.certificateThumbprint` (or `signCommand`) in `native/tauri.conf.json` |
-| Android | Upload keystore | `native/gen/android/keystore.properties` with `storeFile`, `storePassword`, `keyAlias`, `keyPassword` (git ignores it). Without it the outputs are unsigned. |
-| iOS | Apple team + App Store provisioning | `bundle.iOS.developmentTeam` in `native/tauri.conf.json`, then `npx tauri ios build --export-method app-store-connect` |
+| Platform | What                                                | Where it plugs in                                                                                                                                            |
+| -------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| macOS    | Developer ID Application certificate + notarization | `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` env vars for `tauri build`; then `xcrun stapler staple` the dmg                      |
+| Windows  | Authenticode certificate                            | `bundle.windows.certificateThumbprint` (or `signCommand`) in `native/tauri.conf.json`                                                                        |
+| Android  | Upload keystore                                     | `native/gen/android/keystore.properties` with `storeFile`, `storePassword`, `keyAlias`, `keyPassword` (git ignores it). Without it the outputs are unsigned. |
+| iOS      | Apple team + App Store provisioning                 | `bundle.iOS.developmentTeam` in `native/tauri.conf.json`, then `npx tauri ios build --export-method app-store-connect`                                       |
 
 Without signing, macOS Gatekeeper and Windows SmartScreen warn on first launch.
 Android won't install an unsigned APK at all.
