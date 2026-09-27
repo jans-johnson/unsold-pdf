@@ -2,6 +2,7 @@ import {
   formatBytes,
   readFileAsArrayBuffer,
   getPDFDocument,
+  downloadFile,
 } from '../utils/helpers';
 import { initializeGlobalShortcuts } from '../utils/shortcuts-init.js';
 import { createIcons, icons } from 'lucide';
@@ -200,6 +201,61 @@ async function loadPdfInViewer(file: File) {
   viewerIframe = iframe;
 }
 
+/**
+ * The annotation viewer saves through FileSaver, which clicks a download link
+ * (or, in a WKWebView, opens a popup and points it at a data: URL). Neither
+ * reaches the app, so catch the file on its way out and deliver it like any
+ * other result.
+ */
+function captureExports(win: Window & typeof globalThis) {
+  const deliver = (url: string) => {
+    void fetch(url)
+      .then((r) => r.blob())
+      .then((blob) =>
+        downloadFile(
+          new Blob([blob], { type: 'application/pdf' }),
+          selectedFile?.name || 'document.pdf'
+        )
+      );
+  };
+  const isFile = (a: HTMLAnchorElement) =>
+    a.hasAttribute('download') && /^(blob|data):/.test(a.href);
+  const anchor = win.HTMLAnchorElement.prototype;
+  const click = anchor.click;
+  anchor.click = function (this: HTMLAnchorElement) {
+    if (isFile(this)) return deliver(this.href);
+    return click.call(this);
+  };
+  const dispatch = anchor.dispatchEvent;
+  anchor.dispatchEvent = function (this: HTMLAnchorElement, event: Event) {
+    if (event.type === 'click' && isFile(this)) {
+      deliver(this.href);
+      return false;
+    }
+    return dispatch.call(this, event);
+  };
+  win.open = (() => {
+    const take = (url: unknown) => {
+      if (typeof url === 'string' && /^(blob|data):/.test(url)) deliver(url);
+    };
+    const location = {
+      set href(url: string) {
+        take(url);
+      },
+    };
+    return {
+      close() {},
+      document: win.document,
+      get location() {
+        return location;
+      },
+      set location(url: unknown) {
+        take(url);
+      },
+    } as unknown as Window;
+  }) as typeof win.open;
+}
+
 function setupAnnotationViewer(iframe: HTMLIFrameElement) {
   try {
     const win = iframe.contentWindow as
@@ -212,6 +268,7 @@ function setupAnnotationViewer(iframe: HTMLIFrameElement) {
       | null;
     const doc = win?.document as Document | null;
     if (!win || !doc) return;
+    captureExports(win as Window & typeof globalThis);
 
     const initialize = async () => {
       try {

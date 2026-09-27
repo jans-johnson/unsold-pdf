@@ -12,6 +12,7 @@ import { PDFPageProxy } from 'pdfjs-dist';
 import { t } from '../i18n/i18n';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import '../utils/setup-pdf-worker.js';
+import { canvasToWebp } from '../utils/canvas-to-webp.js';
 
 let files: File[] = [];
 
@@ -160,10 +161,7 @@ async function renderPage(
     canvas,
   }).promise;
 
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, 'image/webp', quality)
-  );
-  return blob;
+  return canvasToWebp(canvas, quality);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

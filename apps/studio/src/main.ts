@@ -10,6 +10,12 @@ import { mountDocumentPanes, mountHome, mountToolsView } from './views.ts';
 
 const host = await connectHost();
 document.documentElement.dataset.platform = host.platform;
+
+// The web version needs its service worker for cross-origin isolation; a
+// direct visit to /studio/ before it's installed goes via the start page.
+if (host.platform === 'web' && !crossOriginIsolated && !import.meta.env.DEV) {
+  location.replace('../');
+}
 const studio = new Studio(host);
 
 // Tool pages (same-origin frames) reach the Studio through window.unsold.

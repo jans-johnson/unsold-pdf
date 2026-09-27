@@ -148,12 +148,14 @@ async function invertColors() {
       );
 
       const image = await newPdfDoc.embedPng(pngImageBytes);
-      const newPage = newPdfDoc.addPage([image.width, image.height]);
+      // Rendered at a higher scale for quality; the page keeps its size.
+      const size = page.getViewport({ scale: 1 });
+      const newPage = newPdfDoc.addPage([size.width, size.height]);
       newPage.drawImage(image, {
         x: 0,
         y: 0,
-        width: image.width,
-        height: image.height,
+        width: size.width,
+        height: size.height,
       });
     }
     const newPdfBytes = await newPdfDoc.save();

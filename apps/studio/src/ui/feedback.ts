@@ -79,13 +79,28 @@ export function popMenu(anchor: HTMLElement, items: MenuItem[]) {
   const w = menu.offsetWidth;
   menu.style.top = `${r.bottom + 6}px`;
   menu.style.left = `${Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8))}px`;
+  // Close on a click elsewhere, Escape, or a click into a tool page (which
+  // blurs this window without reaching its document).
+  const close = () => {
+    closeMenus();
+    document.removeEventListener('pointerdown', off);
+    document.removeEventListener('keydown', esc, true);
+    window.removeEventListener('blur', close);
+  };
   const off = (e: PointerEvent) => {
-    if (!menu.contains(e.target as Node)) {
-      closeMenus();
-      document.removeEventListener('pointerdown', off);
+    if (!menu.contains(e.target as Node)) close();
+  };
+  const esc = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      close();
     }
   };
-  setTimeout(() => document.addEventListener('pointerdown', off), 0);
+  setTimeout(() => {
+    document.addEventListener('pointerdown', off);
+    document.addEventListener('keydown', esc, true);
+    window.addEventListener('blur', close);
+  }, 0);
 }
 
 interface ModalButton<T> {

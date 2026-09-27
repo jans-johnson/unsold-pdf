@@ -124,12 +124,14 @@ async function convert() {
       if (jpegBlob) {
         const jpegBytes = await jpegBlob.arrayBuffer();
         const jpegImage = await newPdfDoc.embedJpg(jpegBytes);
-        const newPage = newPdfDoc.addPage([viewport.width, viewport.height]);
+        // Rendered at a higher scale for quality; the page keeps its size.
+        const size = page.getViewport({ scale: 1 });
+        const newPage = newPdfDoc.addPage([size.width, size.height]);
         newPage.drawImage(jpegImage, {
           x: 0,
           y: 0,
-          width: viewport.width,
-          height: viewport.height,
+          width: size.width,
+          height: size.height,
         });
       }
     }

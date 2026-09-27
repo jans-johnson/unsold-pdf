@@ -39,6 +39,7 @@ import {
 import { extractExistingFields as extractExistingPdfFields } from './form-creator-extraction.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
 import '../utils/setup-pdf-worker.js';
+import { registerToolPage } from '@unsold/bridge/tool-host';
 
 let fields: FormField[] = [];
 let selectedField: FormField | null = null;
@@ -110,6 +111,12 @@ const nextPageBtn = document.getElementById('nextPageBtn') as HTMLButtonElement;
 const addPageBtn = document.getElementById('addPageBtn') as HTMLButtonElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
+
+// Closing the tool with fields added asks to apply or discard.
+registerToolPage({
+  hasChanges: () => fields.length > 0,
+  apply: () => downloadBtn.click(),
+});
 const gotoPageInput = document.getElementById(
   'gotoPageInput'
 ) as HTMLInputElement;

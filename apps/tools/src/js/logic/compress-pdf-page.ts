@@ -129,7 +129,8 @@ async function performCondenseCompression(
 async function performPhotonCompression(
   arrayBuffer: ArrayBuffer,
   level: string,
-  file?: File
+  file?: File,
+  grayscale = false
 ) {
   let pdfJsDoc: PDFDocumentProxy;
   if (file) {
@@ -156,6 +157,15 @@ async function performPhotonCompression(
 
     await page.render({ canvasContext: context, viewport, canvas: canvas })
       .promise;
+    if (grayscale && context) {
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+      const d = pixels.data;
+      for (let p = 0; p < d.length; p += 4) {
+        const y = 0.299 * d[p] + 0.587 * d[p + 1] + 0.114 * d[p + 2];
+        d[p] = d[p + 1] = d[p + 2] = y;
+      }
+      context.putImageData(pixels, 0, 0);
+    }
 
     const jpegBlob = await new Promise<Blob>((resolve) =>
       canvas.toBlob(
@@ -166,12 +176,14 @@ async function performPhotonCompression(
     );
     const jpegBytes = await jpegBlob.arrayBuffer();
     const jpegImage = await newPdfDoc.embedJpg(jpegBytes);
-    const newPage = newPdfDoc.addPage([viewport.width, viewport.height]);
+    // Rendered at the preset's scale; the page keeps its size in points.
+    const size = page.getViewport({ scale: 1 });
+    const newPage = newPdfDoc.addPage([size.width, size.height]);
     newPage.drawImage(jpegImage, {
       x: 0,
       y: 0,
-      width: viewport.width,
-      height: viewport.height,
+      width: size.width,
+      height: size.height,
     });
   }
   return await newPdfDoc.save();
@@ -439,7 +451,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const resultBytes = await performPhotonCompression(
             arrayBuffer,
             level,
-            originalFile
+            originalFile,
+            convertToGrayscale
           );
           if (!resultBytes) return;
           const buffer = resultBytes.buffer.slice(
@@ -457,11 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const savingsPercent =
           savings > 0 ? ((savings / originalFile.size) * 100).toFixed(1) : 0;
 
-        downloadFile(resultBlob, originalFile.name);
-
         hideLoader();
 
         if (savings > 0) {
+          downloadFile(resultBlob, originalFile.name);
           showAlert(
             'Compression Complete',
             `Method: ${usedMethod}. File size reduced from ${originalSize} to ${compressedSize} (Saved ${savingsPercent}%).`,
@@ -471,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           showAlert(
             'Compression Finished',
-            `Method: ${usedMethod}. Could not reduce file size further. Original: ${originalSize}, New: ${compressedSize}.`,
+            `This PDF is already as small as ${usedMethod} can make it (the result was ${compressedSize}, the original is ${originalSize}), so it was left unchanged.`,
             'warning',
             () => resetState()
           );
@@ -505,14 +517,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const photonResult = await performPhotonCompression(
               arrayBuffer,
               level,
-              file
+              file,
+              convertToGrayscale
             );
             if (!photonResult) return;
             resultBytes = photonResult;
           }
 
-          totalCompressedSize += resultBytes.length;
-          zip.file(file.name, resultBytes);
+          // Keep the original when compression wouldn't make it smaller.
+          const smaller = resultBytes.length < file.size;
+          const kept = smaller
+            ? resultBytes
+            : new Uint8Array(await file.arrayBuffer());
+          totalCompressedSize += kept.length;
+          zip.file(file.name, kept);
         }
 
         const zipBlob = await zip.generateAsync({ type: 'blob' });

@@ -7,6 +7,7 @@ import { downloadFile } from '../../utils/helpers.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import type JSZip from 'jszip';
 import { loadPyMuPDF } from '../../utils/pymupdf-loader.js';
+import { canvasToWebp } from '../../utils/canvas-to-webp.js';
 
 export class PdfToImagesNode extends BaseWorkflowNode {
   readonly category = 'Output' as const;
@@ -48,9 +49,12 @@ export class PdfToImagesNode extends BaseWorkflowNode {
       canvas.height = viewport.height;
       const ctx = canvas.getContext('2d')!;
       await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, mimeType, quality)
-      );
+      const blob =
+        mimeType === 'image/webp'
+          ? await canvasToWebp(canvas, quality)
+          : await new Promise<Blob | null>((resolve) =>
+              canvas.toBlob(resolve, mimeType, quality)
+            );
       // Release canvas memory
       canvas.width = 0;
       canvas.height = 0;

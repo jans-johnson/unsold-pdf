@@ -1,5 +1,19 @@
 let cpdfLoaded = false;
 
+// pdf-to-json.worker.js stores cpdf's raw string bytes as Latin-1 text in
+// UTF-8. Turn that back into the bytes cpdf expects. JSON with characters
+// beyond Latin-1 didn't come from us, so it's passed through unchanged.
+function utf8ToLatin1(bytes) {
+  const text = new TextDecoder().decode(bytes);
+  const out = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    if (c > 0xff) return bytes;
+    out[i] = c;
+  }
+  return out;
+}
+
 function loadCpdf(cpdfUrl) {
   if (cpdfLoaded) return Promise.resolve();
 
@@ -28,7 +42,7 @@ function convertJSONsToPDFInWorker(fileBuffers, fileNames) {
     for (let i = 0; i < fileBuffers.length; i++) {
       const buffer = fileBuffers[i];
       const fileName = fileNames[i];
-      const uint8Array = new Uint8Array(buffer);
+      const uint8Array = utf8ToLatin1(new Uint8Array(buffer));
 
       let pdf;
       try {

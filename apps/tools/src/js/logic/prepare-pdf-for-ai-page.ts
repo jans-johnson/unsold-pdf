@@ -121,6 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const llamaDocs = await (pymupdf as PyMuPDFInstance).pdfToLlamaIndex(
           file
         );
+        const hasText = (llamaDocs as { text?: string }[]).some((d) =>
+          d.text?.trim()
+        );
+        if (!hasText) {
+          hideLoader();
+          showAlert(
+            'No text found',
+            "This PDF has no text layer (it looks like a scan), so there's nothing to export. Run Scan & OCR on it first, then export again."
+          );
+          return;
+        }
         const outName = file.name.replace(/\.pdf$/i, '') + '_llm.json';
         const jsonContent = JSON.stringify(llamaDocs, null, 2);
         downloadFile(

@@ -6,9 +6,13 @@ import type { NetRequest, NetResponse } from './types.ts';
  * runs on its own there is no host and it falls back to browser behaviour.
  */
 export interface ToolHost {
-  /** Hand a result file to the Studio instead of triggering a download. */
+  /**
+   * Hand a result file to the Studio instead of triggering a download.
+   * `asNew` opens a PDF result as its own document instead of applying it
+   * to the one the tool is working on (e.g. "save selected pages").
+   */
   deliverOutput(
-    output: { name: string; data: Uint8Array },
+    output: { name: string; data: Uint8Array; asNew?: boolean },
     source: Window
   ): void;
   /** Fetch from certificate / timestamp servers through the native host. */

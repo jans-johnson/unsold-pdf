@@ -170,12 +170,14 @@ async function changeTextColor() {
       );
 
       const pngImage = await newPdfDoc.embedPng(pngImageBytes);
-      const newPage = newPdfDoc.addPage([viewport.width, viewport.height]);
+      // Rendered at a higher scale for quality; the page keeps its size.
+      const size = page.getViewport({ scale: 1 });
+      const newPage = newPdfDoc.addPage([size.width, size.height]);
       newPage.drawImage(pngImage, {
         x: 0,
         y: 0,
-        width: viewport.width,
-        height: viewport.height,
+        width: size.width,
+        height: size.height,
       });
     }
     const newPdfBytes = await newPdfDoc.save();

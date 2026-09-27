@@ -73,7 +73,7 @@ function resetState() {
     '.lang-checkbox'
   ) as NodeListOf<HTMLInputElement>;
   langCheckboxes.forEach(function (cb) {
-    cb.checked = false;
+    cb.checked = cb.value === DEFAULT_LANG;
   });
 
   const selectedLangsDisplay = document.getElementById(
@@ -86,7 +86,8 @@ function resetState() {
   const processBtn = document.getElementById(
     'process-btn'
   ) as HTMLButtonElement;
-  if (processBtn) processBtn.disabled = true;
+  if (processBtn)
+    processBtn.disabled = !document.querySelector('.lang-checkbox:checked');
 }
 
 function updateLanguageAvailabilityNotice() {
@@ -252,6 +253,9 @@ async function handleFileSelect(files: FileList | null) {
   }
 }
 
+/** English is ticked to start with (it's bundled, so it works offline). */
+const DEFAULT_LANG = 'eng';
+
 function populateLanguageList() {
   const langList = document.getElementById('lang-list');
   if (!langList) return;
@@ -276,6 +280,7 @@ function populateLanguageList() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.value = code;
+    checkbox.checked = code === DEFAULT_LANG;
     checkbox.className =
       'lang-checkbox w-4 h-4 rounded text-indigo-600 bg-gray-700 border-gray-600 focus:ring-indigo-500';
 
@@ -387,6 +392,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         processBtn.disabled = selected.length === 0;
       }
     });
+    // Reflect the default selection (English) in the summary and button.
+    langList.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   // Whitelist preset

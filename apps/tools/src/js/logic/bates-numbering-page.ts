@@ -2,6 +2,7 @@ import { createIcons, icons } from 'lucide';
 import { showAlert, showLoader, hideLoader } from '../ui.js';
 import { downloadFile, hexToRgb, formatBytes } from '../utils/helpers.js';
 import { StandardFonts, rgb } from 'pdf-lib';
+import { displayFrame } from '../utils/pdf-operations.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import JSZip from 'jszip';
 import Sortable from 'sortablejs';
@@ -481,7 +482,8 @@ async function applyBatesNumbers() {
 
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
-        const bounds = page.getCropBox() || page.getMediaBox();
+        // Laid out on the page as displayed, so rotated pages read upright.
+        const frame = displayFrame(page);
         const text = formatBatesText(
           template,
           batesCounter,
@@ -493,18 +495,20 @@ async function applyBatesNumbers() {
         const textWidth = font.widthOfTextAtSize(text, fontSize);
 
         const { x, y } = calculatePosition(
-          bounds.width,
-          bounds.height,
-          bounds.x || 0,
-          bounds.y || 0,
+          frame.width,
+          frame.height,
+          0,
+          0,
           textWidth,
           fontSize,
           position
         );
+        const at = frame.toUser(x, y);
 
         page.drawText(text, {
-          x,
-          y,
+          x: at.x,
+          y: at.y,
+          rotate: frame.rotate,
           font,
           size: fontSize,
           color: rgb(textColor.r, textColor.g, textColor.b),

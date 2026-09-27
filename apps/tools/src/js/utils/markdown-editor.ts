@@ -1,4 +1,7 @@
 import MarkdownIt from 'markdown-it';
+import { loadPyMuPDF } from './pymupdf-loader.js';
+import { downloadFile } from './deliver-output.js';
+import { showAlert, showLoader, hideLoader } from '../ui.js';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -561,7 +564,7 @@ export class MarkdownEditor {
 
     // Export PDF
     document.getElementById('mdExport')?.addEventListener('click', () => {
-      this.exportPdf();
+      void this.exportPdf();
     });
 
     // Keyboard shortcuts
@@ -569,7 +572,7 @@ export class MarkdownEditor {
       // Ctrl/Cmd + S to export
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        this.exportPdf();
+        void this.exportPdf();
       }
       // Tab key for indentation
       if (e.key === 'Tab') {
@@ -752,9 +755,30 @@ export class MarkdownEditor {
     });
   }
 
-  private exportPdf(): void {
-    // Use browser's native print functionality
-    window.print();
+  /** Render the document to a real PDF and hand it over like any other result. */
+  private async exportPdf(): Promise<void> {
+    showLoader('Creating PDF...');
+    try {
+      const pymupdf = (await loadPyMuPDF()) as unknown as {
+        htmlToPdf(html: string, options: unknown): Promise<Blob>;
+      };
+      const pdf = await pymupdf.htmlToPdf(this.getStyledHtml(), {
+        pageSize: 'a4',
+      });
+      const title =
+        this.getContent()
+          .match(/^#\s+(.+)$/m)?.[1]
+          .trim() || 'document';
+      downloadFile(
+        pdf,
+        `${title.replace(/[\\/:*?"<>|]+/g, '').slice(0, 80)}.pdf`
+      );
+    } catch (e) {
+      console.error(e);
+      showAlert('Error', 'Could not create the PDF.');
+    } finally {
+      hideLoader();
+    }
   }
 
   private getStyledHtml(): string {

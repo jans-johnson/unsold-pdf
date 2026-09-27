@@ -212,7 +212,14 @@ function handleFileSelect(files: FileList | null) {
       );
     });
     if (pdfFiles.length > 0) {
-      pageState.files = pdfFiles;
+      // Add to the files already chosen (e.g. the open document), skipping
+      // exact repeats.
+      const key = (f: File) => `${f.name}:${f.size}`;
+      const have = new Set(pageState.files.map(key));
+      pageState.files = [
+        ...pageState.files,
+        ...pdfFiles.filter((f) => !have.has(key(f))),
+      ];
       updateUI();
     }
   }

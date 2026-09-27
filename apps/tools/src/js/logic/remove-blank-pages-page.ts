@@ -174,7 +174,9 @@ async function detectBlankPages() {
     'sensitivity-slider'
   ) as HTMLInputElement;
   const sensitivityPercent = parseInt(sensitivitySlider?.value || '80');
-  const maxNonWhitePercent = 5 - (sensitivityPercent / 100) * 4.9;
+  // At the default 80% a page counts as blank below ~0.25% ink, so a page
+  // with a single line of text is kept.
+  const maxNonWhitePercent = 1 - (sensitivityPercent / 100) * 0.95;
 
   showLoader('Detecting blank pages...');
   try {
@@ -188,7 +190,12 @@ async function detectBlankPages() {
 
     for (let i = 1; i <= totalPages; i++) {
       const page = await pdfDoc.getPage(i);
-      if (await isPageBlank(page, maxNonWhitePercent)) {
+      // Any real text means the page isn't blank, however little ink it has.
+      const text = await page.getTextContent();
+      const hasText = text.items.some(
+        (item) => 'str' in item && item.str.trim() !== ''
+      );
+      if (!hasText && (await isPageBlank(page, maxNonWhitePercent))) {
         pageState.detectedBlankPages.push(i - 1); // 0-indexed
         const thumbnail = await generateThumbnail(page);
         pageState.pageThumbnails.set(i - 1, thumbnail);
@@ -283,6 +290,13 @@ async function processRemoveBlankPages() {
 
   if (selectedPages.length === 0) {
     showAlert('Info', 'No pages selected for removal.');
+    return;
+  }
+  if (selectedPages.length >= pageState.pdfDoc!.getPageCount()) {
+    showAlert(
+      'Keep at least one page',
+      'Every page is selected. Deselect the pages you want to keep.'
+    );
     return;
   }
 

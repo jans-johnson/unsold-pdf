@@ -185,6 +185,14 @@ async function extractText() {
       showLoader(`Extracting text from ${file.name}...`);
 
       const fullText = await mupdf.pdfToText(file);
+      if (!fullText.trim()) {
+        hideLoader();
+        showAlert(
+          'No text found',
+          "This PDF has no text layer (it looks like a scan), so there's nothing to export. Run Scan & OCR on it first, then export again."
+        );
+        return;
+      }
 
       const baseName = file.name.replace(/\.pdf$/i, '');
       const textBlob = new Blob([fullText], {

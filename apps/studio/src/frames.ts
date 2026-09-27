@@ -33,6 +33,8 @@ const FRAME_CSS = `
   /* The open document was handed in: no upload step for single-file tools. */
   html.ua-doc-loaded #drop-zone,
   html.ua-doc-loaded #file-display-area { display: none !important; }
+  /* "Change file" would lead back to that hidden upload step. */
+  html.ua-doc-loaded #editor-back-btn { display: none !important; }
   /* Tools whose editor sits after the upload card (e.g. Sign) would be left
      with an empty card; hide it when nothing else in it is showing. */
   html.ua-doc-loaded #tool-uploader:not(:has(> :not(#back-to-tools, h1, h1 + p, #drop-zone, #file-display-area))) {
@@ -115,6 +117,39 @@ export function mountToolFrame(
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Many tool pages clear their file list after a successful run (or on "Clear
+ * all"), which inside a document tab leaves an empty panel with no way to
+ * add the file back. When that happens, hand the document in again.
+ */
+function refeedWhenCleared(iframe: HTMLIFrameElement, file: FrameFile) {
+  const win = iframe.contentWindow as (Window & typeof globalThis) | null;
+  const area = iframe.contentDocument?.getElementById('file-display-area');
+  if (!win || !area) return;
+  let had = area.childElementCount > 0;
+  const watch = new win.MutationObserver(() => {
+    if (area.childElementCount > 0) had = true;
+    else if (had) {
+      watch.disconnect();
+      setTimeout(() => void injectFile(iframe, file), 300);
+    }
+  });
+  watch.observe(area, { childList: true });
+}
+
+/** Whether a file input's `accept` names this file's extension or type. */
+function accepts(input: HTMLInputElement, name: string) {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  return input.accept
+    .toLowerCase()
+    .split(',')
+    .map((a) => a.trim())
+    .some(
+      (a) =>
+        a === `.${ext}` || a === `application/${ext}` || a === `text/${ext}`
+    );
+}
+
 /** Hands a document to the tool page's upload input, as if the user picked it. */
 async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
   const deadline = Date.now() + 8000;
@@ -129,6 +164,7 @@ async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
     ];
     input =
       candidates.find((i) => i.id === 'file-input') ??
+      candidates.find((i) => accepts(i, file.name)) ??
       candidates.find((i) => /pdf/i.test(i.accept)) ??
       candidates.find((i) => !i.accept);
     if (input) break;
@@ -151,6 +187,7 @@ async function injectFile(iframe: HTMLIFrameElement, file: FrameFile) {
     input.dispatchEvent(new win.Event('change', { bubbles: true }));
     if (file.only) {
       iframe.contentDocument?.documentElement.classList.add('ua-doc-loaded');
+      refeedWhenCleared(iframe, file);
     }
   } catch (err) {
     console.warn('File injection failed', err);

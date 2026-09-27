@@ -129,15 +129,24 @@ worker.onmessage = async (e: MessageEvent) => {
     try {
       showStatus(t('tools:jsonToPdf.status.creatingZip'), 'info');
 
-      const zip = new JSZip();
-      pdfFiles.forEach(({ name, data }) => {
-        const pdfName = name.replace(/\.json$/i, '.pdf');
-        const uint8Array = new Uint8Array(data);
-        zip.file(pdfName, uint8Array);
-      });
+      if (pdfFiles.length === 1) {
+        // One file: hand the PDF over directly so it opens as a document.
+        const [{ name, data }] = pdfFiles;
+        downloadFile(
+          new Blob([new Uint8Array(data)], { type: 'application/pdf' }),
+          name.replace(/\.json$/i, '.pdf')
+        );
+      } else {
+        const zip = new JSZip();
+        pdfFiles.forEach(({ name, data }) => {
+          const pdfName = name.replace(/\.json$/i, '.pdf');
+          const uint8Array = new Uint8Array(data);
+          zip.file(pdfName, uint8Array);
+        });
 
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      downloadFile(zipBlob, 'jsons-to-pdf.zip');
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        downloadFile(zipBlob, 'jsons-to-pdf.zip');
+      }
 
       showStatus(t('tools:jsonToPdf.status.success'), 'success');
 

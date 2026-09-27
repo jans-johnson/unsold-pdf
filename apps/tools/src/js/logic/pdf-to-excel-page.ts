@@ -4,6 +4,20 @@ import { createIcons, icons } from 'lucide';
 import { loadPyMuPDF } from '../utils/pymupdf-loader.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import * as XLSX from 'xlsx';
+
+/** Cells that look like numbers become numbers, so sums work in Excel. */
+function withNumbers(rows: (string | null)[][]): (string | number | null)[][] {
+  return rows.map((row) =>
+    row.map((cell) => {
+      if (cell == null) return cell;
+      const plain = cell
+        .trim()
+        .replace(/^\$/, '')
+        .replace(/,(?=\d{3}\b)/g, '');
+      return /^-?\d+(\.\d+)?$/.test(plain) ? Number(plain) : cell;
+    })
+  );
+}
 let file: File | null = null;
 
 const updateUI = () => {
@@ -108,7 +122,7 @@ async function convert() {
     const workbook = XLSX.utils.book_new();
 
     if (allTables.length === 1) {
-      const worksheet = XLSX.utils.aoa_to_sheet(allTables[0].rows);
+      const worksheet = XLSX.utils.aoa_to_sheet(withNumbers(allTables[0].rows));
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Table');
     } else {
       allTables.forEach((table, idx) => {
@@ -116,7 +130,7 @@ async function convert() {
           0,
           31
         );
-        const worksheet = XLSX.utils.aoa_to_sheet(table.rows);
+        const worksheet = XLSX.utils.aoa_to_sheet(withNumbers(table.rows));
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
       });
     }

@@ -247,7 +247,7 @@ async function convertToPdf() {
     const pdfBytes = await pdfDoc.save();
     downloadFile(
       new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' }),
-      'from_jpgs.pdf'
+      'from_pngs.pdf'
     );
     showAlert('Success', 'PDF created successfully!', 'success', () => {
       resetState();

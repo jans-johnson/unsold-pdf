@@ -237,16 +237,11 @@ async function processAllPages(): Promise<void> {
       if (jpegBlob) {
         const jpegBytes = await jpegBlob.arrayBuffer();
         const jpegImage = await newPdfDoc.embedJpg(jpegBytes);
-        const newPage = newPdfDoc.addPage([
-          outputCanvas.width,
-          outputCanvas.height,
-        ]);
-        newPage.drawImage(jpegImage, {
-          x: 0,
-          y: 0,
-          width: outputCanvas.width,
-          height: outputCanvas.height,
-        });
+        // The canvas is in pixels at the chosen DPI; pages are in points.
+        const width = outputCanvas.width / dpiScale;
+        const height = outputCanvas.height / dpiScale;
+        const newPage = newPdfDoc.addPage([width, height]);
+        newPage.drawImage(jpegImage, { x: 0, y: 0, width, height });
       }
     }
 

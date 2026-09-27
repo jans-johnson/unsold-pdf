@@ -20,7 +20,8 @@ struct HostInfo {
 /// with 0 (all passed) or 1. Used for CI smoke runs of packaged builds.
 struct SelfTest(bool);
 
-const SELF_TEST_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(90);
+// Longer than the JS side can take (6 checks × 25 s), so a slow check is named in the report.
+const SELF_TEST_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(180);
 
 #[derive(serde::Deserialize, Serialize)]
 struct SelfTestCheck {

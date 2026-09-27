@@ -1,7 +1,7 @@
 import { createIcons, icons } from 'lucide';
 import { showAlert, showLoader, hideLoader } from '../ui.js';
 import { downloadFile, hexToRgb, formatBytes } from '../utils/helpers.js';
-import { PDFDocument as PDFLibDocument, rgb } from 'pdf-lib';
+import { PDFDocument as PDFLibDocument, PDFName } from 'pdf-lib';
 import { BackgroundColorState } from '@/types';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
@@ -122,22 +122,24 @@ async function changeBackgroundColor() {
   const color = hexToRgb(colorHex);
   showLoader('Changing background color...');
   try {
-    const newPdfDoc = await PDFLibDocument.create();
-    for (let i = 0; i < pageState.pdfDoc.getPageCount(); i++) {
-      const [originalPage] = await newPdfDoc.copyPages(pageState.pdfDoc, [i]);
-      const { width, height } = originalPage.getSize();
-      const newPage = newPdfDoc.addPage([width, height]);
-      newPage.drawRectangle({
-        x: 0,
-        y: 0,
-        width,
-        height,
-        color: rgb(color.r, color.g, color.b),
-      });
-      const embeddedPage = await newPdfDoc.embedPage(originalPage);
-      newPage.drawPage(embeddedPage, { x: 0, y: 0, width, height });
+    // Paint the colour underneath each page's existing content, in place, so
+    // rotation, links, form fields, bookmarks and metadata all survive.
+    const doc = await PDFLibDocument.load(await pageState.pdfDoc.save());
+    const fill = [color.r, color.g, color.b].map((c) => c.toFixed(4)).join(' ');
+    for (const page of doc.getPages()) {
+      const { x, y, width, height } = page.getMediaBox();
+      const under = doc.context.register(
+        doc.context.stream(
+          `q ${fill} rg ${x} ${y} ${width} ${height} re f Q q\n`
+        )
+      );
+      const close = doc.context.register(doc.context.stream('\nQ'));
+      page.node.normalize();
+      if (!page.node.wrapContentStreams(under, close)) {
+        page.node.set(PDFName.of('Contents'), doc.context.obj([under, close]));
+      }
     }
-    const newPdfBytes = await newPdfDoc.save();
+    const newPdfBytes = await doc.save();
     downloadFile(
       new Blob([new Uint8Array(newPdfBytes)], { type: 'application/pdf' }),
       pageState.file?.name || 'document.pdf'

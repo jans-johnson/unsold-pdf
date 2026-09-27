@@ -19,10 +19,7 @@ import { exportComparePdf } from '../compare/reporting/export-compare-pdf.ts';
 import { LRUCache } from '../compare/lru-cache.ts';
 import { COMPARE_CACHE_MAX_SIZE } from '../compare/config.ts';
 import '../utils/setup-pdf-worker.js';
-import {
-  getElement,
-  computeComparisonForPair,
-} from './compare-render.ts';
+import { getElement, computeComparisonForPair } from './compare-render.ts';
 
 const pageState: CompareState = {
   pdfDoc1: null,
@@ -385,14 +382,17 @@ function renderChangeList() {
   const visibleChanges = getVisibleChanges(comparison);
 
   if (!comparison || visibleChanges.length === 0) {
+    const elsewhere = changedPages.filter((p) => p !== pageState.currentPage);
     emptyState.textContent =
       comparison?.status === 'match'
-        ? 'No differences detected on this page.'
+        ? elsewhere.length
+          ? `No differences on this page. Changes on page ${elsewhere.join(', ')}.`
+          : 'No differences found anywhere in these documents.'
         : 'No changes match the current filter.';
     emptyState.classList.remove('hidden');
     list.classList.add('hidden');
-    prevChangeBtn.disabled = true;
-    nextChangeBtn.disabled = true;
+    prevChangeBtn.disabled = elsewhere.length === 0;
+    nextChangeBtn.disabled = elsewhere.length === 0;
     exportDropdownBtn.disabled = pageState.pagePairs.length === 0;
     return;
   }
@@ -512,6 +512,47 @@ async function buildPagePairs() {
 
   pageState.pagePairs = await pairPagesAsync(leftSignatures, rightSignatures);
   pageState.currentPage = 1;
+
+  // Compare every pair once up front, so the whole document's changes are
+  // known: the change list can point at other pages and next/previous
+  // change can move between them.
+  changedPages = [];
+  const ctx = getRenderContext();
+  for (let i = 0; i < pageState.pagePairs.length; i++) {
+    showLoader(
+      `Comparing page ${i + 1} of ${pageState.pagePairs.length}...`,
+      (i / pageState.pagePairs.length) * 100
+    );
+    const result = await computeComparisonForPair(
+      pageState.pdfDoc1,
+      pageState.pdfDoc2,
+      pageState.pagePairs[i],
+      caches,
+      ctx
+    );
+    if (result.status !== 'match') changedPages.push(i + 1);
+  }
+}
+
+/** 1-based page pairs with any difference, found by buildPagePairs. */
+let changedPages: number[] = [];
+
+/** Jump to the next (or previous) page that has changes, wrapping around. */
+async function goToChangedPage(direction: 1 | -1) {
+  if (changedPages.length === 0) return;
+  const here = pageState.currentPage;
+  const target =
+    direction === 1
+      ? (changedPages.find((p) => p > here) ?? changedPages[0])
+      : ([...changedPages].reverse().find((p) => p < here) ??
+        changedPages[changedPages.length - 1]);
+  pageState.currentPage = target;
+  await renderBothPages();
+  const changes = getVisibleChanges(pageState.currentComparison);
+  if (changes.length === 0) return;
+  pageState.activeChangeIndex = direction === 1 ? 0 : changes.length - 1;
+  renderComparisonUI();
+  scrollToChange(changes[pageState.activeChangeIndex]);
 }
 
 async function renderBothPages() {
@@ -893,7 +934,14 @@ document.addEventListener('DOMContentLoaded', function () {
   if (prevChangeBtn) {
     prevChangeBtn.addEventListener('click', function () {
       const changes = getVisibleChanges(pageState.currentComparison);
-      if (changes.length === 0) return;
+      // Past the first change on this page: go to the previous changed page.
+      if (changes.length === 0 || pageState.activeChangeIndex === 0) {
+        if (changedPages.some((p) => p !== pageState.currentPage)) {
+          void goToChangedPage(-1);
+          return;
+        }
+        if (changes.length === 0) return;
+      }
       pageState.activeChangeIndex =
         (pageState.activeChangeIndex - 1 + changes.length) % changes.length;
       renderComparisonUI();
@@ -904,7 +952,17 @@ document.addEventListener('DOMContentLoaded', function () {
   if (nextChangeBtn) {
     nextChangeBtn.addEventListener('click', function () {
       const changes = getVisibleChanges(pageState.currentComparison);
-      if (changes.length === 0) return;
+      // Past the last change on this page: go to the next changed page.
+      if (
+        changes.length === 0 ||
+        pageState.activeChangeIndex === changes.length - 1
+      ) {
+        if (changedPages.some((p) => p !== pageState.currentPage)) {
+          void goToChangedPage(1);
+          return;
+        }
+        if (changes.length === 0) return;
+      }
       pageState.activeChangeIndex =
         (pageState.activeChangeIndex + 1) % changes.length;
       renderComparisonUI();

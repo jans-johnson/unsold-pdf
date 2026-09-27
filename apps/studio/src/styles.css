@@ -328,8 +328,15 @@ body {
 }
 .home-inner {
   max-width: 1180px;
+  min-height: 100%;
   margin: 0 auto;
   padding: 34px 40px 0;
+  /* In tall windows the footer still sits on the bottom edge. */
+  display: flex;
+  flex-direction: column;
+}
+.home-inner > :nth-last-child(2) {
+  margin-bottom: 40px;
 }
 .home-hero {
   display: flex;
@@ -619,8 +626,14 @@ body {
   border: 0;
   outline: none;
   background: transparent;
-  width: 150px;
+  width: clamp(70px, 10vw, 150px);
   user-select: text;
+}
+/* Narrow windows (down to the 960px minimum): keep every control visible. */
+@media (max-width: 1100px) {
+  .doc-toolbar .btn-label {
+    display: none;
+  }
 }
 #find-count {
   font-size: 11px;
@@ -1373,7 +1386,7 @@ button.chip:hover {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 40px;
+  margin-top: auto;
   padding: 14px 0 16px;
   border-top: 1px solid var(--border-soft);
   color: var(--text-faint);
@@ -1400,4 +1413,185 @@ button.chip:hover {
 .bmc-button:hover {
   opacity: 1;
   transform: translateY(-1px);
+}
+
+/* ================================================================ phones
+   Below 760px (phones; tablets keep the desktop layout): one pane at a
+   time. The quick tools and panel buttons become a bottom bar, the All tools
+   pane is a full-screen sheet, side panels are bottom sheets, and touch
+   targets grow. Safe areas keep clear of the notch and home indicator. */
+@media (max-width: 760px) {
+  :root {
+    --titlebar-h: 48px;
+    --bar-h: 56px;
+  }
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+  .traffic-space {
+    width: 6px;
+  }
+  .tab.fixed span {
+    display: none;
+  }
+  .tab {
+    height: 38px;
+  }
+  .tab.doc .tab-name {
+    max-width: 110px;
+  }
+  .title-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Home */
+  .home-inner {
+    padding: 20px 16px 0;
+  }
+  .home-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .home-hero .btn.lg {
+    justify-content: center;
+  }
+  .rec-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #home-drop {
+    display: none;
+  }
+  .recent-head {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .home-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  /* All tools */
+  #view-tools {
+    grid-template-columns: 1fr;
+  }
+  .tools-nav {
+    display: none;
+  }
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+  .tools-main {
+    padding: 16px 16px calc(40px + env(safe-area-inset-bottom));
+  }
+
+  /* Document: toolbar scrolls sideways instead of squeezing */
+  .doc-toolbar {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 6px;
+  }
+  .doc-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+  .doc-toolbar .tb-group {
+    flex: none;
+  }
+  .doc-toolbar [data-cmd='print'],
+  .doc-toolbar [data-cmd='toggle-left'] + .tb-sep {
+    display: none;
+  }
+  .doc-toolbar .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .find-box input {
+    width: 80px;
+  }
+
+  /* Bottom bar: quick tools (scrolls) + panel buttons */
+  .doc-body {
+    padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom));
+  }
+  .rail {
+    position: fixed;
+    bottom: 0;
+    z-index: 30;
+    height: calc(var(--bar-h) + env(safe-area-inset-bottom));
+    width: auto;
+    flex-direction: row;
+    padding: 0 8px env(safe-area-inset-bottom);
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+  .rail.left {
+    left: 0;
+    right: 176px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-right: 0;
+  }
+  .rail.left::-webkit-scrollbar {
+    display: none;
+  }
+  .rail.right {
+    right: 0;
+    width: 176px;
+    justify-content: flex-end;
+    border-left: 1px solid var(--border);
+  }
+  .rail-btn {
+    flex: none;
+    width: 42px;
+    height: 42px;
+  }
+  .rail-sep {
+    width: 1px;
+    height: 24px;
+    margin: 0 4px;
+    flex: none;
+  }
+  .rail-btn[data-tip]:hover::after {
+    display: none;
+  }
+
+  /* All tools pane: a full-screen sheet over the document */
+  .tools-pane {
+    position: fixed;
+    inset: calc(var(--titlebar-h) + var(--toolbar-h) + env(safe-area-inset-top))
+      0 calc(var(--bar-h) + env(safe-area-inset-bottom)) 0;
+    z-index: 40;
+    width: auto;
+    border-right: 0;
+  }
+  .pane-tool {
+    min-height: 44px;
+  }
+
+  /* Side panels: a bottom sheet */
+  .side-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--bar-h) + env(safe-area-inset-bottom));
+    height: 55vh;
+    z-index: 40;
+    width: auto;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Tool header: keep the title, drop the long subtitle */
+  .tool-header {
+    padding: 0 8px 0 12px;
+  }
+  .tool-header .t-sub {
+    display: none;
+  }
 }

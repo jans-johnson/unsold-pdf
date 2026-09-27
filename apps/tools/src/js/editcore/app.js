@@ -3871,7 +3871,8 @@ function restore(from, to) {
     syncHistoryPins();
     refreshModel();
     state.selection = null;
-    state.dirty = true;
+    // Undoing everything brings the document back to how it was opened.
+    state.dirty = state.undo.length > 0;
     renderPage();
     updateChrome();
     return;
@@ -3889,10 +3890,10 @@ function restore(from, to) {
     return;
   }
   if (cur) to.push({ bytes: cur, page: curPage, epoch: state.docEpoch });
-  if (snap.bytes === P()._originalBytes) state.dirty = false;
   refreshModel();
   state.selection = null;
-  state.dirty = true;
+  // Undoing everything brings the document back to how it was opened.
+  state.dirty = state.undo.length > 0 && snap.bytes !== P()._originalBytes;
   renderPage();
   updateChrome();
 }

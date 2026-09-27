@@ -43,12 +43,19 @@ export function extractSignatures(pdfBytes: Uint8Array): ExtractedSignature[] {
       const contactMatch = context.match(/\/ContactInfo\s*\(([^)]*)\)/);
       const nameMatch = context.match(/\/Name\s*\(([^)]*)\)/);
       const timeMatch = context.match(
-        /\/M\s*\(D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/
+        /\/M\s*\(D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(Z|[+-]\d{2}'?\d{2}'?)?/
       );
 
       let signingTime: string | undefined;
       if (timeMatch) {
-        signingTime = `${timeMatch[1]}-${timeMatch[2]}-${timeMatch[3]}T${timeMatch[4]}:${timeMatch[5]}:${timeMatch[6]}`;
+        // Keep the time zone (Z or +hh'mm'); without it the time is read as
+        // local time and shows up hours off.
+        const zone = (timeMatch[7] ?? '').replace(/'/g, '');
+        const offset =
+          zone && zone !== 'Z'
+            ? `${zone.slice(0, 3)}:${zone.slice(3, 5)}`
+            : zone;
+        signingTime = `${timeMatch[1]}-${timeMatch[2]}-${timeMatch[3]}T${timeMatch[4]}:${timeMatch[5]}:${timeMatch[6]}${offset}`;
       }
 
       signatures.push({

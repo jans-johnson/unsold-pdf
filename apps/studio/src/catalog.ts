@@ -88,7 +88,9 @@ const NO_PDF_INPUT = new Set([
   'wasm-settings',
 ]);
 export const takesPdf = (id: string) =>
-  !NO_PDF_INPUT.has(id) && tool(id)?.category !== 'Convert to PDF';
+  !NO_PDF_INPUT.has(id) &&
+  !!tool(id) &&
+  tool(id)?.category !== 'Convert to PDF';
 
 const EXT_ALIASES: Record<string, string> = {
   jpeg: 'jpg',
@@ -101,7 +103,11 @@ const EXT_ALIASES: Record<string, string> = {
   pptx: 'powerpoint',
   eml: 'email',
   msg: 'email',
-  htm: 'html',
+  md: 'markdown',
+  vsdx: 'vsd',
+  oxps: 'xps',
+  heif: 'heic',
+  cbr: 'cbz',
 };
 
 /** The conversion tool for a non-PDF file, if there is one. */

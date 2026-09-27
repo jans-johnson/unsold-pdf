@@ -118,6 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoader(`Converting ${file.name}...`);
 
         const markdown = await pymupdf.pdfToMarkdown(file, { includeImages });
+        if (!markdown.replace(/!\[[^\]]*\]\([^)]*\)|[#*_\-\s]/g, '')) {
+          hideLoader();
+          showAlert(
+            'No text found',
+            "This PDF has no text layer (it looks like a scan), so there's nothing to export. Run Scan & OCR on it first, then export again."
+          );
+          return;
+        }
         const outName = file.name.replace(/\.pdf$/i, '') + '.md';
         const blob = new Blob([markdown], { type: 'text/markdown' });
 

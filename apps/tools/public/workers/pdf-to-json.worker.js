@@ -20,6 +20,17 @@ function loadCpdf(cpdfUrl) {
   });
 }
 
+// cpdf writes PDF strings as raw bytes (e.g. UTF-16 metadata with 0xFE 0xFF),
+// which isn't valid UTF-8, so strict JSON parsers reject the file. Read the
+// bytes as Latin-1 and write real UTF-8; json-to-pdf.worker.js reverses it.
+function latin1ToUtf8(bytes) {
+  let text = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    text += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return new TextEncoder().encode(text);
+}
+
 function convertPDFsToJSONInWorker(fileBuffers, fileNames) {
   try {
     const jsonFiles = [];
@@ -33,7 +44,7 @@ function convertPDFsToJSONInWorker(fileBuffers, fileNames) {
 
       const jsonData = coherentpdf.outputJSONMemory(true, false, false, pdf);
 
-      const jsonBuffer = jsonData.buffer.slice(0);
+      const jsonBuffer = latin1ToUtf8(jsonData).buffer;
       jsonFiles.push({
         name: fileName,
         data: jsonBuffer,

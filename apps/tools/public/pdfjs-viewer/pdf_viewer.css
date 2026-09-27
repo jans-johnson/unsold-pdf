@@ -3598,6 +3598,7 @@
 .commentPopup{
   --csstools-color-scheme--light: initial;
 }
+}
 
 @media screen and (forced-colors: active){
 
@@ -5605,5 +5606,4 @@
 .pdfPresentationMode .pdfViewer .page{
   margin:0 auto;
   border:2px solid transparent;
-}
 }

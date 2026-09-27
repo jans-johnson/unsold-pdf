@@ -18,6 +18,7 @@ import {
 import type { CbzOptions, ComicMetadata } from '@/types';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import '../utils/setup-pdf-worker.js';
+import { canvasToWebp } from '../utils/canvas-to-webp.js';
 
 let files: File[] = [];
 
@@ -204,9 +205,12 @@ async function renderPage(
   const mimeType = getMimeType(options.imageFormat);
   const quality = options.imageFormat === 'png' ? undefined : options.quality;
 
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, mimeType, quality)
-  );
+  const blob =
+    mimeType === 'image/webp'
+      ? await canvasToWebp(canvas, quality)
+      : await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, mimeType, quality)
+        );
   canvas.width = 0;
   canvas.height = 0;
   return blob;

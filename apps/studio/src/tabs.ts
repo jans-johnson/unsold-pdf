@@ -38,6 +38,8 @@ export interface ToolTab {
   id: string;
   taskId: string;
   toolId: string;
+  /** The file being converted, when the tab was opened for one. */
+  label?: string;
   stageEl: HTMLElement;
   frame: HTMLIFrameElement | null;
 }

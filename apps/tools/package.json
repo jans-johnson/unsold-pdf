@@ -32,6 +32,7 @@
     "@fontsource/kalam": "^5.2.8",
     "@fontsource/lato": "^5.2.7",
     "@fontsource/merriweather": "^5.2.11",
+    "@jsquash/webp": "^1.5.0",
     "@kenjiuno/msgreader": "^1.28.0",
     "@matbee/libreoffice-converter": "^2.5.0",
     "@neslinesli93/qpdf-wasm": "^0.3.0",

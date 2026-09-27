@@ -1,6 +1,7 @@
 import { $, formatBytes, h, icon, locationOf } from './dom.ts';
 import { pdfjs, type PdfDocument } from './pdf.ts';
 import type { DocTab } from './tabs.ts';
+import { toast } from './ui/feedback.ts';
 
 export type PanelName =
   | 'thumbnails'
@@ -304,7 +305,15 @@ export async function printDocument(
   }
   root.replaceChildren(...imgs);
   await Promise.all(imgs.map((i) => i.decode().catch(() => {})));
-  window.print();
-  root.replaceChildren();
-  urls.forEach((u) => URL.revokeObjectURL(u));
+  try {
+    // In the native app window.print() is async (it goes through Tauri), so
+    // keep the pages in place until it has returned.
+    await Promise.resolve(window.print() as unknown);
+  } catch (err) {
+    console.error('Print failed', err);
+    toast('Couldn’t open the print dialog');
+  } finally {
+    root.replaceChildren();
+    urls.forEach((u) => URL.revokeObjectURL(u));
+  }
 }

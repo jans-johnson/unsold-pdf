@@ -4,6 +4,7 @@ import { getPDFDocument, getCleanPdfFilename } from '../utils/helpers.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { downloadFile } from '../utils/deliver-output.js';
 import { t } from '../i18n/i18n';
+import { registerToolPage } from '@unsold/bridge/tool-host';
 import {
   buildAcroFormPdf,
   detectXfa,
@@ -18,6 +19,17 @@ let viewerIframe: HTMLIFrameElement | null = null;
 let viewerReady = false;
 let currentFile: File | null = null;
 let xfaKind: XfaKind = 'none';
+
+// Closing the tool with values typed in asks to apply or discard.
+registerToolPage({
+  hasChanges: () => {
+    const win = viewerIframe?.contentWindow as XfaViewerWindow | null;
+    const storage = win?.PDFViewerApplication?.pdfDocument
+      ?.annotationStorage as { size?: number } | undefined;
+    return (storage?.size ?? 0) > 0;
+  },
+  apply: () => processAndDownloadForm(),
+});
 let saving = false;
 
 // UI helpers

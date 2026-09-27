@@ -67,7 +67,9 @@ export async function loadPyMuPDF(): Promise<PyMuPDFInstance> {
 
       cachedPyMuPDF = new module.PyMuPDF({
         assetPath: `${normalizedPymupdf}assets/`,
-        ghostscriptUrl: gsUrl,
+        // The wrapper appends `dist/index.js` itself, so it wants the package
+        // root, not its assets folder.
+        ghostscriptUrl: gsUrl.replace(/assets\/?$/, ''),
       });
 
       await cachedPyMuPDF.load();

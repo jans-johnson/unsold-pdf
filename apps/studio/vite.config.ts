@@ -62,12 +62,17 @@ function serveAppLayout(): Plugin {
         ) {
           return next();
         }
-        const file = resolveFile(url === '/' ? '/index' : url);
+        let file = resolveFile(url === '/' ? '/index' : url);
+        // Same as the native origin: `x` falls back to `x.gz`, sent with
+        // Content-Encoding so the browser inflates it while streaming.
+        const gzipped = !file && !!path.extname(url) && !!resolveFile(`${url}.gz`);
+        if (gzipped) file = resolveFile(`${url}.gz`);
         if (!file) return next();
         res.setHeader(
           'Content-Type',
-          MIME[path.extname(file)] ?? 'application/octet-stream'
+          MIME[path.extname(gzipped ? url : file)] ?? 'application/octet-stream'
         );
+        if (gzipped) res.setHeader('Content-Encoding', 'gzip');
         for (const [k, v] of Object.entries(isolationHeaders))
           res.setHeader(k, v);
         fs.createReadStream(file).pipe(res);

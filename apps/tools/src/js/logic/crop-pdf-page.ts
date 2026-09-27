@@ -3,6 +3,7 @@ import { showLoader, hideLoader, showAlert } from '../ui.js';
 import { downloadFile, formatBytes } from '../utils/helpers.js';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
 import { PDFDocument as PDFLibDocument } from 'pdf-lib';
 import { CropperState, CropPercentages } from '@/types';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
@@ -137,7 +138,15 @@ function updateFileDisplay() {
   createIcons({ icons });
 }
 
-function saveCurrentCrop() {
+/** Whether the user has adjusted the crop box on the page being shown. */
+let cropTouched = false;
+
+/**
+ * Record the shown page's crop. Moving to another page only keeps it if the
+ * user adjusted the box, so pages you merely looked at aren't cropped.
+ */
+function saveCurrentCrop({ onlyIfTouched = false } = {}) {
+  if (onlyIfTouched && !cropTouched) return;
   if (cropperState.cropper) {
     const currentCrop = cropperState.cropper.getData(true);
     const imageData = cropperState.cropper.getImageData();
@@ -182,7 +191,11 @@ async function displayPageAsImage(num: number) {
     container.appendChild(image);
 
     image.onload = () => {
+      cropTouched = false;
       cropperState.cropper = new Cropper(image, {
+        cropend: () => {
+          cropTouched = true;
+        },
         viewMode: 1,
         background: false,
         autoCropArea: 0.8,
@@ -214,7 +227,7 @@ async function displayPageAsImage(num: number) {
 }
 
 async function changePage(offset: number) {
-  saveCurrentCrop();
+  saveCurrentCrop({ onlyIfTouched: true });
   const newPageNum = cropperState.currentPageNum + offset;
   if (newPageNum > 0 && newPageNum <= cropperState.pdfDoc.numPages) {
     cropperState.currentPageNum = newPageNum;
@@ -388,21 +401,19 @@ async function performFlatteningCrop(
         finalHeight
       );
 
-      const pngBytes = await new Promise<ArrayBuffer>((res) =>
+      const jpgBytes = await new Promise<ArrayBuffer>((res) =>
         finalCanvas.toBlob(
           (blob) => blob?.arrayBuffer().then(res),
           'image/jpeg',
           0.9
         )
       );
-      const embeddedImage = await newPdfDoc.embedPng(pngBytes);
-      const newPage = newPdfDoc.addPage([finalWidth, finalHeight]);
-      newPage.drawImage(embeddedImage, {
-        x: 0,
-        y: 0,
-        width: finalWidth,
-        height: finalHeight,
-      });
+      const embeddedImage = await newPdfDoc.embedJpg(jpgBytes);
+      // Rendered at 2.5× for quality; the page keeps its size in points.
+      const width = finalWidth / 2.5;
+      const height = finalHeight / 2.5;
+      const newPage = newPdfDoc.addPage([width, height]);
+      newPage.drawImage(embeddedImage, { x: 0, y: 0, width, height });
     } else {
       const [copiedPage] = await newPdfDoc.copyPages(sourcePdfDocForCopying, [
         i,

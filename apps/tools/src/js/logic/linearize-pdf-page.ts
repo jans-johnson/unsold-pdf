@@ -114,6 +114,7 @@ async function linearizePdf() {
   let qpdf: QpdfInstanceExtended;
   let successCount = 0;
   let errorCount = 0;
+  let lastOutput: { name: string; bytes: Uint8Array } | null = null;
 
   try {
     qpdf = await initializeQpdf();
@@ -149,6 +150,7 @@ async function linearizePdf() {
           usedNames
         );
         zip.file(zipEntryName, outputFile, { binary: true });
+        lastOutput = { name: file.name, bytes: outputFile };
         successCount++;
       } catch (fileError: unknown) {
         errorCount++;
@@ -176,9 +178,19 @@ async function linearizePdf() {
       throw new Error('No PDF files could be linearized.');
     }
 
-    if (loaderText) loaderText.textContent = 'Generating ZIP file...';
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    downloadFile(zipBlob, 'linearized-pdfs.zip');
+    if (successCount === 1 && lastOutput && pdfFiles.length === 1) {
+      // One file: hand the PDF itself over, so it comes back into the document.
+      downloadFile(
+        new Blob([new Uint8Array(lastOutput.bytes)], {
+          type: 'application/pdf',
+        }),
+        lastOutput.name
+      );
+    } else {
+      if (loaderText) loaderText.textContent = 'Generating ZIP file...';
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      downloadFile(zipBlob, 'linearized-pdfs.zip');
+    }
 
     let alertMessage = `${successCount} PDF(s) linearized successfully.`;
     if (errorCount > 0) {

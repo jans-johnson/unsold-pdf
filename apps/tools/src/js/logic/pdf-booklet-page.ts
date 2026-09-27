@@ -6,6 +6,11 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
 import '../utils/setup-pdf-worker.js';
+import {
+  displayFrame,
+  drawUpright,
+  ensureContents,
+} from '../utils/pdf-operations.js';
 
 interface BookletState {
   file: File | null;
@@ -485,10 +490,16 @@ async function createBooklet() {
           }
 
           if (pageNumber >= 1 && pageNumber <= totalPages) {
+            const sourcePage = sourceDoc.getPage(pageNumber - 1);
+            ensureContents(sourcePage);
             const [embeddedPage] = await outputDoc.embedPdf(sourceDoc, [
               pageNumber - 1,
             ]);
-            const { width: srcW, height: srcH } = embeddedPage;
+            // Sized and drawn as displayed, so /Rotate (including the
+            // Source Rotation option, applied above) is honoured.
+            const shown = displayFrame(sourcePage);
+            const srcW = shown.width;
+            const srcH = shown.height;
 
             const availableWidth = cellWidth - padding * 2;
             const availableHeight = cellHeight - padding * 2;
@@ -508,12 +519,12 @@ async function createBooklet() {
               padding +
               (availableHeight - scaledHeight) / 2;
 
-            outputPage.drawPage(embeddedPage, {
-              x,
-              y,
-              width: scaledWidth,
-              height: scaledHeight,
-            });
+            drawUpright(
+              outputPage,
+              embeddedPage,
+              { x, y, width: scaledWidth, height: scaledHeight },
+              sourcePage.getRotation().angle
+            );
           }
         }
       }

@@ -39,6 +39,9 @@ export function createViewer(
     findController,
     removePageBorders: true,
     annotationMode: pdfjs.AnnotationMode.ENABLE_FORMS,
+    // The viewer doesn't use pdf.js's editors. Leaving them on adds
+    // document-wide drag/drop listeners that throw for hidden tabs.
+    annotationEditorMode: pdfjs.AnnotationEditorType.DISABLE,
   });
   linkService.setViewer(pdfViewer);
 

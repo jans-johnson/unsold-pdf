@@ -10,6 +10,7 @@ import { t } from '../i18n/i18n';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
 import { flattenAnnotations } from '../utils/flatten-annotations.js';
 import type { SignState, PDFViewerWindow } from '@/types';
+import { registerToolPage } from '@unsold/bridge/tool-host';
 
 // pdf.js ships its editor buttons as bare grey icons. Show their labels and
 // make "Add signature" the obvious primary action. Labels drop off the
@@ -91,7 +92,20 @@ if (document.readyState === 'loading') {
   initializePage();
 }
 
+/** Unsaved signatures, so closing the tool asks before throwing them away. */
+function signaturesPlaced(): boolean {
+  const win = signState.viewerIframe?.contentWindow as PDFViewerWindow | null;
+  const storage = win?.PDFViewerApplication?.pdfDocument?.annotationStorage as
+    | { size?: number }
+    | undefined;
+  return (storage?.size ?? 0) > 0;
+}
+
 function initializePage() {
+  registerToolPage({
+    hasChanges: signaturesPlaced,
+    apply: () => applyAndSaveSignatures(),
+  });
   createIcons({ icons });
 
   const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -278,6 +292,20 @@ async function setupSignTool() {
         const doc = viewerWindow.document;
         const eventBus = app.eventBus;
         injectEditorToolbarStyle(doc);
+        // The viewer's own download/save controls save through us too.
+        doc.addEventListener(
+          'click',
+          (e) => {
+            const target = e.target as Element | null;
+            if (!target?.closest('#downloadButton, #secondaryDownload')) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            void applyAndSaveSignatures();
+          },
+          true
+        );
+        (app as { downloadOrSave?: () => unknown }).downloadOrSave = () =>
+          applyAndSaveSignatures();
         eventBus?._on('annotationeditoruimanager', () => {
           const editorModeButtons = doc.getElementById('editorModeButtons');
           editorModeButtons?.classList.remove('hidden');
@@ -377,15 +405,20 @@ async function applyAndSaveSignatures() {
         resetState();
       });
     } else {
-      app.eventBus?.dispatch('download', { source: app });
-      showAlert(
-        'Success',
-        'Signed PDF downloaded successfully!',
-        'success',
-        () => {
-          resetState();
-        }
+      // Save through our own delivery (the viewer's download button goes to
+      // a browser download, which never reaches the app).
+      showLoader('Saving PDF...');
+      const rawPdfBytes = await app.pdfDocument.saveDocument(
+        app.pdfDocument.annotationStorage
       );
+      downloadFile(
+        new Blob([new Uint8Array(rawPdfBytes)], { type: 'application/pdf' }),
+        signState.file?.name || 'document.pdf'
+      );
+      hideLoader();
+      showAlert('Success', 'Signed PDF saved successfully!', 'success', () => {
+        resetState();
+      });
     }
   } catch (error) {
     console.error('Failed to export the signed PDF:', error);

@@ -3,6 +3,7 @@ import type { PyMuPDFInstance } from '@/types';
 import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import { createIcons, icons } from 'lucide';
 import { downloadFile } from '../utils/helpers';
+import { PDFDocument } from 'pdf-lib';
 import { isWasmAvailable } from '../config/wasm-cdn-config.js';
 import { showWasmRequiredDialog } from '../utils/wasm-provider.js';
 
@@ -180,6 +181,7 @@ async function processDeskew(): Promise<void> {
     const pdf = await initPyMuPDF();
     await pdf.load();
 
+    let straightened = 0;
     for (const file of selectedFiles) {
       showLoader(`Deskewing ${file.name}...`);
 
@@ -189,14 +191,35 @@ async function processDeskew(): Promise<void> {
       });
 
       displayResults(result);
+      if (result.correctedPages === 0) continue; // already straight
 
-      downloadFile(resultPdf, file.name);
+      // The engine re-renders every page as an image. Keep the original
+      // (vector, selectable) page wherever no correction was needed.
+      const original = await PDFDocument.load(await file.arrayBuffer(), {
+        ignoreEncryption: true,
+      });
+      const fixed = await PDFDocument.load(await resultPdf.arrayBuffer());
+      const out = await PDFDocument.create();
+      for (let i = 0; i < result.totalPages; i++) {
+        const [page] = result.corrected[i]
+          ? await out.copyPages(fixed, [i])
+          : await out.copyPages(original, [i]);
+        out.addPage(page);
+      }
+      const bytes = await out.save();
+      downloadFile(
+        new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }),
+        file.name
+      );
+      straightened++;
     }
 
     hideLoader();
     showAlert(
-      'Success',
-      `Deskewed ${selectedFiles.length} file(s). ${selectedFiles.length > 1 ? 'Downloads started for all files.' : ''}`
+      straightened ? 'Done' : 'Already straight',
+      straightened
+        ? `Straightened tilted pages in ${straightened} file(s). Pages that were already straight are unchanged.`
+        : 'No tilted pages were found, so nothing was changed.'
     );
   } catch (error) {
     hideLoader();

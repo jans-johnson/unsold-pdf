@@ -289,15 +289,14 @@ async function saveMetadata() {
     pageState.pdfDoc.setCreator(creatorInput.value);
     pageState.pdfDoc.setProducer(producerInput.value);
 
-    const keywords = keywordsInput.value;
-    pageState.pdfDoc.setKeywords(
-      keywords
-        .split(',')
-        .map(function (k) {
-          return k.trim();
-        })
-        .filter(Boolean)
-    );
+    // pdf-lib joins a keyword array with spaces, which merges multi-word
+    // keywords; pass one comma-separated string so the commas survive.
+    const keywords = keywordsInput.value
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean)
+      .join(', ');
+    pageState.pdfDoc.setKeywords(keywords ? [keywords] : []);
 
     // Handle creation date
     if (creationDateInput.value) {

@@ -4,6 +4,11 @@ import { createIcons, icons } from 'lucide';
 import { PDFDocument as PDFLibDocument, rgb, PageSizes } from 'pdf-lib';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
+import {
+  displayFrame,
+  drawUpright,
+  ensureContents,
+} from '../utils/pdf-operations.js';
 
 interface NUpState {
   file: File | null;
@@ -130,15 +135,24 @@ async function nUpTool() {
       9: [3, 3],
       16: [4, 4],
     };
-    const dims = gridDims[n];
+    let dims = gridDims[n];
 
     let [pageWidth, pageHeight] = PageSizes[pageSizeKey];
 
     if (orientation === 'auto') {
-      const firstPage = sourcePages[0];
-      const isSourceLandscape = firstPage.getWidth() > firstPage.getHeight();
-      orientation =
-        isSourceLandscape && dims[0] > dims[1] ? 'landscape' : 'portrait';
+      const first = displayFrame(sourcePages[0]);
+      const isSourceLandscape = first.width > first.height;
+      if (dims[0] === dims[1]) {
+        // Square grids: the sheet matches the pages.
+        orientation = isSourceLandscape ? 'landscape' : 'portrait';
+      } else if (isSourceLandscape) {
+        // Wide pages stack on a tall sheet.
+        dims = [dims[1], dims[0]];
+        orientation = 'portrait';
+      } else {
+        // Tall pages sit side by side on a wide sheet.
+        orientation = 'landscape';
+      }
     }
 
     if (orientation === 'landscape' && pageWidth < pageHeight) {
@@ -161,14 +175,18 @@ async function nUpTool() {
 
       for (let j = 0; j < chunk.length; j++) {
         const sourcePage = chunk[j];
+        ensureContents(sourcePage);
         const embeddedPage = await newDoc.embedPage(sourcePage);
+        // Sized and drawn as displayed, so rotated pages stay upright.
+        const shown = displayFrame(sourcePage);
+        const rotation = sourcePage.getRotation().angle;
 
         const scale = Math.min(
-          cellWidth / embeddedPage.width,
-          cellHeight / embeddedPage.height
+          cellWidth / shown.width,
+          cellHeight / shown.height
         );
-        const scaledWidth = embeddedPage.width * scale;
-        const scaledHeight = embeddedPage.height * scale;
+        const scaledWidth = shown.width * scale;
+        const scaledHeight = shown.height * scale;
 
         const row = Math.floor(j / dims[0]);
         const col = j % dims[0];
@@ -179,12 +197,12 @@ async function nUpTool() {
         const x = cellX + (cellWidth - scaledWidth) / 2;
         const y = cellY + (cellHeight - scaledHeight) / 2;
 
-        outputPage.drawPage(embeddedPage, {
-          x,
-          y,
-          width: scaledWidth,
-          height: scaledHeight,
-        });
+        drawUpright(
+          outputPage,
+          embeddedPage,
+          { x, y, width: scaledWidth, height: scaledHeight },
+          rotation
+        );
 
         if (addBorder) {
           outputPage.drawRectangle({

@@ -58,7 +58,9 @@ export function flattenAnnotations(pdfDoc: PDFDocument): void {
       const subtype = annot.get(PDFName.of('Subtype'));
       const subtypeStr = subtype instanceof PDFName ? subtype.decodeText() : '';
 
-      if (subtypeStr === 'Widget') {
+      // Form widgets are handled by form flattening, and links stay
+      // clickable (they have nothing to draw).
+      if (subtypeStr === 'Widget' || subtypeStr === 'Link') {
         if (annotRef instanceof PDFRef) keptAnnots.push(annotRef);
         continue;
       }
@@ -75,15 +77,17 @@ export function flattenAnnotations(pdfDoc: PDFDocument): void {
         continue;
       }
 
+      // No appearance to bake in: keep the annotation rather than silently
+      // deleting something the reader can see.
       const apDict = annot.lookup(PDFName.of('AP'));
       if (!(apDict instanceof PDFDict)) {
-        hasChanges = true;
+        if (annotRef instanceof PDFRef) keptAnnots.push(annotRef);
         continue;
       }
 
       let normalAppRef = apDict.get(PDFName.of('N'));
       if (!normalAppRef) {
-        hasChanges = true;
+        if (annotRef instanceof PDFRef) keptAnnots.push(annotRef);
         continue;
       }
 

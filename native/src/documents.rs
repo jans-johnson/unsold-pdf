@@ -236,6 +236,13 @@ fn extension_filter(name: &str) -> Option<(String, String)> {
     (!ext.is_empty() && ext.len() <= 8).then(|| (ext.to_uppercase(), ext))
 }
 
+const OPENABLE: &[&str] = &[
+    "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp", "odg", "rtf", "txt",
+    "md", "markdown", "csv", "xml", "epub", "mobi", "fb2", "cbz", "cbr", "eml", "msg", "pages",
+    "pub", "vsd", "vsdx", "wpd", "wps", "xps", "oxps", "jpg", "jpeg", "png", "webp", "gif", "bmp",
+    "tif", "tiff", "heic", "heif", "avif", "svg", "psd", "ico",
+];
+
 #[tauri::command]
 pub async fn pick_documents<R: Runtime>(
     app: AppHandle<R>,
@@ -244,11 +251,9 @@ pub async fn pick_documents<R: Runtime>(
     let picked = app
         .dialog()
         .file()
+        // Everything the Studio can open or convert (see apps/studio/src/catalog.ts).
+        .add_filter("Documents and images", OPENABLE)
         .add_filter("PDF Documents", &["pdf"])
-        .add_filter(
-            "Documents and images",
-            &["pdf", "docx", "doc", "xlsx", "pptx", "odt", "rtf", "txt", "md", "jpg", "jpeg", "png", "webp", "tif", "tiff", "heic", "svg", "eml", "msg", "epub"],
-        )
         .blocking_pick_files()
         .unwrap_or_default();
     let mut docs = Vec::new();

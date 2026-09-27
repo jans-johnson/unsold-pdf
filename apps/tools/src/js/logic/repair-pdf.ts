@@ -9,6 +9,25 @@ import JSZip from 'jszip';
 import { deduplicateFileName } from '../utils/deduplicate-filename.js';
 import { batchDecryptIfNeeded } from '../utils/password-prompt.js';
 import type { QpdfInstanceExtended } from '@/types';
+import { PDFDocument } from 'pdf-lib';
+
+/** Last-resort repair: parse leniently and write a fresh, valid file. */
+async function rebuildWithPdfLib(
+  bytes: Uint8Array
+): Promise<Uint8Array | null> {
+  try {
+    const doc = await PDFDocument.load(bytes, {
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+      updateMetadata: false,
+    });
+    if (doc.getPageCount() === 0) return null;
+    return await doc.save();
+  } catch (e) {
+    console.warn('pdf-lib could not rebuild the file either:', e);
+    return null;
+  }
+}
 
 export async function repairPdfFile(file: File): Promise<Uint8Array | null> {
   const inputPath = '/input.pdf';
@@ -52,6 +71,11 @@ export async function repairPdfFile(file: File): Promise<Uint8Array | null> {
       console.warn('Cleanup error:', cleanupError);
     }
 
+    if (!repairedData?.length) {
+      // qpdf gives up on some damage (bad xref offsets, broken startxref)
+      // that pdf-lib's lenient parser can rebuild.
+      repairedData = await rebuildWithPdfLib(uint8Array);
+    }
     return repairedData;
   } catch (error) {
     console.error(`Error repairing ${file.name}:`, error);

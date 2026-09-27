@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Unsold PDF</title>
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #1b1b1b;
+        color: #a9a9a9;
+        font:
+          14px -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+      }
+      body {
+        display: grid;
+        place-items: center;
+      }
+      .box {
+        text-align: center;
+        max-width: 420px;
+        padding: 24px;
+      }
+      .box img {
+        width: 72px;
+        height: 72px;
+      }
+      .box strong {
+        display: block;
+        margin: 16px 0 6px;
+        color: #ececec;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <img src="images/favicon.svg" alt="" />
+      <strong id="title">Starting Unsold PDF…</strong>
+      <span id="detail"
+        >Everything runs in your browser. Your files never leave your
+        device.</span
+      >
+    </div>
+    <script>
+      // Install the service worker (isolation headers + engine streaming),
+      // then open the app once this page is controlled by it.
+      const open = () => location.replace('studio/');
+      const fail = (msg) => {
+        document.getElementById('title').textContent =
+          'Unsold PDF can’t start here';
+        document.getElementById('detail').textContent = msg;
+      };
+      if (self.crossOriginIsolated && navigator.serviceWorker?.controller) {
+        sessionStorage.removeItem('unsold-boot');
+        open();
+      } else if (!('serviceWorker' in navigator))
+        fail(
+          'This browser doesn’t support service workers. Try a current Chrome, Edge, Firefox or Safari, or download the app.'
+        );
+      else if (!self.isSecureContext) fail('Open this page over https.');
+      else if (Number(sessionStorage.getItem('unsold-boot') || 0) > 2)
+        fail(
+          'This browser won’t enable the isolation the PDF engines need. Try a current Chrome, Edge, Firefox or Safari, or download the app.'
+        );
+      else {
+        sessionStorage.setItem(
+          'unsold-boot',
+          String(Number(sessionStorage.getItem('unsold-boot') || 0) + 1)
+        );
+        navigator.serviceWorker.register('sw.js').then(
+          () => {
+            if (navigator.serviceWorker.controller) location.reload();
+            else
+              navigator.serviceWorker.addEventListener('controllerchange', () =>
+                location.reload()
+              );
+          },
+          (e) => fail(String(e))
+        );
+        // Controlled but not isolated means the reload hasn't happened yet.
+        if (navigator.serviceWorker.controller && !self.crossOriginIsolated)
+          location.reload();
+      }
+    </script>
+  </body>
+</html>

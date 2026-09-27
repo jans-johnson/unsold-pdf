@@ -95,11 +95,23 @@ mod loopback {
         }
         let path = request.url().split(['?', '#']).next().unwrap_or("/");
         let path = percent_decode_str(path).decode_utf8_lossy();
-        let Some(asset) = resolver.get(path.into_owned()) else {
-            return text(404, "Not found");
+        let path = path.into_owned();
+        // Big engines ship gzipped. Asking for `x` when only `x.gz` exists
+        // gets the gzip bytes with Content-Encoding, so the webview inflates
+        // them while streaming (WebKit can't load blob: URLs past ~100 MB).
+        let (asset, gzipped) = match resolver.get(path.clone()) {
+            Some(asset) => (asset, false),
+            None => match resolver.get(format!("{path}.gz")) {
+                Some(asset) => (asset, true),
+                None => return text(404, "Not found"),
+            },
         };
+        let mime = if gzipped { mime_for(&path) } else { asset.mime_type.clone() };
         let mut response = Response::from_data(asset.bytes).with_status_code(200);
-        response.add_header(header("Content-Type", &asset.mime_type));
+        response.add_header(header("Content-Type", &mime));
+        if gzipped {
+            response.add_header(header("Content-Encoding", "gzip"));
+        }
         response.add_header(header("Cache-Control", "no-cache"));
         if let Some(csp) = asset.csp_header {
             response.add_header(header("Content-Security-Policy", &csp));
@@ -108,6 +120,16 @@ mod loopback {
             response.add_header(header(name, value));
         }
         response
+    }
+
+    fn mime_for(path: &str) -> String {
+        match path.rsplit('.').next() {
+            Some("wasm") => "application/wasm",
+            Some("js") => "text/javascript",
+            Some("json") => "application/json",
+            _ => "application/octet-stream",
+        }
+        .to_string()
     }
 
     fn header(name: &str, value: &str) -> Header {

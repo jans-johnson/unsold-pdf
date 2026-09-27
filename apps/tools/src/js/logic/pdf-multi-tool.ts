@@ -1356,7 +1356,10 @@ async function downloadPagesAsPdf(indices: number[], filename: string) {
       type: 'application/pdf',
     });
 
-    downloadFile(blob, filename);
+    // A subset of pages is a new document, not an edit of the open one.
+    downloadFile(blob, filename, {
+      asNew: filename === 'selected-pages.pdf',
+    });
     showModal('Success', 'PDF downloaded successfully.', 'success');
   } catch (e) {
     console.error('Failed to create PDF:', e);

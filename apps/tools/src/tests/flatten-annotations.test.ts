@@ -211,7 +211,7 @@ describe('flattenAnnotations', () => {
     expect(getAnnotCount(reloaded.getPage(0))).toBe(0);
   });
 
-  it('should remove annotations that have no appearance stream', async () => {
+  it('keeps annotations that have no appearance stream (nothing to bake in)', async () => {
     const doc = await PDFDocument.create();
     const page = doc.addPage([612, 792]);
 
@@ -224,7 +224,22 @@ describe('flattenAnnotations', () => {
 
     flattenAnnotations(doc);
 
-    expect(getAnnotCount(page)).toBe(0);
+    // Deleting it would silently lose something the reader can see.
+    expect(getAnnotCount(page)).toBe(1);
+  });
+
+  it('keeps link annotations', async () => {
+    const doc = await PDFDocument.create();
+    const page = doc.addPage([612, 792]);
+
+    addAnnotation(doc, page, {
+      subtype: 'Link',
+      rect: [72, 700, 200, 720],
+    });
+
+    flattenAnnotations(doc);
+
+    expect(getAnnotCount(page)).toBe(1);
   });
 
   it('should handle annotations with zero-area Rect', async () => {

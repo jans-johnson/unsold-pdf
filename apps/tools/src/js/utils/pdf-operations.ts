@@ -1,4 +1,13 @@
-import { PDFDocument, degrees, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import {
+  PDFDocument,
+  degrees,
+  rgb,
+  StandardFonts,
+  PageSizes,
+  PDFName,
+  type PDFPage,
+  type PDFEmbeddedPage,
+} from 'pdf-lib';
 import { loadPdfDocument } from './load-pdf-document.js';
 
 export async function mergePdfs(
@@ -42,12 +51,14 @@ export async function rotatePdfUniform(
 
     if (totalRotation % 90 === 0) {
       const [copiedPage] = await newPdfDoc.copyPages(srcDoc, [i]);
-      copiedPage.setRotation(degrees(totalRotation));
+      copiedPage.setRotation(degrees(quarterTurn(totalRotation)));
       newPdfDoc.addPage(copiedPage);
     } else {
+      ensureContents(originalPage);
       const embeddedPage = await newPdfDoc.embedPage(originalPage);
       const { width, height } = embeddedPage.scale(1);
-      const angleRad = (totalRotation * Math.PI) / 180;
+      // Positive is clockwise, like /Rotate; pdf-lib rotates counter-clockwise.
+      const angleRad = (-totalRotation * Math.PI) / 180;
       const absCos = Math.abs(Math.cos(angleRad));
       const absSin = Math.abs(Math.sin(angleRad));
       const newWidth = width * absCos + height * absSin;
@@ -64,7 +75,7 @@ export async function rotatePdfUniform(
         y,
         width,
         height,
-        rotate: degrees(totalRotation),
+        rotate: degrees(-totalRotation),
       });
     }
   }
@@ -88,12 +99,14 @@ export async function rotatePdfPages(
 
     if (totalRotation % 90 === 0) {
       const [copiedPage] = await newPdfDoc.copyPages(srcDoc, [i]);
-      copiedPage.setRotation(degrees(totalRotation));
+      copiedPage.setRotation(degrees(quarterTurn(totalRotation)));
       newPdfDoc.addPage(copiedPage);
     } else {
+      ensureContents(originalPage);
       const embeddedPage = await newPdfDoc.embedPage(originalPage);
       const { width, height } = embeddedPage.scale(1);
-      const angleRad = (totalRotation * Math.PI) / 180;
+      // Positive is clockwise, like /Rotate; pdf-lib rotates counter-clockwise.
+      const angleRad = (-totalRotation * Math.PI) / 180;
       const absCos = Math.abs(Math.cos(angleRad));
       const absSin = Math.abs(Math.sin(angleRad));
       const newWidth = width * absCos + height * absSin;
@@ -110,7 +123,7 @@ export async function rotatePdfPages(
         y,
         width,
         height,
-        rotate: degrees(totalRotation),
+        rotate: degrees(-totalRotation),
       });
     }
   }
@@ -422,6 +435,82 @@ export type PageNumberPosition =
   | 'top-center'
   | 'top-left'
   | 'top-right';
+/**
+ * pdf-lib can't embed a page with no content stream, which is valid PDF (a
+ * truly blank page). Give such pages an empty one first.
+ */
+export function ensureContents(page: PDFPage) {
+  if (page.node.Contents()) return;
+  const { context } = page.doc;
+  page.node.set(PDFName.of('Contents'), context.register(context.stream('')));
+}
+
+/** Normalise an angle to 0, 90, 180 or 270 (clockwise). */
+export const quarterTurn = (angle: number) =>
+  (((Math.round(angle / 90) * 90) % 360) + 360) % 360;
+
+/**
+ * Draw an embedded page into a box the way it looks on screen, honouring the
+ * source page's /Rotate (clockwise), which embedding otherwise ignores. The
+ * box is in the displayed orientation (width/height already swapped for
+ * 90/270).
+ */
+export function drawUpright(
+  target: PDFPage,
+  embedded: PDFEmbeddedPage,
+  box: { x: number; y: number; width: number; height: number },
+  rotation: number
+) {
+  const r = quarterTurn(rotation);
+  const { x, y, width, height } = box;
+  const turned = r === 90 || r === 270;
+  const w = turned ? height : width;
+  const h = turned ? width : height;
+  const at =
+    r === 90
+      ? { x, y: y + height }
+      : r === 180
+        ? { x: x + width, y: y + height }
+        : r === 270
+          ? { x: x + width, y }
+          : { x, y };
+  target.drawPage(embedded, {
+    ...at,
+    width: w,
+    height: h,
+    rotate: degrees(-r),
+  });
+}
+
+/**
+ * A page as the reader sees it, after its /Rotate. Positions are measured
+ * from the bottom-left of the page as displayed; `toUser` maps them into PDF
+ * user space and `rotate` keeps text drawn there upright on screen.
+ */
+export function displayFrame(page: PDFPage) {
+  const box = page.getCropBox();
+  const angle = ((page.getRotation().angle % 360) + 360) % 360;
+  const turned = angle === 90 || angle === 270;
+  const toUser = (dx: number, dy: number) => {
+    switch (angle) {
+      case 90:
+        return { x: box.x + box.width - dy, y: box.y + dx };
+      case 180:
+        return { x: box.x + box.width - dx, y: box.y + box.height - dy };
+      case 270:
+        return { x: box.x + dy, y: box.y + box.height - dx };
+      default:
+        return { x: box.x + dx, y: box.y + dy };
+    }
+  };
+  return {
+    width: turned ? box.height : box.width,
+    height: turned ? box.width : box.height,
+    toUser,
+    rotate: degrees(angle),
+  };
+}
+
 export type PageNumberFormat = 'simple' | 'page_x_of_y';
 
 export interface PageNumberOptions {
@@ -442,13 +531,11 @@ export async function addPageNumbers(
 
   for (let i = 0; i < totalPages; i++) {
     const page = pages[i];
-    const mediaBox = page.getMediaBox();
-    const cropBox = page.getCropBox();
-    const bounds = cropBox || mediaBox;
-    const width = bounds.width;
-    const height = bounds.height;
-    const xOffset = bounds.x || 0;
-    const yOffset = bounds.y || 0;
+    // Positions are worked out on the page as displayed, then mapped back.
+    const frame = displayFrame(page);
+    const { width, height } = frame;
+    const xOffset = 0;
+    const yOffset = 0;
 
     const pageNumText =
       options.format === 'page_x_of_y'
@@ -532,9 +619,11 @@ export async function addPageNumbers(
     x = Math.max(xOffset + 3, Math.min(xOffset + width - textWidth - 3, x));
     y = Math.max(yOffset + 3, Math.min(yOffset + height - textHeight - 3, y));
 
+    const at = frame.toUser(x, y);
     page.drawText(pageNumText, {
-      x,
-      y,
+      x: at.x,
+      y: at.y,
+      rotate: frame.rotate,
       font: helveticaFont,
       size: options.fontSize,
       color: rgb(options.color.r, options.color.g, options.color.b),
@@ -590,7 +679,13 @@ export async function fixPageSize(
   const outputDoc = await PDFDocument.create();
 
   for (const sourcePage of sourceDoc.getPages()) {
-    const { width: sourceWidth, height: sourceHeight } = sourcePage.getSize();
+    // Work with the page as displayed, so rotated pages stay upright.
+    const rotation = quarterTurn(sourcePage.getRotation().angle);
+    const size = sourcePage.getSize();
+    const turned = rotation === 90 || rotation === 270;
+    const sourceWidth = turned ? size.height : size.width;
+    const sourceHeight = turned ? size.width : size.height;
+    ensureContents(sourcePage);
     const embeddedPage = await outputDoc.embedPage(sourcePage);
 
     let pageTargetWidth = targetWidth;
@@ -631,12 +726,12 @@ export async function fixPageSize(
     const x = (pageTargetWidth - scaledWidth) / 2;
     const y = (pageTargetHeight - scaledHeight) / 2;
 
-    outputPage.drawPage(embeddedPage, {
-      x,
-      y,
-      width: scaledWidth,
-      height: scaledHeight,
-    });
+    drawUpright(
+      outputPage,
+      embeddedPage,
+      { x, y, width: scaledWidth, height: scaledHeight },
+      rotation
+    );
   }
 
   return new Uint8Array(await outputDoc.save());

@@ -39,10 +39,14 @@ import { createViewer, find } from './viewer.ts';
 type View = 'home' | 'tools';
 
 /** Owns the open tabs and everything that happens to a document. */
+/** Phone-sized window: the layout shows one pane at a time (see styles.css). */
+const isPhone = () => matchMedia('(max-width: 760px)').matches;
+
 export class Studio {
   tabs: Tab[] = [];
   active: View | string = 'home';
-  leftPane = storage('leftPane') !== 'closed';
+  // On phones the pane is a full-screen sheet, so it starts closed there.
+  leftPane = !isPhone() && storage('leftPane') !== 'closed';
   panel = (storage('panel') || null) as PanelName | null;
   /** Called when the home view needs refreshing (recents changed). */
   onHomeShown: () => void = () => {};
@@ -71,7 +75,7 @@ export class Studio {
       ...this.tabs.map((t) => {
         const isDoc = t.kind === 'doc';
         const task = isDoc ? null : resolve(t.taskId)?.task;
-        const label = isDoc ? t.name : (task?.name ?? t.taskId);
+        const label = isDoc ? t.name : (t.label ?? task?.name ?? t.taskId);
         return h(
           'div',
           {
@@ -124,7 +128,7 @@ export class Studio {
     const title = tab
       ? tab.kind === 'doc'
         ? tab.name
-        : resolve(tab.taskId)?.task.name
+        : (tab.label ?? resolve(tab.taskId)?.task.name)
       : id === 'tools'
         ? 'All tools'
         : 'Home';
@@ -272,11 +276,19 @@ export class Studio {
       const e = err as Error;
       const cancelled =
         e?.name === 'PasswordException' || /destroy/i.test(e?.message ?? '');
-      if (!cancelled)
+      if (!cancelled) {
+        const broken = { name: tab.name, data: tab.bytes };
         toast(`Couldn’t open “${tab.name}”: ${e.message}`, {
           error: true,
-          timeout: 8000,
+          timeout: 12000,
+          actions: [
+            {
+              label: 'Try to repair',
+              run: () => this.openToolTab('repair-pdf', broken),
+            },
+          ],
         });
+      }
       if (!tab.pdfDoc) void this.closeTab(tab);
       return;
     }
@@ -288,7 +300,8 @@ export class Studio {
       const isActive = () => tab === this.activeTab();
       const viewer = createViewer(tab.container, {
         onPagesInit: () => {
-          viewer.pdfViewer.currentScaleValue = tab.restoreScale || 'auto';
+          viewer.pdfViewer.currentScaleValue =
+            tab.restoreScale || (isPhone() ? 'page-width' : 'auto');
           if (tab.restorePage) {
             viewer.pdfViewer.currentPageNumber = Math.min(
               tab.restorePage,
@@ -566,6 +579,8 @@ export class Studio {
 
   /** Runs a task or tool: on the open document if there is one, else in its own tab. */
   runTool(id: string) {
+    // The pane covers the document on phones; get it out of the way.
+    if (isPhone() && this.leftPane) this.toggleLeftPane();
     const tab = this.activeDoc();
     if (tab) this.runToolOnDoc(tab, id);
     else this.openToolTab(id);
@@ -590,7 +605,10 @@ export class Studio {
       frame: null,
     };
     const layer = this.buildSurface(resolved, {
-      subtitle: `Working on “${tab.name}” · results come back into this document`,
+      subtitle:
+        resolved.task.id === 'export'
+          ? `Exporting “${tab.name}” · saved as a separate file`
+          : `Working on “${tab.name}” · results come back into this document`,
       file,
       onClose: () => void this.requestCloseTool(tab),
       onLeave: () => this.closeTool(tab),
@@ -676,6 +694,7 @@ export class Studio {
       id: tabId,
       taskId: resolved.task.id,
       toolId: resolved.tool,
+      label: file?.name,
       stageEl: h('div'),
       frame: null,
     };
@@ -695,7 +714,10 @@ export class Studio {
   }
 
   /** A tool page produced a file. `source` is the frame's window. */
-  receiveOutput(output: { name: string; data: Uint8Array }, source: Window) {
+  receiveOutput(
+    output: { name: string; data: Uint8Array; asNew?: boolean },
+    source: Window
+  ) {
     const isPdf = /\.pdf$/i.test(output.name) || isPdfBytes(output.data);
     if (!isPdf) return void this.exportFile(output.name, output.data);
 
@@ -703,7 +725,11 @@ export class Studio {
       (t): t is DocTab =>
         t.kind === 'doc' && t.tool?.frame?.contentWindow === source
     );
-    if (origin?.tool && !NEW_DOCUMENT_TOOLS.has(origin.tool.id)) {
+    if (
+      origin?.tool &&
+      !output.asNew &&
+      !NEW_DOCUMENT_TOOLS.has(origin.tool.id)
+    ) {
       const ran = resolve(origin.tool.id);
       const name = ran ? `${ran.task.name} (${modeLabel(ran)})` : 'Tool';
       this.closeTool(origin); // the viewer must be visible before it reloads
@@ -748,6 +774,8 @@ export class Studio {
       const b = bar.querySelector<HTMLButtonElement>(`[data-cmd="${cmd}"]`)!;
       b.disabled =
         !doc ||
+        // While a tool is open it owns the document; its own undo applies.
+        ((cmd === 'undo' || cmd === 'redo') && !!doc.tool) ||
         (cmd === 'undo' && !doc.history.length) ||
         (cmd === 'redo' && !doc.future.length);
     }
@@ -821,7 +849,7 @@ export class Studio {
 
   toggleLeftPane() {
     this.leftPane = !this.leftPane;
-    store('leftPane', this.leftPane ? 'open' : 'closed');
+    if (!isPhone()) store('leftPane', this.leftPane ? 'open' : 'closed');
     this.syncChrome();
   }
 

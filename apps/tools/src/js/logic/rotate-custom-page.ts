@@ -9,6 +9,7 @@ import {
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
+import { ensureContents, quarterTurn } from '../utils/pdf-operations.js';
 import '../utils/setup-pdf-worker.js';
 import {
   ROTATION_MIN,
@@ -70,7 +71,7 @@ function updateAllRotationDisplays() {
         '.thumbnail-wrapper'
       ) as HTMLElement;
       if (wrapper)
-        wrapper.style.transform = `rotate(${-pageState.rotations[i]}deg)`;
+        wrapper.style.transform = `rotate(${pageState.rotations[i]}deg)`;
     }
   }
 }
@@ -93,7 +94,7 @@ function createPageWrapper(
   canvasWrapper.style.transition = 'transform 0.3s ease';
   // Apply initial rotation if it exists (negated for canvas display)
   const initialRotation = pageState.rotations[pageIndex] || 0;
-  canvasWrapper.style.transform = `rotate(${-initialRotation}deg)`;
+  canvasWrapper.style.transform = `rotate(${initialRotation}deg)`;
 
   canvas.className = 'max-w-full max-h-full object-contain';
   canvasWrapper.appendChild(canvas);
@@ -124,7 +125,7 @@ function createPageWrapper(
     const angle = parseAngleInput(angleInput.value);
     if (normalize) angleInput.value = angle.toString();
     pageState.rotations[pageIndex] = angle;
-    canvasWrapper.style.transform = `rotate(${-angle}deg)`;
+    canvasWrapper.style.transform = `rotate(${angle}deg)`;
   };
 
   angleInput.addEventListener('input', () => commitAngle(false));
@@ -271,13 +272,15 @@ async function applyRotations() {
 
       if (totalRotation % 90 === 0) {
         const [copiedPage] = await newPdfDoc.copyPages(pageState.pdfDoc, [i]);
-        copiedPage.setRotation(degrees(totalRotation));
+        copiedPage.setRotation(degrees(quarterTurn(totalRotation)));
         newPdfDoc.addPage(copiedPage);
       } else {
+        ensureContents(originalPage);
         const embeddedPage = await newPdfDoc.embedPage(originalPage);
         const { width, height } = embeddedPage.scale(1);
 
-        const angleRad = (totalRotation * Math.PI) / 180;
+        // Positive is clockwise, like /Rotate; pdf-lib rotates counter-clockwise.
+        const angleRad = (-totalRotation * Math.PI) / 180;
         const absCos = Math.abs(Math.cos(angleRad));
         const absSin = Math.abs(Math.sin(angleRad));
 
@@ -300,7 +303,7 @@ async function applyRotations() {
           y,
           width,
           height,
-          rotate: degrees(totalRotation),
+          rotate: degrees(-totalRotation),
         });
       }
     }

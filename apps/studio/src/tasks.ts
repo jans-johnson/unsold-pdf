@@ -407,7 +407,8 @@ export function convertibleFormats(): string[] {
     CATEGORIES.find((c) => c.name === 'Convert to PDF')?.tools ?? []
   )
     .map((t) => t.name.replace(/ to PDF$/, ''))
-    .filter((n) => n !== 'Images');
+    // JSON to PDF only reads the app's own PDF-to-JSON output, not any JSON.
+    .filter((n) => n !== 'Images' && n !== 'JSON');
   return [...new Set(names)];
 }
 

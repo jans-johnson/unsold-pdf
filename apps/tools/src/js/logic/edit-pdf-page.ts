@@ -8,12 +8,11 @@ import { getEditorDisabledCategories } from '../utils/disabled-tools.js';
 import { editorFontFallback } from '../config/editor-fonts.js';
 import { needsFontEmbedding } from '../utils/freetext-script.js';
 
-const embedPdfWasmUrl = new URL(
-  'unsold-pdfium/editcore.wasm',
-  import.meta.url
-).href;
+const embedPdfWasmUrl = new URL('unsold-pdfium/editcore.wasm', import.meta.url)
+  .href;
 
 import type { EmbedPdfContainer } from 'unsold-viewer';
+import { registerToolPage } from '@unsold/bridge/tool-host';
 import type {
   AnnotationPluginLite,
   DocManagerPlugin,
@@ -53,6 +52,20 @@ function collectAllFreeTexts(
   } catch {
     return [];
   }
+}
+
+/**
+ * The viewer marks its whole UI `user-select: none`. Chromium still lets you
+ * type into a contenteditable inside it, but WebKit (the Mac app) doesn't,
+ * so free-text boxes couldn't be typed into. Re-enable selection there.
+ */
+function allowTypingInShadowEditors(host: HTMLElement) {
+  const root = host.querySelector('embedpdf-container')?.shadowRoot;
+  if (!root) return;
+  const style = document.createElement('style');
+  style.textContent =
+    '[contenteditable=""],[contenteditable="true"]{-webkit-user-select:text!important;user-select:text!important}';
+  root.append(style);
 }
 
 let viewerInstance: EmbedPdfContainer | null = null;
@@ -195,6 +208,7 @@ async function handleFiles(files: FileList) {
       });
 
       const registry = await viewerInstance.registry;
+      allowTypingInShadowEditors(pdfContainer);
       docManagerPlugin = registry
         .getPlugin('document-manager')
         .provides() as unknown as DocManagerPlugin;
@@ -255,6 +269,26 @@ async function handleFiles(files: FileList) {
         pdfWrapper.appendChild(downloadBtn);
       }
       downloadBtn.classList.remove('hidden');
+      const saveBtn = downloadBtn;
+      // Closing the tool with unsaved mark-up asks to apply or discard.
+      registerToolPage({
+        hasChanges: () => {
+          try {
+            const state = (
+              registry
+                .getPlugin('annotation')
+                .provides() as unknown as AnnotationPluginLite
+            ).getState();
+            return Object.values(state.byUid).some((tracked) => {
+              const commit = (tracked as { commitState?: string }).commitState;
+              return !!commit && commit !== 'synced';
+            });
+          } catch {
+            return false;
+          }
+        },
+        apply: () => saveBtn.click(),
+      });
 
       downloadBtn.onclick = async () => {
         try {

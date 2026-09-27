@@ -45,6 +45,21 @@ async function fetchAsDecompressedUrl(
   return URL.createObjectURL(new Blob([blob], { type: mimeType }));
 }
 
+/**
+ * The app's own servers (native loopback origin, dev server) answer
+ * `soffice.wasm` with the gzip file plus Content-Encoding, so the engine can
+ * load from a real URL. That matters on WebKit, which can't load blob: URLs
+ * past ~100 MB; elsewhere we fall back to inflating into a blob.
+ */
+async function servesInflated(basePath: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${basePath}soffice.wasm`, { method: 'HEAD' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export class LibreOfficeConverter {
   private converter: WorkerBrowserConverter | null = null;
   private initialized = false;
@@ -75,16 +90,20 @@ export class LibreOfficeConverter {
         message: 'Loading conversion engine...',
       });
 
-      const [sofficeWasmUrl, sofficeDataUrl] = await Promise.all([
-        fetchAsDecompressedUrl(
-          `${this.basePath}soffice.wasm.gz`,
-          'application/wasm'
-        ),
-        fetchAsDecompressedUrl(
-          `${this.basePath}soffice.data.gz`,
-          'application/octet-stream'
-        ),
-      ]);
+      const [sofficeWasmUrl, sofficeDataUrl] = (await servesInflated(
+        this.basePath
+      ))
+        ? [`${this.basePath}soffice.wasm`, `${this.basePath}soffice.data`]
+        : await Promise.all([
+            fetchAsDecompressedUrl(
+              `${this.basePath}soffice.wasm.gz`,
+              'application/wasm'
+            ),
+            fetchAsDecompressedUrl(
+              `${this.basePath}soffice.data.gz`,
+              'application/octet-stream'
+            ),
+          ]);
 
       this.converter = new WorkerBrowserConverter({
         sofficeJs: `${this.basePath}soffice.js`,

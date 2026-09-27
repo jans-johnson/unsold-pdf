@@ -9,6 +9,7 @@ import {
 import { rgb, StandardFonts } from 'pdf-lib';
 import { loadPdfWithPasswordPrompt } from '../utils/password-prompt.js';
 import { HeaderFooterState } from '@/types';
+import { displayFrame } from '../utils/pdf-operations.js';
 import { loadPdfDocument } from '../utils/load-pdf-document.js';
 
 const pageState: HeaderFooterState = { file: null, pdfDoc: null };
@@ -176,7 +177,6 @@ async function addHeaderFooter() {
 
     for (const pageIndex of indicesToProcess) {
       const page = allPages[pageIndex];
-      const { width, height } = page.getSize();
       const pageNumber = pageIndex + 1;
       const processText = (text: string) =>
         text
@@ -190,54 +190,39 @@ async function addHeaderFooter() {
         footerCenter: processText(texts.footerCenter),
         footerRight: processText(texts.footerRight),
       };
-      if (processed.headerLeft)
-        page.drawText(processed.headerLeft, {
-          ...drawOptions,
-          x: margin,
-          y: height - margin,
-        });
-      if (processed.headerCenter)
-        page.drawText(processed.headerCenter, {
-          ...drawOptions,
-          x:
-            width / 2 -
-            helveticaFont.widthOfTextAtSize(processed.headerCenter, fontSize) /
-              2,
-          y: height - margin,
-        });
-      if (processed.headerRight)
-        page.drawText(processed.headerRight, {
-          ...drawOptions,
-          x:
-            width -
-            margin -
-            helveticaFont.widthOfTextAtSize(processed.headerRight, fontSize),
-          y: height - margin,
-        });
-      if (processed.footerLeft)
-        page.drawText(processed.footerLeft, {
-          ...drawOptions,
-          x: margin,
-          y: margin,
-        });
-      if (processed.footerCenter)
-        page.drawText(processed.footerCenter, {
-          ...drawOptions,
-          x:
-            width / 2 -
-            helveticaFont.widthOfTextAtSize(processed.footerCenter, fontSize) /
-              2,
-          y: margin,
-        });
-      if (processed.footerRight)
-        page.drawText(processed.footerRight, {
-          ...drawOptions,
-          x:
-            width -
-            margin -
-            helveticaFont.widthOfTextAtSize(processed.footerRight, fontSize),
-          y: margin,
-        });
+      // Laid out on the page as displayed, so rotated pages read upright.
+      const frame = displayFrame(page);
+      const { width, height } = frame;
+      const widthOf = (text: string) =>
+        helveticaFont.widthOfTextAtSize(text, fontSize);
+      const put = (text: string, x: number, y: number) => {
+        if (!text) return;
+        const at = frame.toUser(x, y);
+        page.drawText(text, { ...drawOptions, ...at, rotate: frame.rotate });
+      };
+      const top = height - margin;
+      put(processed.headerLeft, margin, top);
+      put(
+        processed.headerCenter,
+        width / 2 - widthOf(processed.headerCenter) / 2,
+        top
+      );
+      put(
+        processed.headerRight,
+        width - margin - widthOf(processed.headerRight),
+        top
+      );
+      put(processed.footerLeft, margin, margin);
+      put(
+        processed.footerCenter,
+        width / 2 - widthOf(processed.footerCenter) / 2,
+        margin
+      );
+      put(
+        processed.footerRight,
+        width - margin - widthOf(processed.footerRight),
+        margin
+      );
     }
     const newPdfBytes = await pageState.pdfDoc.save();
     downloadFile(
