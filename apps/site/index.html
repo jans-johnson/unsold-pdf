@@ -120,42 +120,60 @@
         </div>
       </section>
 
-      <!-- 3. Features -->
-      <section class="features" id="features">
-        <div class="wrap">
-          <p class="eyebrow">Everything included</p>
-          <h2 class="section-title">The good stuff. None of it&nbsp;Pro.</h2>
-          <div class="feature-grid">
-            <article class="feature">
-              <div class="demo" data-demo="edit"></div>
-              <h3>Edit any text.</h3>
-              <p>
-                Click a line and type. The font is matched to the page, even on
-                scans.
-              </p>
-            </article>
-            <article class="feature">
-              <div class="demo" data-demo="sign"></div>
-              <h3>Fill and sign.</h3>
-              <p>Fill in any form, add your signature, and it's done.</p>
-            </article>
-            <article class="feature">
-              <div class="demo" data-demo="pages"></div>
-              <h3>Put pages in order.</h3>
-              <p>Drag pages where they belong and combine files in seconds.</p>
-            </article>
-            <article class="feature">
-              <div class="demo" data-demo="ocr"></div>
-              <h3>Turn scans into text.</h3>
-              <p>
-                Make scans searchable on your own computer, only when you ask.
-              </p>
-            </article>
+      <!-- 3. Feature tour (scroll-scrubbed; see tour.js) -->
+      <section class="tour" id="features" aria-label="Features">
+        <div class="tour-stage">
+          <div class="tour-glows" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
           </div>
-          <p class="also">
-            <span>Also free:</span> compress, convert to Word and Excel, split,
-            password protect, compare, watermarks, digital signatures, and more.
-          </p>
+          <div class="tour-float" aria-hidden="true"></div>
+          <div class="tour-head">
+            <p class="eyebrow">Everything included</p>
+            <h2>The good stuff.<br />None of it Pro.</h2>
+          </div>
+          <div class="tour-grid">
+            <div class="tour-copy">
+              <ol class="tour-steps">
+                <li>
+                  <h3>Edit any text.</h3>
+                  <p>
+                    Click a line and type. The font is matched to the page, even
+                    on scans.
+                  </p>
+                  <i class="prog"></i>
+                </li>
+                <li>
+                  <h3>Fill and sign.</h3>
+                  <p>Fill in any form, add your signature, and it's done.</p>
+                  <i class="prog"></i>
+                </li>
+                <li>
+                  <h3>Put pages in order.</h3>
+                  <p>
+                    Drag pages where they belong and combine files in seconds.
+                  </p>
+                  <i class="prog"></i>
+                </li>
+                <li>
+                  <h3>Turn scans into text.</h3>
+                  <p>
+                    Make scans searchable on your own computer, only when you
+                    ask.
+                  </p>
+                  <i class="prog"></i>
+                </li>
+              </ol>
+              <div class="tour-more">
+                <h3>And everything else.</h3>
+                <p>
+                  Compress, convert to Word and Excel, split, password protect,
+                  compare, watermarks, digital signatures and more. All of it
+                  free.
+                </p>
+              </div>
+            </div>
+            <div class="tour-win" aria-hidden="true"></div>
+          </div>
         </div>
       </section>
 
@@ -270,7 +288,7 @@
 
     <script type="module">
       import { mountMaze } from './maze.js';
-      import { mountFeatures } from './features.js';
+      import { mountTour } from './tour.js';
 
       // Fill these in when the builds and repo are public. Empty links show as "soon".
       const LINKS = { mac: '', windows: '', linux: '', source: '' };
@@ -290,7 +308,7 @@
         lines: [...document.querySelectorAll('.story .line')],
         shade: document.querySelector('.story .shade'),
       });
-      mountFeatures();
+      mountTour(document.querySelector('.tour'));
     </script>
   </body>
 </html>
