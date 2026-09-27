@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Unsold PDF</title>
+  <defs><clipPath id="page"><path d="M100 100 H704 L924 320 V924 H100 Z"/></clipPath></defs>
+  <rect x="100" y="100" width="824" height="824" rx="188" fill="#1D1D1B" clip-path="url(#page)"/>
+  <path d="M704 100 L924 320 H742 Q704 320 704 282 Z" fill="#9CBF22"/>
+  <defs>
+    <clipPath id="o8-front"><rect x="36.799999999999955" y="424" width="950.4000000000001" height="134.64000000000001" transform="rotate(-20 512 424)"/></clipPath>
+    <mask id="o8-behind" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000"><rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/><rect x="374.06" y="220.05999999999997" width="275.88" height="407.88000000000005" rx="137.94" fill="#000"/></mask>
+    <mask id="o8-under" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000"><rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/><g stroke="#000" clip-path="url(#o8-front)"><ellipse cx="512" cy="424" rx="237.60000000000002" ry="54.120000000000005" fill="none" stroke-width="58.08" transform="rotate(-20 512 424)"/></g></mask>
+  </defs>
+  <g stroke="#C8F53B" mask="url(#o8-behind)"><ellipse cx="512" cy="424" rx="237.60000000000002" ry="54.120000000000005" fill="none" stroke-width="26.400000000000002" transform="rotate(-20 512 424)"/></g>
+  <g stroke="#C8F53B" mask="url(#o8-under)"><rect x="420.26" y="266.26" width="183.48000000000002" height="315.48" rx="91.74000000000001" fill="none" stroke-width="60.720000000000006"/></g>
+  <g stroke="#C8F53B" clip-path="url(#o8-front)"><ellipse cx="512" cy="424" rx="237.60000000000002" ry="54.120000000000005" fill="none" stroke-width="26.400000000000002" transform="rotate(-20 512 424)"/></g>
+  <path transform="translate(361.85 844.5)" d="M10.2 0L10.2 -105L50.1 -105Q62.85 -105 71.25 -100.65Q79.65 -96.3 83.78 -88.87Q87.9 -81.45 87.9 -72Q87.9 -63.3 83.93 -55.87Q79.95 -48.45 71.55 -43.8Q63.15 -39.15 50.1 -39.15L31.2 -39.15L31.2 0ZM31.2 -56.1L48.75 -56.1Q58.2 -56.1 62.33 -60.45Q66.45 -64.8 66.45 -72Q66.45 -79.5 62.33 -83.7Q58.2 -87.9 48.75 -87.9L31.2 -87.9ZM108.9 0L108.9 -105L144.6 -105Q162.75 -105 174.75 -98.47Q186.75 -91.95 192.53 -80.17Q198.3 -68.4 198.3 -52.5Q198.3 -36.75 192.53 -24.9Q186.75 -13.05 174.83 -6.52Q162.9 0 144.45 0ZM129.9 -18L143.4 -18Q156 -18 163.28 -22.12Q170.55 -26.25 173.7 -33.97Q176.85 -41.7 176.85 -52.5Q176.85 -63.3 173.7 -71.02Q170.55 -78.75 163.28 -82.95Q156 -87.15 143.4 -87.15L129.9 -87.15ZM221.25 0L221.25 -105L290.1 -105L290.1 -88.05L242.25 -88.05L242.25 -60.9L280.35 -60.9L280.35 -44.4L242.25 -44.4L242.25 0Z" fill="#F4F4EE"/>
+</svg>

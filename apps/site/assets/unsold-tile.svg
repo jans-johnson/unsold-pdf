@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>Unsold</title>
+  <rect x="100" y="100" width="824" height="824" rx="188" fill="#1D1D1B"/>
+  <defs>
+    <clipPath id="o7-front"><rect x="-172" y="512" width="1368" height="193.79999999999998" transform="rotate(-20 512 512)"/></clipPath>
+    <mask id="o7-behind" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000"><rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/><rect x="313.45" y="218.45" width="397.1" height="587.1" rx="198.55" fill="#000"/></mask>
+    <mask id="o7-under" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="6000" height="6000"><rect x="-2000" y="-2000" width="6000" height="6000" fill="#fff"/><g stroke="#000" clip-path="url(#o7-front)"><ellipse cx="512" cy="512" rx="342" ry="77.89999999999999" fill="none" stroke-width="83.6" transform="rotate(-20 512 512)"/></g></mask>
+  </defs>
+  <g stroke="#C8F53B" mask="url(#o7-behind)"><ellipse cx="512" cy="512" rx="342" ry="77.89999999999999" fill="none" stroke-width="38" transform="rotate(-20 512 512)"/></g>
+  <g stroke="#C8F53B" mask="url(#o7-under)"><rect x="379.95" y="284.95" width="264.1" height="454.1" rx="132.05" fill="none" stroke-width="87.39999999999999"/></g>
+  <g stroke="#C8F53B" clip-path="url(#o7-front)"><ellipse cx="512" cy="512" rx="342" ry="77.89999999999999" fill="none" stroke-width="38" transform="rotate(-20 512 512)"/></g>
+</svg>
