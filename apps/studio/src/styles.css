@@ -324,6 +324,7 @@ body {
 /* ---------------------------------------------------------------- home */
 .home-scroll {
   height: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 .home-inner {
@@ -641,6 +642,9 @@ body {
 }
 .doc-toolbar.tool-mode .viewer-only {
   visibility: hidden;
+}
+.phone-only {
+  display: none !important;
 }
 
 .doc-body {
@@ -1472,7 +1476,17 @@ button.chip:hover {
     flex-wrap: wrap;
     gap: 8px;
   }
+  .recent-actions {
+    flex: 1 1 100%;
+  }
+  .recent-actions .search-input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+  /* In the flow on phones, so it never covers the cards. */
   .home-footer {
+    position: static;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
   }
   .bmc-button {
@@ -1510,30 +1524,88 @@ button.chip:hover {
     padding: 16px 16px calc(40px + env(safe-area-inset-bottom));
   }
 
-  /* Document: toolbar scrolls sideways instead of squeezing */
-  .doc-toolbar {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 0 6px;
+  /* Text fields at 16px or more: iOS zooms the page into smaller ones. */
+  .search-input,
+  .page-input,
+  .find-box input {
+    font-size: 16px;
   }
-  .doc-toolbar::-webkit-scrollbar {
-    display: none;
+
+  /* Document toolbar: one row of essentials. Zoom is a pinch, pages scroll,
+     and search opens over the toolbar. */
+  .doc-toolbar {
+    position: relative;
+    display: flex;
+    gap: 2px;
+    padding: 0 6px;
   }
   .doc-toolbar .tb-group {
     flex: none;
   }
+  .doc-toolbar .tb-group.center {
+    margin-left: auto;
+  }
+  .doc-toolbar .tb-group.right {
+    gap: 2px;
+    margin-left: 4px;
+  }
+  .doc-toolbar .phone-only {
+    display: grid !important;
+  }
   .doc-toolbar [data-cmd='print'],
-  .doc-toolbar [data-cmd='toggle-left'] + .tb-sep {
+  .doc-toolbar .tb-sep,
+  .doc-toolbar [data-cmd='prev-page'],
+  .doc-toolbar [data-cmd='next-page'],
+  .doc-toolbar [data-cmd='zoom-out'],
+  .doc-toolbar [data-cmd='zoom-in'],
+  .doc-toolbar #zoom-select,
+  .doc-toolbar [data-cmd='rotate-ccw'],
+  .doc-toolbar [data-cmd='rotate-cw'],
+  .doc-toolbar [data-cmd='spread'],
+  .doc-toolbar .find-box {
     display: none;
   }
   .doc-toolbar .icon-btn {
     width: 40px;
     height: 40px;
   }
-  .find-box input {
-    width: 80px;
+  .doc-toolbar .page-input {
+    width: 40px;
+    height: 32px;
+    margin: 0 4px 0 0;
+  }
+  #page-count {
+    min-width: 0;
+  }
+  .doc-toolbar [data-cmd='share-export'] {
+    width: 40px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 18px;
+  }
+  .doc-toolbar.finding > :not(.right),
+  .doc-toolbar.finding .right > :not(.find-box) {
+    visibility: hidden;
+  }
+  .doc-toolbar.finding .find-box {
+    display: flex;
+    position: absolute;
+    inset: 6px 8px;
+    z-index: 2;
+    height: auto;
+  }
+  .doc-toolbar.finding .find-box input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+  .doc-toolbar.finding .find-box .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+  #stage {
+    touch-action: pan-x pan-y;
   }
 
   /* Bottom bar: quick tools (scrolls) + panel buttons */
@@ -1623,10 +1695,49 @@ button.chip:hover {
   }
 
   /* Tool header: keep the title, drop the long subtitle */
+  /* Tool header: name and close on one line, modes on a full-width row. */
   .tool-header {
-    padding: 0 8px 0 12px;
+    height: auto;
+    min-height: 52px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 8px 8px 8px 12px;
   }
-  .tool-header .t-sub {
+  .tool-header .t-head {
+    flex: 1 1 0;
+  }
+  .tool-header .t-title {
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tool-header .t-sub,
+  .tool-header .spacer {
     display: none;
+  }
+  .tool-header .t-close {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  .tool-header .t-close .btn-label {
+    display: none;
+  }
+  .tool-header .mode-switch,
+  .tool-header .mode-select {
+    order: 1;
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .tool-header .mode-btn {
+    flex: 1 0 auto;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .tool-header .mode-select select {
+    flex: 1;
+    font-size: 16px;
   }
 }

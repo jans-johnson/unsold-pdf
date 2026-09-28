@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
     />
     <title>Unsold PDF</title>
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
@@ -188,6 +188,13 @@
             </button>
           </div>
           <div class="tb-group right">
+            <button
+              class="icon-btn phone-only viewer-only"
+              data-cmd="find-open"
+              title="Find text"
+            >
+              <i class="ph ph-magnifying-glass"></i>
+            </button>
             <div class="find-box viewer-only">
               <i class="ph ph-magnifying-glass"></i>
               <input id="find-input" placeholder="Find text" />
@@ -205,6 +212,13 @@
                 title="Next match"
               >
                 <i class="ph ph-caret-down"></i>
+              </button>
+              <button
+                class="icon-btn sm phone-only"
+                data-cmd="find-close"
+                title="Close search"
+              >
+                <i class="ph ph-x"></i>
               </button>
             </div>
             <button

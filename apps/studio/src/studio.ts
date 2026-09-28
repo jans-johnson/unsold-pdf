@@ -620,9 +620,13 @@ export class Studio {
       opts.onClose
         ? h(
             'button',
-            { class: 'btn sm', onclick: opts.onClose },
+            {
+              class: 'btn sm t-close',
+              'aria-label': 'Close',
+              onclick: opts.onClose,
+            },
             icon('ph-x'),
-            'Close'
+            h('span', { class: 'btn-label' }, 'Close')
           )
         : null
     );
@@ -827,6 +831,7 @@ export class Studio {
     const doc = tab?.kind === 'doc' ? tab : null;
     const bar = $('#doc-toolbar');
     bar.classList.toggle('tool-mode', !doc || !!doc.tool);
+    if (!doc || doc.tool) bar.classList.remove('finding');
     $('#tools-pane').classList.toggle(
       'collapsed',
       !this.leftPane || tab?.kind === 'tool'

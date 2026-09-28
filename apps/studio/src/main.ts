@@ -52,6 +52,16 @@ const commands: Record<string, Command> = {
     const doc = studio.activeDoc();
     if (doc && !doc.tool) $<HTMLInputElement>('#find-input').select();
   },
+  // Phones: the find box opens over the toolbar.
+  'find-open': () => {
+    $('#doc-toolbar').classList.add('finding');
+    $<HTMLInputElement>('#find-input').focus();
+  },
+  'find-close': () => {
+    $('#doc-toolbar').classList.remove('finding');
+    $<HTMLInputElement>('#find-input').value = '';
+    studio.find(false);
+  },
   'find-next': () => studio.find(true, false),
   'find-prev': () => studio.find(true, true),
   'share-export': (_, el) => el && studio.exportMenu(el),
@@ -201,6 +211,42 @@ $('#stage').addEventListener(
   },
   { passive: false }
 );
+
+// Two-finger pinch zoom in the viewer (the page itself doesn't zoom).
+let pinch: { dist: number; scale: number } | null = null;
+const spread = (t: TouchList) =>
+  Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+$('#stage').addEventListener(
+  'touchstart',
+  (e) => {
+    const v = studio.activeDoc()?.viewer?.pdfViewer;
+    pinch =
+      v && e.touches.length === 2
+        ? { dist: spread(e.touches), scale: v.currentScale }
+        : null;
+  },
+  { passive: true }
+);
+$('#stage').addEventListener(
+  'touchmove',
+  (e) => {
+    const doc = studio.activeDoc();
+    const v = doc?.viewer?.pdfViewer;
+    if (!pinch || !v || doc.tool || e.touches.length !== 2) return;
+    e.preventDefault();
+    const [a, b] = [e.touches[0], e.touches[1]];
+    const target = (pinch.scale * spread(e.touches)) / pinch.dist;
+    v.updateScale({
+      scaleFactor: target / v.currentScale,
+      origin: [(a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2],
+      drawingDelay: 250,
+    });
+  },
+  { passive: false }
+);
+$('#stage').addEventListener('touchend', (e) => {
+  if (e.touches.length < 2) pinch = null;
+});
 
 // ------------------------------------------------------------------ start
 

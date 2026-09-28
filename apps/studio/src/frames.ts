@@ -45,6 +45,19 @@ const FRAME_CSS = `
   html.ua-doc-loaded #tool-uploader:not(:has(> :not(#back-to-tools, h1, h1 + p, #drop-zone, #file-display-area))) + * {
     margin-top: 0 !important;
   }
+  /* The Studio frames the tool, so trim the page's own outer spacing, and
+     the gap the hidden upload step leaves. */
+  #uploader { padding-top: 16px !important; padding-bottom: 16px !important; }
+  html.ua-doc-loaded #file-display-area + * { margin-top: 0 !important; }
+  /* Phones: tighter card, finger-sized fields. */
+  @media (max-width: 760px) {
+    #uploader { padding-left: 12px !important; padding-right: 12px !important; }
+    #tool-uploader { padding: 20px 16px !important; }
+    select, input[type='text'], input[type='number'], input[type='password'],
+    input[type='search'], input:not([type]), textarea {
+      min-height: 40px; font-size: 16px !important;
+    }
+  }
 `;
 
 const toolIdOf = (pathname: string) =>
