@@ -1399,6 +1399,7 @@ button.chip:hover {
   display: block;
   flex: none;
   line-height: 0;
+  text-decoration: none;
   border-radius: 8px;
   opacity: 0.85;
   transition:
@@ -1413,6 +1414,10 @@ button.chip:hover {
 .bmc-button:hover {
   opacity: 1;
   transform: translateY(-1px);
+}
+/* Phones show a quiet coffee icon instead (see the phone block). */
+.bmc-button .ph {
+  display: none;
 }
 
 /* ================================================================ phones
@@ -1468,9 +1473,22 @@ button.chip:hover {
     gap: 8px;
   }
   .home-footer {
-    flex-direction: column;
-    align-items: flex-start;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .bmc-button {
+    opacity: 1;
+  }
+  .bmc-button img {
+    display: none;
+  }
+  .bmc-button .ph {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: -8px -8px -8px 0;
+    font-size: 20px;
+    color: var(--text-faint);
   }
 
   /* All tools: keep the search box, drop the category list */
