@@ -30,21 +30,21 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - run: mkdir -p native/www && cargo test --manifest-path native/Cargo.toml
 
+  # Full installers take a long time and are built on the Mac for releases
+  # (see docs/RELEASING.md), so this only runs when started by hand:
+  # Actions → Build → Run workflow.
   desktop:
     name: Desktop (${{ matrix.name }})
     needs: test
+    if: github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: macOS arm64
+          - name: macOS universal
             os: macos-latest
-            args: --target aarch64-apple-darwin
-            binary: native/target/aarch64-apple-darwin/release/unsold-pdf
-          - name: macOS x64
-            os: macos-13
-            args: --target x86_64-apple-darwin
-            binary: native/target/x86_64-apple-darwin/release/unsold-pdf
+            args: --target universal-apple-darwin
+            binary: native/target/universal-apple-darwin/release/unsold-pdf
           - name: Windows x64
             os: windows-latest
             args: ''
