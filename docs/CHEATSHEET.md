@@ -113,6 +113,11 @@ in a browser at 1200 × 630 and save it as `og-*.jpg`.
 - **Red means the corporate walls:** paywalls and "PRO" signs, never Unsold.
 - **Tips:** at most two quiet places per app, never in a work view, and
   hidden in the mobile builds.
+- **Nothing third-party on the websites:** fonts are self-hosted
+  (`fonts/`), and each site's `_headers` sets a Content-Security-Policy that
+  only allows the site's own files. Adding anything from another domain
+  (a script, font, embed or analytics) means updating that policy, and is
+  a privacy decision first.
 - **Website links:** the download and source links live in the `LINKS`
   object at the bottom of `apps/site/index.html`. An empty link shows as
   "soon".
