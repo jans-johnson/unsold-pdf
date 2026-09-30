@@ -29,3 +29,29 @@ Regenerate the SVGs with `node brand/make-brand.mjs`. App icons come from
 `native/icons/source.png` (a 1024 px render of `unsold-pdf-icon.svg`) via
 `npm run app:icons`. The web favicons use `unsold-tile.svg`, since "PDF"
 can't be read at 16 px; the Apple touch and PWA icons use the square variant.
+
+## Zero, the mascot
+
+Zero is the 0 from the mark, drawn as a comic-noir vigilante: heavy ink, a
+mask band tied round the counter with slit eyes, fists and boots, and the
+orbit worn low like a belt. It carries the brand everywhere a logo can't:
+the website, posters, social posts and store listings. The app icons and the
+app UI never use it.
+
+`node brand/make-mascot.mjs` writes everything into `brand/mascot/`:
+
+| File | Use |
+| --- | --- |
+| `zero-crossed.svg` | The default pose: arms crossed, unbothered |
+| `zero-signal.svg` | The Zero Signal over the city (a full scene, with its own night sky) |
+| `zero-signal-mark.svg` | The lit signal on its own, for layouts with their own sky |
+| `zero-pdf.svg` | Unsold PDF: reading the fine print in a spotlight |
+| `zero-gym.svg` | Unsold Gym: deadlifting two more zeros |
+| `zero-punch.svg` | Punching through a red paywall |
+| `zero-private.svg` / `zero-yours.svg` / `zero-coffee.svg` | Private, your files, off duty |
+| `zero-sheet.svg` | The character sheet: every pose, on night |
+| `poster-*.svg` | Posters: walls (night), no catch (lime), gym (night) |
+
+Every pose except the signal scene is transparent, with a paper die-cut
+outline, so it reads on night, lime or paper. Text is outlined. The rules
+for drawing and using Zero are in the movement design doc (§4b).

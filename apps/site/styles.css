@@ -8,6 +8,7 @@
   --faint: #6c6b66;
   --red: #e5484d;
   --line: rgba(255, 255, 255, 0.08);
+  --deep: #9cbf22; /* deep lime: the flat sticker shadow under lime */
   --sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --mono: 'DM Mono', ui-monospace, monospace;
   color-scheme: dark;
@@ -17,6 +18,18 @@
 }
 html {
   scroll-behavior: smooth;
+}
+/* Brand layer: comic noir. Night surfaces, film grain, halftone, lime tape
+   and flat hard shadows; red only for the corporate walls. The app window in
+   the tour keeps the app's own look. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.07;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 body {
   margin: 0;
@@ -40,6 +53,33 @@ h3 {
   letter-spacing: -0.035em;
   line-height: 1.02;
 }
+/* display headlines are set like the posters: stacked, all caps */
+h1,
+h2 {
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.96;
+}
+/* a strip of lime tape behind a word */
+.mark {
+  padding: 0 0.1em;
+  background: var(--lime);
+  color: var(--ink);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.zero {
+  height: auto;
+  pointer-events: none;
+}
+/* halftone, for night surfaces that need a little texture */
+.halftone {
+  background-image: radial-gradient(
+    rgba(244, 244, 238, 0.07) 1.2px,
+    transparent 1.6px
+  );
+  background-size: 9px 9px;
+}
 .wrap {
   max-width: 1080px;
   margin: 0 auto;
@@ -49,11 +89,15 @@ h3 {
   max-width: 720px;
 }
 .eyebrow {
-  margin: 0 0 14px;
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 4px 10px 3px;
+  background: var(--lime);
   font: 500 12px var(--mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--lime);
+  color: var(--ink);
+  transform: rotate(-2deg);
 }
 .fine {
   font-size: 13px;
@@ -72,11 +116,12 @@ h3 {
   text-decoration: none;
   cursor: pointer;
   transition:
-    transform 0.15s ease,
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
     background 0.15s ease;
 }
 .btn:hover {
-  transform: translateY(-1px);
+  transform: translate(-1px, -1px);
 }
 .btn-sm {
   padding: 9px 16px;
@@ -85,12 +130,18 @@ h3 {
 .btn-lime {
   background: var(--lime);
   color: var(--ink);
+  box-shadow: 4px 4px 0 var(--deep);
 }
 .btn-lime:hover {
   background: #d8ff58;
+  box-shadow: 5px 5px 0 var(--deep);
+}
+.btn-lime:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--deep);
 }
 .btn-ghost {
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.22);
   color: var(--text);
 }
 .btn-ghost:hover {
@@ -343,7 +394,8 @@ a.soon:not(.btn) {
     transform: translateY(-2px);
   }
 }
-#orbit {
+#orbit,
+#zero {
   transform-box: fill-box;
 }
 
@@ -352,19 +404,19 @@ a.soon:not(.btn) {
 }
 .label rect,
 .label path {
-  fill: #fbfaf7;
+  fill: var(--red);
 }
 .label text {
   font-size: 12.5px;
-  font-weight: 500;
-  fill: #1a1a1a;
+  font-weight: 700;
+  fill: #fff;
 }
 .label text.sub {
-  font: 400 10px var(--mono);
-  fill: #77756f;
+  font: 500 10px var(--mono);
+  fill: rgba(255, 255, 255, 0.85);
 }
 .label .dot {
-  fill: var(--red);
+  fill: #fff;
 }
 .label .stem {
   stroke: rgba(251, 250, 247, 0.6);
@@ -399,20 +451,21 @@ a.soon:not(.btn) {
 .intro {
   padding: clamp(100px, 14vw, 170px) 20px clamp(80px, 10vw, 120px);
   text-align: center;
-  background: radial-gradient(
-    ellipse 50% 40% at 50% 20%,
-    rgba(200, 245, 59, 0.08),
-    transparent 70%
-  );
+  background:
+    radial-gradient(
+      ellipse 40% 36% at 50% 22%,
+      rgba(200, 245, 59, 0.1),
+      transparent 70%
+    ),
+    radial-gradient(rgba(244, 244, 238, 0.06) 1.2px, transparent 1.6px) 0 0 /
+      9px 9px;
 }
-.intro-logo {
+.intro-zero {
   margin: 0 auto;
-  width: min(200px, 46vw);
-  height: auto;
-  filter: drop-shadow(0 20px 60px rgba(200, 245, 59, 0.12));
+  width: min(280px, 60vw);
 }
 .intro-title {
-  margin: 44px auto 0;
+  margin: 28px auto 0;
   max-width: 760px;
   font-size: clamp(36px, 5.2vw, 64px);
 }
@@ -430,8 +483,14 @@ a.soon:not(.btn) {
   text-align: left;
 }
 .promise {
-  padding-top: 22px;
-  border-top: 1px solid var(--line);
+  padding: 6px 26px 30px;
+  border-radius: 22px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+}
+.promise-zero {
+  width: 170px;
+  margin: 0 0 -4px -20px;
 }
 .promise h3 {
   font-size: clamp(34px, 3.6vw, 46px);
@@ -449,10 +508,11 @@ a.soon:not(.btn) {
 
 /* ---------------------------------------------------------------- product */
 .product {
-  padding: clamp(80px, 11vw, 130px) 0;
+  padding: clamp(210px, 20vw, 250px) 0 clamp(80px, 11vw, 130px);
   border-top: 1px solid var(--line);
 }
 .product-card {
+  position: relative;
   display: flex;
   gap: clamp(24px, 4vw, 48px);
   align-items: flex-start;
@@ -460,6 +520,14 @@ a.soon:not(.btn) {
   border-radius: 28px;
   background: var(--raised);
   border: 1px solid var(--line);
+  box-shadow: 8px 8px 0 var(--lime);
+}
+/* Zero stands on the card's top edge, reading the fine print */
+.product-zero {
+  position: absolute;
+  right: clamp(24px, 6vw, 72px);
+  bottom: calc(100% - 14px);
+  width: clamp(140px, 17vw, 190px);
 }
 .product-icon {
   flex: none;
@@ -518,8 +586,20 @@ a.soon:not(.btn) {
 
 /* ---------------------------------------------------------------- free */
 .free {
+  position: relative;
   padding: clamp(80px, 11vw, 130px) 0;
   border-top: 1px solid var(--line);
+}
+.free-zero {
+  position: absolute;
+  top: clamp(80px, 11vw, 130px);
+  right: max(24px, calc(50% - 640px));
+  width: 250px;
+}
+@media (max-width: 1180px) {
+  .free-zero {
+    display: none;
+  }
 }
 .qa {
   margin: 44px 0 0;
@@ -543,6 +623,10 @@ a.soon:not(.btn) {
   padding: clamp(80px, 11vw, 130px) 0;
   text-align: center;
   border-top: 1px solid var(--line);
+}
+.coffee-zero {
+  width: 180px;
+  margin: 0 auto 8px;
 }
 .coffee-line {
   margin: 0 auto 28px;

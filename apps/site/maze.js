@@ -1,7 +1,8 @@
 // The Paywall Maze. A white architectural model on black: you, a PDF to
 // sign, and a straight line to "Done". As you scroll, walls rise across the
 // line (account, plan, card, Pro), the camera pulls back to show the whole
-// maze, and then the walls sink and you walk straight through.
+// maze, and then the Zero Signal lights up, Zero steps in, the walls sink and
+// you walk straight through.
 
 const TX = 40,
   TY = 20,
@@ -17,7 +18,8 @@ const clamp01 = (n) => Math.max(0, Math.min(1, n));
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-const MARK = new URL('./assets/unsold-mark.svg', import.meta.url).href;
+const SIGNAL = new URL('./assets/zero-signal-mark.svg', import.meta.url).href;
+const ZERO = new URL('./assets/zero-crossed.svg', import.meta.url).href;
 const WALL = { t: '#f5f4f0', l: '#c9c7c0', r: '#e2e0da' };
 const LIME = '#C8F53B';
 
@@ -145,6 +147,7 @@ export function mountMaze({ svg, story, lines, shade }) {
   const [sx, sy] = P(...START),
     [dx, dy] = P(...DONE);
   const [mx, my] = P(G / 2, G / 2);
+  const [zx, zy] = P(G / 2 - 2.2, G / 2 - 2.2); // just behind the path, not on it
   const pathLen = Math.hypot(dx - sx, dy - sy);
 
   let dots = '';
@@ -183,7 +186,8 @@ export function mountMaze({ svg, story, lines, shade }) {
         </g>
       </g>
     </g>
-    <image id="orbit" href="${MARK}" x="${mx - 120}" y="${my - 430}" width="240" height="240" opacity="0"/>
+    <image id="orbit" href="${SIGNAL}" x="${mx - 150}" y="${my - 480}" width="300" height="210" opacity="0"/>
+    <image id="zero" href="${ZERO}" x="${zx - 60}" y="${zy - 136}" width="120" height="144" opacity="0"/>
     <g id="labels"></g>
   </g>`;
 
@@ -195,6 +199,7 @@ export function mountMaze({ svg, story, lines, shade }) {
   const way = svg.querySelector('#way');
   const tick = svg.querySelector('#tick');
   const orbit = svg.querySelector('#orbit');
+  const zero = svg.querySelector('#zero');
   const glow = svg.querySelector('#floorGlow');
   const doneEl = svg.querySelector('#doneTile');
 
@@ -292,6 +297,9 @@ export function mountMaze({ svg, story, lines, shade }) {
     const lit = clamp01((p - 0.6) / 0.06);
     orbit.style.opacity = lit;
     orbit.style.transform = `translateY(${f((1 - lit) * 40)}px)`;
+    const land = clamp01((p - 0.7) / 0.05); // once the walls round it are down
+    zero.style.opacity = land;
+    zero.style.transform = `translateY(${f(-(1 - ease(land)) * 90)}px)`;
     glow.style.opacity = lit;
 
     // you walk to Done once the way is clear
