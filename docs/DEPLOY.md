@@ -9,8 +9,10 @@ Mac with `wrangler`:
 | `pdf.stayunsold.com` | The Unsold PDF landing page       | `unsold-pdf-site` | `apps/site` → `apps/site/dist`                      |
 | `pdf.stayunsold.app` | Unsold PDF itself, in the browser | `unsold-pdf-web`  | `native/www` → `apps/web/dist`                      |
 
-`www.stayunsold.com` redirects to `stayunsold.com`; `stayunsold.app` and
-`www.stayunsold.app` redirect there too.
+`www.stayunsold.com`, `stayunsold.app` and `www.stayunsold.app` are attached
+to a fourth project, `stayunsold-redirect` (`../unsold/redirect`), whose
+`_redirects` sends every request to `https://stayunsold.com` with a 301,
+keeping the path. That needs no Redirect Rules.
 
 Why Pages: it's free with no bandwidth bills, and it reads the `_headers`
 file each site ships. The web app needs its cross-origin isolation headers
