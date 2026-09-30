@@ -19,6 +19,8 @@
     "app:ios": "tauri ios dev",
     "release:mac": "node scripts/package-mac.mjs universal",
     "release:android": "node scripts/package-android.mjs",
+    "release:windows": "node scripts/package-windows.mjs",
+    "release:linux": "node scripts/package-linux.mjs",
     "release:web": "npm run build -w @unsold/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",

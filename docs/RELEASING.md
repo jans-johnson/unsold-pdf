@@ -4,19 +4,54 @@ Every build ships the same bundle, `native/www`, made by `npm run build:web`.
 Build it once. Each platform then wraps it. Finished files go into `release/`,
 which git ignores.
 
-| Platform | Command (run on)                               | Output in `release/`                                                                                      |
-| -------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| macOS    | `npm run release:mac` (Mac)                    | `Unsold-PDF-<v>-mac-universal.dmg`                                                                        |
-| Windows  | `npx tauri build` (Windows)                    | `bundle/nsis/*-setup.exe`, `bundle/msi/*.msi` → rename to `Unsold-PDF-<v>-windows-x64-setup.exe` / `.msi` |
-| Linux    | `npx tauri build` (Linux, or WSL Ubuntu 24.04) | `bundle/{deb,rpm,appimage}` → `Unsold-PDF-<v>-linux-*.{deb,rpm,AppImage}`                                 |
-| Android  | `npm run release:android` (Mac)                | `*-android.aab` (Play) and one APK per CPU                                                                |
-| iOS      | `npx tauri ios build` (Mac with Xcode)         | `.ipa` (needs signing, below)                                                                             |
-| Web      | `npm run release:web`                          | `apps/web/dist/`, a static site                                                                           |
-| Website  | `npm run build -w @unsold/site`                | `apps/site/dist/`, a static site                                                                          |
+| Platform | Command (run on)                        | Output in `release/`                                                                |
+| -------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
+| macOS    | `npm run release:mac` (Mac)             | `Unsold-PDF-<v>-mac-universal.dmg`                                                  |
+| Windows  | `npm run release:windows` (Mac, Docker) | `Unsold-PDF-<v>-windows-x64-setup.exe` (the `.msi` needs a Windows PC, below)       |
+| Linux    | `npm run release:linux` (Mac, Docker)   | `Unsold-PDF-<v>-linux-amd64.{deb,AppImage}`, `Unsold-PDF-<v>-linux-x86_64.rpm`      |
+| Android  | `npm run release:android` (Mac)         | `*-android.aab` (Play) and one APK per CPU                                          |
+| iOS      | `npx tauri ios build` (Mac with Xcode)  | `.ipa` (needs signing, below)                                                       |
+| Web      | `npm run release:web`                   | `apps/web/dist/`, a static site                                                     |
+| Website  | `npm run build -w @unsold/site`         | `apps/site/dist/`, a static site                                                    |
 
-On Windows and Linux, copy the repo across along with `native/www`, then run
-`npm ci` and the build there. A Linux build needs the Tauri system packages
-(`libwebkit2gtk-4.1-dev`, `librsvg2-dev`, `patchelf`, `xdg-utils`, and so on).
+The `release:*` scripts run `npm run build:web` first if `native/www` is
+missing, but they don't rebuild a stale one: run `build:web` yourself after
+changing the app. The Windows, Linux and Android scripts rewrite
+`release/SHA256SUMS`.
+
+## Windows and Linux from the Mac
+
+Both run in Docker (start Docker Desktop first). The first run builds an image
+and compiles everything; later runs reuse the image and the cache volume, so
+they only rebuild what changed.
+
+- **Windows** (`scripts/package-windows.mjs`, `scripts/docker/windows.Dockerfile`):
+  an Ubuntu container at the Mac's native speed cross-compiles to
+  `x86_64-pc-windows-msvc` with `cargo-xwin` (it downloads the MSVC CRT and
+  Windows SDK into the cache volume, which accepts Microsoft's licence), then
+  Tauri bundles the NSIS installer with Linux `makensis`. About 5 minutes from
+  cold. **No `.msi`:** it needs WiX, which only runs on Windows. The setup
+  `.exe` covers everyone; build the `.msi` on a PC only if someone needs it
+  (e.g. for Group Policy installs).
+- **Linux** (`scripts/package-linux.mjs`, `scripts/docker/linux.Dockerfile`):
+  an Ubuntu 22.04 `linux/amd64` container (emulated, so slower) builds the
+  `.deb`, `.rpm` and AppImage. 22.04 keeps the glibc floor at 2.35, so the
+  AppImage runs on older distros too. `npm run release:linux -- --self-test`
+  also runs the AppImage's self-test in the container under Xvfb.
+
+Cache volumes: `unsold-pdf-windows-cache` and `unsold-pdf-linux-cache` (Cargo
+registry, target dir, a synced copy of `native/`). Remove one with
+`docker volume rm <name>` to start clean. The raw bundles are also left in
+`native/target/docker-{windows,linux}/`.
+
+### Fallback: build on a PC
+
+To build natively (for example the `.msi`), copy the repo with `native/www`
+across (`COPYFILE_DISABLE=1 tar czf ...` so no `._*` files ship), run `npm ci`,
+then `npx tauri build --config '{"build":{"beforeBuildCommand":""}}'`. Rename the
+files in `native/target/release/bundle/` to the names above. Linux needs the
+Tauri system packages (`libwebkit2gtk-4.1-dev`, `librsvg2-dev`, `patchelf`,
+`xdg-utils`, and so on); WSL Ubuntu works.
 
 ## Check every build
 
