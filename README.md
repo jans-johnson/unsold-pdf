@@ -10,7 +10,8 @@ sale, and neither are you.
 - Your files and data stay on your device.
 - Optional sync (future apps): bring your own cloud for free, or use ours at
   cost, end-to-end encrypted. Export is always free.
-- Open source under the AGPL, so nobody can take it and close it.
+- Open source, so anyone can check the code. Each app picks its own licence;
+  Unsold PDF is AGPL-3.0, so nobody can take it and close it.
 
 Unsold is free and always will be. If it helps you, you can
 [buy me a coffee ☕](https://buymeacoffee.com/jansjohnson).

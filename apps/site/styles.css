@@ -222,7 +222,8 @@ a.soon:not(.btn) {
 .nav-link:hover {
   color: var(--text);
 }
-@media (max-width: 640px) {
+/* the text links drop out before the bar runs out of room for the buttons */
+@media (max-width: 860px) {
   .nav-link {
     display: none;
   }
