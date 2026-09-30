@@ -77,6 +77,15 @@ node scripts/deploy.mjs web --dry-run     # run the checks only
 - **Rollback:** every deploy keeps the previous one. To roll back, go to the
   Cloudflare dashboard → Workers & Pages → the project → Deployments.
 
+## GitHub Actions (CI)
+
+- **Every push and pull request:** runs the typecheck, the tests and the
+  Rust tests (about 7 minutes). A failure emails you.
+- **Full desktop installers:** run only when you start them from Actions →
+  Build → **Run workflow**. Releases are built on the Mac instead.
+- **After adding or removing a workspace or dependency:** commit the updated
+  `package-lock.json`. Otherwise `npm ci` fails in CI.
+
 ## Brand files (run in `unsold-pdf`)
 
 ```bash
