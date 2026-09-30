@@ -20,14 +20,14 @@ Targets Windows, Linux, macOS, Android and iOS from one codebase. See
 
 ## Layout
 
-| Path | What it is |
-| --- | --- |
-| `apps/tools/` | The PDF tools: one page per tool plus the processing logic (Vite + TypeScript) |
-| `apps/studio/` | The app UI every platform loads: home, document tabs, viewer, tools pane |
-| `apps/site/` | The Unsold PDF website: a static landing page (the Paywall Maze story, features, download) |
-| `packages/bridge/` | `HostBridge`: the only way UI code reaches the OS (files, dialogs, network) |
-| `native/` | Tauri 2 shell for desktop and mobile |
-| `scripts/` | Build orchestration (`engines.mjs` unpacks the WASM engines into `build/engines/`) |
+| Path               | What it is                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `apps/tools/`      | The PDF tools: one page per tool plus the processing logic (Vite + TypeScript)             |
+| `apps/studio/`     | The app UI every platform loads: home, document tabs, viewer, tools pane                   |
+| `apps/site/`       | The Unsold PDF website: a static landing page (the Paywall Maze story, features, download) |
+| `packages/bridge/` | `HostBridge`: the only way UI code reaches the OS (files, dialogs, network)                |
+| `native/`          | Tauri 2 shell for desktop and mobile                                                       |
+| `scripts/`         | Build orchestration (`engines.mjs` unpacks the WASM engines into `build/engines/`)         |
 
 ## Develop
 
@@ -39,5 +39,6 @@ npm run dev -w @unsold/site    # the website, on http://localhost:5190
 ```
 
 Building installers for each platform: see `docs/RELEASING.md`.
+Deploying the websites (stayunsold.com, pdf.stayunsold.com, pdf.stayunsold.app): see `docs/DEPLOY.md`.
 
 Licensed under the GNU AGPL v3. See `LICENSE`.

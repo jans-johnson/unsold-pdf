@@ -51,6 +51,7 @@ app UI never use it.
 | `zero-private.svg` / `zero-yours.svg` / `zero-coffee.svg` | Private, your files, off duty |
 | `zero-sheet.svg` | The character sheet: every pose, on night |
 | `poster-*.svg` | Posters: walls (night), no catch (lime), gym (night) |
+| `og-unsold.*` / `og-pdf.*` | Link previews (1200 × 630) for stayunsold.com and pdf.stayunsold.com. The `.jpg` is a browser render of the `.svg`, since previews can't be SVG |
 
 Every pose except the signal scene is transparent, with a paper die-cut
 outline, so it reads on night, lime or paper. Text is outlined. The rules

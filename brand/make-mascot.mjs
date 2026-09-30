@@ -372,4 +372,20 @@ const POSTERS = {
     text('COMING NEXT', 300, 770, 20, { tracking: 3, anchor: 'middle' }) + grain(600, 800),
 };
 for (const [name, body] of Object.entries(POSTERS)) fs.writeFileSync(path.join(out, `${name}.svg`), doc(600, 800, body));
+
+// Social preview cards (1200 × 630). Link previews need PNG, so render these
+// with any browser at 1200 × 630 and save as og-*.png (see brand/README.md).
+const og = (lines, accent, app, art) =>
+  night(1200, 630) + city(1200, 630, 560, { signs: false }) +
+  `<rect x="-20" y="556" width="1240" height="100" fill="${STONE}"/>` + stroke('M-20,556 H1220', 5) +
+  text(app, 72, 96, 30) + text('free forever', 72, 132, 24, { weight: 500, fill: '#9A9A96' }) +
+  lines.map((l, i) => text(l, 70, 250 + i * 74, 70, { tracking: -1.5, fill: i === lines.length - 1 ? accent : PAPER })).join('') +
+  art + grain(1200, 630);
+fs.writeFileSync(path.join(out, 'og-unsold.svg'), doc(1200, 630, og(
+  ['FREE SOFTWARE.', 'NOT FOR SALE.', 'NEITHER ARE YOU.'], LIME, 'Unsold',
+  signal(1000, 120, 62) + `<path d="M905,556 L925,556 L1050,150 L950,150Z" fill="${LIME}" opacity="0.16"/>` +
+  `<g transform="translate(830,236) scale(0.7)">${drawn.crossed}</g>`)));
+fs.writeFileSync(path.join(out, 'og-pdf.svg'), doc(1200, 630, og(
+  ['THE PDF EDITOR', "THAT ISN'T", 'FOR SALE.'], LIME, 'Unsold PDF',
+  `<g transform="translate(800,226) scale(0.72)">${drawn.pdf}</g>`)));
 console.log(`wrote ${fs.readdirSync(out).filter((f) => f.endsWith('.svg')).length} files to brand/mascot/`);

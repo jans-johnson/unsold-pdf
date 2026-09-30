@@ -8,12 +8,17 @@
       name="description"
       content="Edit, sign, fill, combine, compress, convert and OCR PDFs for free. No account, no ads, no subscription. Unsold PDF runs on your own computer, so your files never leave it."
     />
+    <link rel="canonical" href="https://pdf.stayunsold.com/" />
     <meta name="theme-color" content="#0b0b0c" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pdf.stayunsold.com/" />
     <meta property="og:title" content="Unsold PDF" />
     <meta
       property="og:description"
       content="The free PDF editor that isn't for sale."
     />
+    <meta property="og:image" content="https://pdf.stayunsold.com/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="assets/unsold-tile.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -292,9 +297,10 @@
             </dd>
             <dt>Who makes it?</dt>
             <dd>
-              Unsold, an independent project making free apps that aren't for
-              sale. Unsold PDF is the first. <strong>Unsold Gym</strong>, a
-              workout log that doesn't want your email, is next.
+              <a href="https://stayunsold.com">Unsold</a>, an independent
+              project making free apps that aren't for sale. Unsold PDF is the
+              first. <strong>Unsold Gym</strong>, a workout log that doesn't
+              want your email, is next.
             </dd>
           </dl>
         </div>
@@ -333,14 +339,16 @@
 
     <footer class="foot">
       <div class="wrap foot-inner">
-        <img
-          src="assets/unsold-wordmark-on-dark.svg"
-          alt="Unsold"
-          height="26"
-        />
+        <a href="https://stayunsold.com" aria-label="Unsold home"
+          ><img
+            src="assets/unsold-wordmark-on-dark.svg"
+            alt="Unsold"
+            height="26"
+        /></a>
         <p>
-          Unsold PDF is part of Unsold: free apps that aren't for sale. Open
-          source under AGPL-3.0.
+          Unsold PDF is part of
+          <a href="https://stayunsold.com">Unsold</a>: free apps that aren't for
+          sale. Open source under AGPL-3.0.
         </p>
         <p class="fine">© 2026 Unsold</p>
       </div>
@@ -358,7 +366,7 @@
         android: '',
         ios: '',
         // The web version (apps/web), deployed at the root of its own domain.
-        web: '',
+        web: 'https://pdf.stayunsold.app',
         source: '',
       };
       for (const a of document.querySelectorAll('[data-link]')) {
