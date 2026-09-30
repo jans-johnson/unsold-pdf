@@ -469,6 +469,58 @@ a.soon:not(.btn) {
     opacity: 0;
   }
 }
+/* you: one face at a time, set by maze.js */
+#you .mood {
+  display: none;
+}
+#you[data-mood='calm'] .m-calm,
+#you[data-mood='annoyed'] .m-annoyed,
+#you[data-mood='fedup'] .m-fedup,
+#you[data-mood='surprised'] .m-surprised,
+#you[data-mood='happy'] .m-happy {
+  display: inline;
+}
+#you .bubble {
+  font: 800 11px var(--sans);
+  fill: var(--paper);
+  stroke: none;
+}
+#you .bubble.lime {
+  fill: var(--lime);
+}
+#you .tap,
+#you .scribble,
+#you .sparkle {
+  transform-box: fill-box;
+}
+#you[data-mood='fedup'] .tap {
+  transform-origin: 20% 100%;
+  animation: tap 0.45s ease-in-out infinite alternate;
+}
+@keyframes tap {
+  to {
+    transform: rotate(-16deg);
+  }
+}
+#you[data-mood='fedup'] .scribble {
+  transform-origin: center;
+  animation: fume 0.3s steps(2) infinite;
+}
+@keyframes fume {
+  to {
+    transform: translate(0.6px, -0.5px) rotate(4deg);
+  }
+}
+#you .sparkle {
+  transform-origin: center;
+  animation: glint 1.2s ease-in-out infinite alternate;
+}
+@keyframes glint {
+  from {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
 #you.walking .figure {
   animation: step 0.36s ease-in-out infinite alternate;
 }
@@ -755,6 +807,9 @@ a.soon:not(.btn) {
     height: 100svh;
   }
   #you .ring,
+  #you .tap,
+  #you .scribble,
+  #you .sparkle,
   .scroll-cue i,
   .neon,
   [data-k].on .label-in {

@@ -22,11 +22,55 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const SIGNAL = new URL('./assets/zero-signal-mark.svg', import.meta.url).href;
+const LIME = '#C8F53B';
+
+// You: a person in a hoodie with messy hair and a PDF to sign, drawn in the
+// same ink as Zero. Their face follows the story (data-mood on #you, set in
+// render): calm, then "?" as the walls go up, fed up in the full maze (scribble,
+// sweat, a tapping foot), "!" when the signal lights, and a grin at Done.
+const INKY =
+  'stroke="#0b0b0c" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round"';
+const YOU = `
+  <path d="M-2.6 -10 L-2.9 -1.4 M2.6 -10 L3 -1.4" stroke="#0b0b0c" stroke-width="3.4" stroke-linecap="round"/>
+  <ellipse cx="-3.8" cy="-0.9" rx="2.6" ry="1.4" fill="#f5f4f0" ${INKY}/>
+  <ellipse class="tap" cx="4" cy="-0.9" rx="2.6" ry="1.4" fill="#f5f4f0" ${INKY}/>
+  <path d="M-7 -9.5 Q-7.8 -24 0 -25 Q7.8 -24 7 -9.5Z" fill="#f5f4f0" ${INKY}/>
+  <path d="M-4 -24.2 Q0 -20 4 -24.2 M-1.2 -21.6 V-18 M1.2 -21.6 V-18.6 M-3.6 -13.4 H3.6" fill="none" ${INKY} stroke-width="0.8"/>
+  <circle cy="-31" r="6.6" fill="#f5f4f0" ${INKY}/>
+  <path d="M-6.6 -31.4 Q-7.6 -38.6 -2 -38.8 Q-0.8 -41.6 1.8 -39.2 Q4.6 -41 5.2 -38 Q8 -36.6 6.6 -31.4 Q4.8 -35 1.4 -34.6 Q-2.4 -36.4 -6.6 -31.4Z" fill="#0b0b0c"/>
+  <g class="mood m-calm" ${INKY}>
+    <circle cx="-1" cy="-31.2" r="0.85" fill="#0b0b0c" stroke="none"/><circle cx="2.8" cy="-31.2" r="0.85" fill="#0b0b0c" stroke="none"/>
+    <path d="M-0.2 -28.4 Q1.1 -27.2 2.4 -28.4" fill="none"/>
+  </g>
+  <g class="mood m-annoyed" ${INKY}>
+    <path d="M-2.2 -31 H0 M1.8 -31 H4 M-2.4 -33.2 L0 -32.6 M4.2 -33.2 L1.8 -32.6 M-0.2 -28.2 H2.6" fill="none"/>
+    <text x="10" y="-38" class="bubble">?</text>
+  </g>
+  <g class="mood m-fedup" ${INKY}>
+    <path d="M-2.2 -32.2 L-0.2 -31.2 L-2.2 -30.2 M4 -32.2 L2 -31.2 L4 -30.2 M-0.6 -28 L0.4 -28.8 L1.4 -28 L2.4 -28.8 L3.4 -28" fill="none"/>
+    <path class="scribble" d="M-5 -43 q2 -4 4 0 q2 -4 4 0 q2 -4 4 0 M-4 -46 q3 3 5 -1 q2 3 4 -1" fill="none" stroke="#f5f4f0" stroke-width="1.1"/>
+    <path d="M-8.6 -33 q-1.6 2.6 0 3.6 q1.6 -1 0 -3.6Z" fill="#f5f4f0" stroke-width="0.7"/>
+  </g>
+  <g class="mood m-surprised" ${INKY}>
+    <circle cx="-0.8" cy="-32" r="1.3" fill="#0b0b0c" stroke="none"/><circle cx="3" cy="-32" r="1.3" fill="#0b0b0c" stroke="none"/>
+    <ellipse cx="1.1" cy="-28.2" rx="0.9" ry="1.2" fill="#0b0b0c" stroke="none"/>
+    <text x="10" y="-38" class="bubble lime">!</text>
+  </g>
+  <g class="mood m-happy" ${INKY}>
+    <path d="M-2 -31 q1 -1.6 2 0 M1.8 -31 q1 -1.6 2 0" fill="none"/>
+    <path d="M-0.6 -29 q1.7 2.4 3.4 0Z" fill="#0b0b0c"/>
+    <path class="sparkle" d="M11 -40 l1 -3 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1Z M-12 -36 l0.7 -2 l0.7 2 l2 0.7 l-2 0.7 l-0.7 2 l-0.7 -2 l-2 -0.7Z" fill="${LIME}" stroke="none"/>
+  </g>
+  <path d="M5.6 -21 Q8.4 -18 7 -14" fill="none" ${INKY} stroke-width="2.6" stroke="#0b0b0c"/>
+  <g transform="translate(6 -22) rotate(8)">
+    <rect width="9" height="11.5" rx="1.2" fill="#fff" ${INKY}/>
+    <path d="M2 4 h5 M2 6.5 h5 M2 9 h3" stroke="#9a978f" stroke-width="0.8"/>
+    <path id="tick" d="M2 6.5 l2 2 l3.4 -4" fill="none" stroke="${LIME}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+  </g>`;
 const ZERO = new URL('./assets/zero-crossed.svg', import.meta.url).href;
 // walls are inked like a comic panel: dark edges, halftone on the shaded face
 const WALL = { t: '#f5f4f0', l: '#c9c7c0', r: '#e2e0da', ink: true };
 const NIGHT = { t: '#141416', l: '#0c0c0d', r: '#101012' };
-const LIME = '#C8F53B';
 
 function box(x, y, z, w, d, h, c) {
   const top = [
@@ -233,21 +277,12 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
     <line id="hope" x1="${sx}" y1="${sy}" x2="${dx}" y2="${dy}"/>
     <line id="way" x1="${sx}" y1="${sy}" x2="${dx}" y2="${dy}" stroke-dasharray="${pathLen}" stroke-dashoffset="${pathLen}"/>
     <g id="walls"></g>
-    <g id="you">
+    <g id="you" data-mood="calm">
       <ellipse class="ring" rx="17" ry="8.5"/>
       <ellipse rx="9" ry="4.5" fill="#000" opacity="0.5"/>
-      <g class="figure">
-        <rect x="-5.5" y="-25" width="11" height="17" rx="5.5" fill="#f5f4f0"/>
-        <circle cy="-31" r="5.5" fill="#f5f4f0"/>
-        <rect x="-3" y="-8.5" width="2.4" height="8.5" rx="1.2" fill="#d9d7d0"/>
-        <rect x="0.6" y="-8.5" width="2.4" height="8.5" rx="1.2" fill="#d9d7d0"/>
-        <g transform="translate(6 -22) rotate(8)">
-          <rect width="9" height="11.5" rx="1.2" fill="#fff" stroke="#bdbab2" stroke-width="0.8"/>
-          <path d="M2 4 h5 M2 6.5 h5 M2 9 h3" stroke="#bdbab2" stroke-width="0.8"/>
-          <path id="tick" d="M2 6.5 l2 2 l3.4 -4" fill="none" stroke="${LIME}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
-        </g>
-      </g>
+      <g class="figure"><g transform="scale(1.25)">${YOU}</g></g>
     </g>
+    <g id="wallsFront"></g>
     <g id="searchlight" opacity="0" transform="translate(${f(bx)} ${f(by)})">
       <path d="M-7 0 L7 0 L5 -9 L-5 -9Z" fill="#f5f4f0"/>
       <path d="M-4 0 L-6 7 M4 0 L6 7" stroke="#6c6b66" stroke-width="1.4"/>
@@ -259,6 +294,7 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
 
   const cam = svg.querySelector('#cam');
   const wallsEl = svg.querySelector('#walls');
+  const wallsFront = svg.querySelector('#wallsFront');
   const labelsEl = svg.querySelector('#labels');
   const you = svg.querySelector('#you');
   const hope = svg.querySelector('#hope');
@@ -319,6 +355,7 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let lastWalls = '',
+    lastFront = '',
     raf = 0;
 
   const render = () => {
@@ -346,8 +383,10 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
     // on small screens the wall signs only show up close; zoomed out they'd pile up
     const signRoom = wide ? 1 : clamp01((unit * z - 0.62) / 0.12);
 
-    // walls
-    let s = '';
+    // walls, in two layers: behind you and in front of you. You always walk
+    // the line x + y = G, so a wall is in front when its centre is nearer.
+    let s = '',
+      front = '';
     const heights = new Map();
     for (const w of walls) {
       const h =
@@ -355,11 +394,18 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
         clamp01((p - w.rise) / 0.04) *
         (1 - clamp01((p - w.sink) / 0.04));
       heights.set(w, h);
-      if (h > 0.004) s += box(w.x, w.y, 0, w.w, w.d, h, WALL);
+      if (h <= 0.004) continue;
+      const b = box(w.x, w.y, 0, w.w, w.d, h, WALL);
+      if (w.cx + w.cy > G) front += b;
+      else s += b;
     }
     if (s !== lastWalls) {
       wallsEl.innerHTML = s;
       lastWalls = s;
+    }
+    if (front !== lastFront) {
+      wallsFront.innerHTML = front;
+      lastFront = front;
     }
 
     // the path: hope fades as walls rise; the lime way draws as they sink
@@ -389,6 +435,16 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
     );
     you.setAttribute('transform', `translate(${f(yx)} ${f(yy)})`);
     you.classList.toggle('walking', walk > 0 && walk < 1);
+    you.dataset.mood =
+      p < 0.15
+        ? 'calm'
+        : p < 0.44
+          ? 'annoyed'
+          : p < 0.6
+            ? 'fedup'
+            : p < 0.7
+              ? 'surprised'
+              : 'happy';
     const signed = clamp01((p - 0.88) / 0.04);
     tick.style.opacity = signed;
     doneEl.classList.toggle('reached', signed > 0.5);
@@ -417,8 +473,9 @@ export function mountMaze({ svg, story, lines, shade, rain }) {
       cancelAt[1],
       clamp01((p - 0.47) / 0.04) * (1 - clamp01((p - 0.6) / 0.03))
     );
-    place(youLabel, yx, yy - 44, 1 - clamp01((p - 0.66) / 0.04));
-    const [lx, ly] = P(G - 0.5, 0.5, 0.3);
+    place(youLabel, yx, yy - 58, 1 - clamp01((p - 0.66) / 0.04));
+    // the Done label lifts clear of your head as you arrive
+    const [lx, ly] = P(G - 0.5, 0.5, 0.3 + 1.35 * clamp01((walk - 0.7) / 0.3));
     place(doneLabel, lx, ly, 1);
     doneText.textContent = signed > 0.5 ? 'Signed ✓' : 'Done';
     doneLabel.classList.toggle('reached', signed > 0.5);
