@@ -34,10 +34,14 @@ they only rebuild what changed.
   `.exe` covers everyone; build the `.msi` on a PC only if someone needs it
   (e.g. for Group Policy installs).
 - **Linux** (`scripts/package-linux.mjs`, `scripts/docker/linux.Dockerfile`):
-  an Ubuntu 22.04 `linux/amd64` container (emulated, so slower) builds the
-  `.deb`, `.rpm` and AppImage. 22.04 keeps the glibc floor at 2.35, so the
-  AppImage runs on older distros too. `npm run release:linux -- --self-test`
-  also runs the AppImage's self-test in the container under Xvfb.
+  an Ubuntu 22.04 `linux/amd64` container (emulated by Rosetta, so slower:
+  about 15 minutes from cold, 4 when cached) builds the `.deb`, `.rpm` and
+  AppImage. 22.04 keeps the glibc floor low (the binary needs 2.34+), so the
+  AppImage runs on older distros too. The `.rpm` is left uncompressed:
+  Tauri's rpm compressor takes over half an hour on this binary, and the app
+  files are compressed already, so it only saved about 3%.
+  `npm run release:linux -- --self-test` also runs the AppImage's self-test in
+  the container under Xvfb.
 
 Cache volumes: `unsold-pdf-windows-cache` and `unsold-pdf-linux-cache` (Cargo
 registry, target dir, a synced copy of `native/`). Remove one with

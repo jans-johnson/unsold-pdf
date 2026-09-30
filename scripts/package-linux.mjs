@@ -31,14 +31,31 @@ const stage = path.join(root, 'native/target/docker-linux');
 fs.rmSync(stage, { recursive: true, force: true });
 fs.mkdirSync(stage, { recursive: true });
 const bundle = '/cache/target/release/bundle';
+// The rpm is left uncompressed: Tauri's rpm compressor (any of gzip/xz/zstd)
+// runs for 30+ minutes on this 160 MB binary, and the app files are already
+// compressed, so compressing only saved ~3%. `rpm` and `dnf` install it fine.
+const config = JSON.stringify({
+  build: { beforeBuildCommand: '' },
+  bundle: { linux: { rpm: { compression: { type: 'none' } } } },
+});
 const script = `
 set -euo pipefail
 mkdir -p /cache/work
 rsync -a --delete --exclude /target --exclude /gen/android --exclude /gen/apple --exclude /www-android /src/native/ /cache/work/native/
 cp /src/LICENSE /cache/work/LICENSE
+# AppImage tools carry magic bytes ("AI\\x02" at offset 8) that stop the
+# kernel's emulation handler from running them ("Exec format error"). Tauri
+# zeroes them in linuxdeploy but not in the appimage plugin it downloads, so
+# fetch the plugin up front and zero the bytes in every cached tool.
+tools=$XDG_CACHE_HOME/tauri
+mkdir -p "$tools"
+[ -f "$tools/linuxdeploy-plugin-appimage.AppImage" ] || curl -fsSL -o "$tools/linuxdeploy-plugin-appimage.AppImage" \\
+  https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage
+chmod +x "$tools"/*.AppImage
+for f in "$tools"/*.AppImage; do dd if=/dev/zero of="$f" bs=1 count=3 seek=8 conv=notrunc status=none; done
 cd /cache/work/native
 rm -rf ${bundle}
-tauri build --bundles deb,rpm,appimage --config '{"build":{"beforeBuildCommand":""}}'
+tauri build --bundles deb,rpm,appimage --config '${config}'
 cp ${bundle}/deb/*.deb ${bundle}/rpm/*.rpm ${bundle}/appimage/*.AppImage /out/
 `;
 run('docker', [
@@ -60,13 +77,19 @@ for (const file of fs.readdirSync(stage)) {
 }
 
 if (selfTest) {
-  // Software rendering: the container has no GPU. Exit code 0 = all checks passed.
+  // Runs a copy with the AppImage magic bytes zeroed (see above), on Xvfb with
+  // software rendering since the container has no GPU. Exit 0 = all checks passed.
+  const test = `
+set -euo pipefail
+cp /release/Unsold-PDF-${conf.version}-linux-amd64.AppImage /tmp/app.AppImage
+dd if=/dev/zero of=/tmp/app.AppImage bs=1 count=3 seek=8 conv=notrunc status=none
+cd /tmp
+xvfb-run -a -s '-screen 0 1600x1000x24' /tmp/app.AppImage --self-test
+`;
   run('docker', [
-    'run', '--rm', ...platform, '-v', `${release}:/release:ro`,
-    '-e', 'APPIMAGE_EXTRACT_AND_RUN=1', '-e', 'LIBGL_ALWAYS_SOFTWARE=1', '-e', 'WEBKIT_DISABLE_COMPOSITING_MODE=1',
-    '-e', 'WEBKIT_DISABLE_DMABUF_RENDERER=1', '-w', '/tmp',
-    image, 'xvfb-run', '-a', '-s', '-screen 0 1600x1000x24',
-    `/release/Unsold-PDF-${conf.version}-linux-amd64.AppImage`, '--self-test',
+    'run', '--rm', '--init', ...platform, '-v', `${release}:/release:ro`,
+    '-e', 'LIBGL_ALWAYS_SOFTWARE=1', '-e', 'WEBKIT_DISABLE_COMPOSITING_MODE=1', '-e', 'WEBKIT_DISABLE_DMABUF_RENDERER=1',
+    image, 'bash', '-c', test,
   ]);
   console.log('package-linux: self-test passed');
 }
