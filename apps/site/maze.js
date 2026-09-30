@@ -1,8 +1,10 @@
-// The Paywall Maze. A white architectural model on black: you, a PDF to
-// sign, and a straight line to "Done". As you scroll, walls rise across the
-// line (account, plan, card, Pro), the camera pulls back to show the whole
-// maze, and then the Zero Signal lights up, Zero steps in, the walls sink and
-// you walk straight through.
+// The Paywall Maze, told as ink noir. Night, a city of red "PRO" signs, and
+// you in a pool of streetlight with a PDF to sign and a straight line to
+// "Done". As you scroll, rain starts, walls rise across the line (account,
+// plan, card, Pro) and their signs flicker on, the camera pulls back to the
+// whole maze glowing red, and then a searchlight throws the Zero Signal on
+// the clouds, the rain stops, Zero steps in, the walls sink and you walk
+// straight through.
 
 const TX = 40,
   TY = 20,
@@ -13,14 +15,17 @@ const THICK = 0.14,
 const P = (x, y, z = 0) => [(x - y) * TX, (x + y) * TY - z * TZ];
 const f = (n) => Math.round(n * 10) / 10;
 const pts = (list) => list.map(([x, y]) => `${f(x)},${f(y)}`).join(' ');
-const poly = (list, fill) => `<polygon points="${pts(list)}" fill="${fill}"/>`;
+const poly = (list, fill, extra = '') =>
+  `<polygon points="${pts(list)}" fill="${fill}"${extra}/>`;
 const clamp01 = (n) => Math.max(0, Math.min(1, n));
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 const SIGNAL = new URL('./assets/zero-signal-mark.svg', import.meta.url).href;
 const ZERO = new URL('./assets/zero-crossed.svg', import.meta.url).href;
-const WALL = { t: '#f5f4f0', l: '#c9c7c0', r: '#e2e0da' };
+// walls are inked like a comic panel: dark edges, halftone on the shaded face
+const WALL = { t: '#f5f4f0', l: '#c9c7c0', r: '#e2e0da', ink: true };
+const NIGHT = { t: '#141416', l: '#0c0c0d', r: '#101012' };
 const LIME = '#C8F53B';
 
 function box(x, y, z, w, d, h, c) {
@@ -42,7 +47,14 @@ function box(x, y, z, w, d, h, c) {
     P(x + w, y + d, z),
     P(x + w, y, z),
   ];
-  return poly(left, c.l) + poly(right, c.r) + poly(top, c.t);
+  if (!c.ink) return poly(left, c.l) + poly(right, c.r) + poly(top, c.t);
+  const edge = ' stroke="#0b0b0c" stroke-width="1.1" stroke-linejoin="round"';
+  return (
+    poly(left, c.l, edge) +
+    poly(left, 'url(#ht)') +
+    poly(right, c.r, edge) +
+    poly(top, c.t, edge)
+  );
 }
 
 // Deterministic maze (depth-first carve), so every visitor sees the same one.
@@ -130,7 +142,39 @@ function label(text, sub = '', tone = 'sign', stem = 0) {
   </g></g>`;
 }
 
-export function mountMaze({ svg, story, lines, shade }) {
+// The city behind the maze: dark blocks, a few lit windows, and the
+// corporate walls' neon, in red. Drawn in view space, so it stays put while
+// the camera moves (apart from a slow parallax).
+const HORIZON = 40; // in view space
+function skyline() {
+  const r = rng(404);
+  let s = '',
+    signs = '',
+    x = -1150;
+  const neon = ['PRO', 'SUBSCRIBE', 'UPGRADE', 'PREMIUM', 'PLANS'];
+  let k = 0;
+  while (x < 1150) {
+    const w = 50 + r() * 90,
+      top = HORIZON - 70 - r() * 330;
+    s += `<rect x="${f(x)}" y="${f(top)}" width="${f(w)}" height="${f(HORIZON - top)}" fill="${k % 2 ? '#131317' : '#17171c'}"/>`;
+    for (let wy = top + 16; wy < HORIZON - 20; wy += 22)
+      for (let wx = x + 10; wx < x + w - 10; wx += 16)
+        if (r() < 0.07)
+          s += `<rect x="${f(wx)}" y="${f(wy)}" width="5" height="9" fill="#f5f4f0" opacity="${(0.12 + r() * 0.2).toFixed(2)}"/>`;
+    if (k % 3 === 1 && top < -40)
+      signs += `<text class="neon" x="${f(x + w / 2)}" y="${f(top - 10)}" text-anchor="middle" style="animation-delay:${(r() * 4).toFixed(2)}s">${neon[Math.floor(r() * neon.length)]}</text>`;
+    x += w + 3;
+    k++;
+  }
+  // the city's base dissolves into mist, so the maze sits in front of it
+  return (
+    s +
+    signs +
+    `<rect x="-1200" y="${HORIZON - 160}" width="2400" height="700" fill="url(#mist)"/>`
+  );
+}
+
+export function mountMaze({ svg, story, lines, shade, rain }) {
   const walls = buildWalls(20260927);
 
   // label the path walls, spaced along the line
@@ -148,6 +192,7 @@ export function mountMaze({ svg, story, lines, shade }) {
     [dx, dy] = P(...DONE);
   const [mx, my] = P(G / 2, G / 2);
   const [zx, zy] = P(G / 2 - 2.2, G / 2 - 2.2); // just behind the path, not on it
+  const [bx, by] = P(G / 2 + 3.4, G / 2 + 3.4); // the searchlight, in front of the path
   const pathLen = Math.hypot(dx - sx, dy - sy);
 
   let dots = '';
@@ -162,11 +207,28 @@ export function mountMaze({ svg, story, lines, shade }) {
   svg.innerHTML = `
   <defs>
     <radialGradient id="glow"><stop offset="0" stop-color="${LIME}" stop-opacity="0.22"/><stop offset="1" stop-color="${LIME}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="redGlow"><stop offset="0" stop-color="#e5484d" stop-opacity="0.2"/><stop offset="1" stop-color="#e5484d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lamp"><stop offset="0" stop-color="#f5f4f0" stop-opacity="0.2"/><stop offset="0.6" stop-color="#f5f4f0" stop-opacity="0.06"/><stop offset="1" stop-color="#f5f4f0" stop-opacity="0"/></radialGradient>
+    <linearGradient id="beamFade" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${LIME}" stop-opacity="0.28"/><stop offset="1" stop-color="${LIME}" stop-opacity="0.08"/></linearGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0b0c" stop-opacity="0"/><stop offset="0.23" stop-color="#0b0b0c" stop-opacity="1"/></linearGradient>
+    <pattern id="ht" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="2.5" cy="2.5" r="1" fill="#0b0b0c" opacity="0.35"/></pattern>
   </defs>
+  <g id="city">
+    <ellipse cx="0" cy="-330" rx="1100" ry="150" fill="#121215"/>
+    ${skyline()}
+  </g>
   <g id="cam">
-    ${box(-0.7, -0.7, -0.35, G + 1.4, G + 1.4, 0.35, { t: '#141416', l: '#0c0c0d', r: '#101012' })}
+    ${box(-0.7, -0.7, -0.35, G + 1.4, G + 1.4, 0.35, NIGHT)}
     <g class="grid-dots">${dots}</g>
     <ellipse id="floorGlow" cx="${mx}" cy="${my}" rx="470" ry="235" fill="url(#glow)" opacity="0"/>
+    <ellipse id="floorRed" cx="${mx}" cy="${my}" rx="520" ry="260" fill="url(#redGlow)" opacity="0"/>
+    <ellipse id="pool" cx="${sx}" cy="${sy}" rx="90" ry="45" fill="url(#lamp)"/>
+    <polygon id="beam" points="${pts([
+      [bx - 5, by],
+      [bx + 5, by],
+      [mx + 150, my - 375],
+      [mx - 150, my - 375],
+    ])}" fill="url(#beamFade)" opacity="0"/>
     <polygon id="doneTile" points="${pts(doneTile)}"/>
     <line id="hope" x1="${sx}" y1="${sy}" x2="${dx}" y2="${dy}"/>
     <line id="way" x1="${sx}" y1="${sy}" x2="${dx}" y2="${dy}" stroke-dasharray="${pathLen}" stroke-dashoffset="${pathLen}"/>
@@ -186,6 +248,10 @@ export function mountMaze({ svg, story, lines, shade }) {
         </g>
       </g>
     </g>
+    <g id="searchlight" opacity="0" transform="translate(${f(bx)} ${f(by)})">
+      <path d="M-7 0 L7 0 L5 -9 L-5 -9Z" fill="#f5f4f0"/>
+      <path d="M-4 0 L-6 7 M4 0 L6 7" stroke="#6c6b66" stroke-width="1.4"/>
+    </g>
     <image id="orbit" href="${SIGNAL}" x="${mx - 150}" y="${my - 480}" width="300" height="210" opacity="0"/>
     <image id="zero" href="${ZERO}" x="${zx - 60}" y="${zy - 136}" width="120" height="144" opacity="0"/>
     <g id="labels"></g>
@@ -201,6 +267,11 @@ export function mountMaze({ svg, story, lines, shade }) {
   const orbit = svg.querySelector('#orbit');
   const zero = svg.querySelector('#zero');
   const glow = svg.querySelector('#floorGlow');
+  const red = svg.querySelector('#floorRed');
+  const pool = svg.querySelector('#pool');
+  const beam = svg.querySelector('#beam');
+  const searchlight = svg.querySelector('#searchlight');
+  const city = svg.querySelector('#city');
   const doneEl = svg.querySelector('#doneTile');
 
   labelsEl.innerHTML =
@@ -301,6 +372,14 @@ export function mountMaze({ svg, story, lines, shade }) {
     zero.style.opacity = land;
     zero.style.transform = `translateY(${f(-(1 - ease(land)) * 90)}px)`;
     glow.style.opacity = lit;
+    // night: the streetlight pool, rain while the walls stand, the red glow
+    // of the maze at its worst, then the searchlight
+    const walled = clamp01((p - 0.14) / 0.2);
+    pool.style.opacity = 1 - clamp01((p - 0.1) / 0.2);
+    red.style.opacity = walled * (1 - lit);
+    beam.style.opacity = searchlight.style.opacity = lit;
+    if (rain) rain.style.opacity = f(0.25 + 0.75 * walled) * (1 - lit);
+    city.setAttribute('transform', `translate(0 ${f(40 - p * 90)})`);
 
     // you walk to Done once the way is clear
     const walk = ease(clamp01((p - 0.7) / 0.14));
@@ -325,14 +404,12 @@ export function mountMaze({ svg, story, lines, shade }) {
     labelled.forEach((l, k) => {
       const h = heights.get(l.wall);
       const [lx, ly] = P(l.wall.cx, l.wall.cy, h + 0.1);
-      place(
-        labelEls[k],
-        lx,
-        ly,
+      const o =
         signRoom *
-          clamp01((h / WALL_H - 0.7) / 0.3) *
-          (1 - clamp01((p - 0.58) / 0.03))
-      );
+        clamp01((h / WALL_H - 0.7) / 0.3) *
+        (1 - clamp01((p - 0.58) / 0.03));
+      place(labelEls[k], lx, ly, o);
+      labelEls[k].classList.toggle('on', o > 0.5); // neon flickers as it comes on
     });
     place(
       cancelEl,

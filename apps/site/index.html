@@ -41,6 +41,7 @@
       <section class="story" id="top" aria-label="The paywall maze">
         <div class="stage">
           <svg class="scene" aria-hidden="true"></svg>
+          <div class="rain" aria-hidden="true"></div>
           <div class="shade"></div>
           <div class="copy">
             <div class="line" data-in="0" data-out="0.12">
@@ -377,6 +378,7 @@
         story: document.querySelector('.story'),
         lines: [...document.querySelectorAll('.story .line')],
         shade: document.querySelector('.story .shade'),
+        rain: document.querySelector('.story .rain'),
       });
       mountTour(document.querySelector('.tour'));
     </script>
