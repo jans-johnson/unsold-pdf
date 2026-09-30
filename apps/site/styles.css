@@ -889,7 +889,7 @@ a.soon:not(.btn) {
 }
 .win-stage {
   position: relative;
-  height: min(54vh, 460px);
+  height: clamp(300px, 54vh, 620px);
 }
 .layer {
   position: absolute;
@@ -1243,6 +1243,14 @@ a.soon:not(.btn) {
   display: grid;
   place-items: center;
 }
+/* decoration layers cover the stage; only .tour-grid takes part in the
+   centred grid (otherwise they become rows and push it down on tall screens) */
+.tour-glows,
+.tour-float {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
 .tour-glows i {
   position: absolute;
   inset: 0;
@@ -1281,7 +1289,7 @@ a.soon:not(.btn) {
 .tour-grid {
   position: relative;
   z-index: 1;
-  width: min(1200px, 100% - 2 * clamp(20px, 4vw, 40px));
+  width: min(1320px, 100% - 2 * clamp(20px, 4vw, 40px));
   display: grid;
   grid-template-columns: 0.78fr 1.3fr;
   gap: clamp(32px, 5vw, 72px);
