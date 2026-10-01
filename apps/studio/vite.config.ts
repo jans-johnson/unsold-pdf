@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -65,7 +66,8 @@ function serveAppLayout(): Plugin {
         let file = resolveFile(url === '/' ? '/index' : url);
         // Same as the native origin: `x` falls back to `x.gz`, sent with
         // Content-Encoding so the browser inflates it while streaming.
-        const gzipped = !file && !!path.extname(url) && !!resolveFile(`${url}.gz`);
+        const gzipped =
+          !file && !!path.extname(url) && !!resolveFile(`${url}.gz`);
         if (gzipped) file = resolveFile(`${url}.gz`);
         if (!file) return next();
         res.setHeader(
@@ -81,8 +83,30 @@ function serveAppLayout(): Plugin {
   };
 }
 
+// Stamped into the app for "About" and problem reports. The version comes from
+// tauri.conf.json, the same place the release scripts read it.
+const appVersion: string = JSON.parse(
+  fs.readFileSync(path.resolve(here, '../../native/tauri.conf.json'), 'utf8')
+).version;
+const appBuild = (() => {
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+      cwd: here,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim();
+  } catch {
+    return 'dev';
+  }
+})();
+
 export default defineConfig({
   base: '/studio/',
+  define: {
+    __UNSOLD_VERSION__: JSON.stringify(appVersion),
+    __UNSOLD_BUILD__: JSON.stringify(appBuild),
+  },
   plugins: [serveAppLayout()],
   server: { port: 5180, strictPort: true, headers: isolationHeaders },
   preview: { port: 5180, strictPort: true, headers: isolationHeaders },

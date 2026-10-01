@@ -1,3 +1,4 @@
+/* global __UNSOLD_VERSION__ */
 import { $, formatBytes, h, icon, locationOf, timeAgo } from './dom.ts';
 import {
   GROUPS,
@@ -10,6 +11,7 @@ import {
 } from './tasks.ts';
 import type { Studio } from './studio.ts';
 import { toast } from './ui/feedback.ts';
+import { openReportDialog } from './support.ts';
 
 const SUPPORT_URL = 'https://buymeacoffee.com/jansjohnson';
 
@@ -30,6 +32,8 @@ export function mountHome(studio: Studio) {
       ? 'device'
       : 'computer'
   }. Your files never leave it.`;
+
+  $('#app-version').textContent = `Version ${__UNSOLD_VERSION__}`;
 
   // App-store builds leave the tip link out (see HostCapabilities.tips).
   const support = $<HTMLAnchorElement>('#support-link');
@@ -318,6 +322,19 @@ export function mountDocumentPanes(studio: Studio) {
           ),
         ];
       }),
+      // Problems can always be reported from here (every build has it).
+      q
+        ? ''
+        : h(
+            'button',
+            {
+              class: 'pane-support',
+              title: 'Tell us what went wrong',
+              onclick: () => void openReportDialog(studio),
+            },
+            icon('ph-bug'),
+            'Report a problem'
+          ),
       // A quiet way to say thanks, at the very end of the list only.
       q || !studio.host.capabilities.tips
         ? ''

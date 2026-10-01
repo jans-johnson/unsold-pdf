@@ -4,15 +4,15 @@ Every build ships the same bundle, `native/www`, made by `npm run build:web`.
 Build it once. Each platform then wraps it. Finished files go into `release/`,
 which git ignores.
 
-| Platform | Command (run on)                        | Output in `release/`                                                                |
-| -------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
-| macOS    | `npm run release:mac` (Mac)             | `Unsold-PDF-<v>-mac-universal.dmg`                                                  |
-| Windows  | `npm run release:windows` (Mac, Docker) | `Unsold-PDF-<v>-windows-x64-setup.exe` (the `.msi` needs a Windows PC, below)       |
-| Linux    | `npm run release:linux` (Mac, Docker)   | `Unsold-PDF-<v>-linux-amd64.{deb,AppImage}`, `Unsold-PDF-<v>-linux-x86_64.rpm`      |
-| Android  | `npm run release:android` (Mac)         | `*-android.aab` (Play) and one APK per CPU                                          |
-| iOS      | `npx tauri ios build` (Mac with Xcode)  | `.ipa` (needs signing, below)                                                       |
-| Web      | `npm run release:web`                   | `apps/web/dist/`, a static site                                                     |
-| Website  | `npm run build -w @unsold/site`         | `apps/site/dist/`, a static site                                                    |
+| Platform | Command (run on)                        | Output in `release/`                                                           |
+| -------- | --------------------------------------- | ------------------------------------------------------------------------------ |
+| macOS    | `npm run release:mac` (Mac)             | `Unsold-PDF-<v>-mac-universal.dmg`                                             |
+| Windows  | `npm run release:windows` (Mac, Docker) | `Unsold-PDF-<v>-windows-x64-setup.exe` (the `.msi` needs a Windows PC, below)  |
+| Linux    | `npm run release:linux` (Mac, Docker)   | `Unsold-PDF-<v>-linux-amd64.{deb,AppImage}`, `Unsold-PDF-<v>-linux-x86_64.rpm` |
+| Android  | `npm run release:android` (Mac)         | `*-android.aab` (Play) and one APK per CPU                                     |
+| iOS      | `npx tauri ios build` (Mac with Xcode)  | `.ipa` (needs signing, below)                                                  |
+| Web      | `npm run release:web`                   | `apps/web/dist/`, a static site                                                |
+| Website  | `npm run build -w @unsold/site`         | `apps/site/dist/`, a static site                                               |
 
 The `release:*` scripts run `npm run build:web` first if `native/www` is
 missing, but they don't rebuild a stale one: run `build:web` yourself after
@@ -120,3 +120,22 @@ cd release && shasum -a 256 Unsold-PDF-* > SHA256SUMS
 Fill in `LINKS` near the end of `apps/site/index.html` with each file's
 download URL, and `web` with the web version's address. Any link left empty
 shows as "soon".
+
+## Announcing a new version (last step)
+
+The apps learn about new versions from
+`apps/site/public/releases/latest.json`, which is served at
+https://pdf.stayunsold.com/releases/latest.json. **Update it only once the
+new downloads are live**, because direct-download copies will offer them
+within a day:
+
+1. Bump `version` in `native/tauri.conf.json` before building. The app reads
+   its own version from there, and the release scripts use it for file names.
+2. Build, upload and link the installers (the sections above).
+3. Edit `releases/latest.json`: `version`, `released` (date), `notes` (one
+   line on what's new) and `url` (the download page).
+4. `npm run deploy:site`.
+
+Store builds ignore the file, because the stores deliver their updates. The
+web version picks up the new build on reload, so deploy it with
+`npm run deploy:web` at the same time.

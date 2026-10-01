@@ -20,7 +20,14 @@ struct HostInfo {
     /// builds leave it out: their rules require tips to go through in-app
     /// purchase. Direct downloads (desktop, sideloaded APKs) keep it.
     tips: bool,
+    /// Installed from an app store, which also delivers updates, so the app
+    /// doesn't check for new versions itself.
+    store: bool,
 }
+
+/// iOS builds only ship through the App Store; other store builds (Play,
+/// Mac App Store, Microsoft Store) are built with UNSOLD_STORE_BUILD set.
+pub(crate) const STORE_BUILD: bool = cfg!(target_os = "ios") || option_env!("UNSOLD_STORE_BUILD").is_some();
 
 /// `--self-test`: the UI runs launch checks, reports them, and the app exits
 /// with 0 (all passed) or 1. Used for CI smoke runs of packaged builds.
@@ -76,7 +83,8 @@ fn host_info(self_test: tauri::State<'_, SelfTest>) -> HostInfo {
     HostInfo {
         platform,
         self_test: self_test.0,
-        tips: !cfg!(target_os = "ios") && option_env!("UNSOLD_STORE_BUILD").is_none(),
+        tips: !STORE_BUILD,
+        store: STORE_BUILD,
     }
 }
 

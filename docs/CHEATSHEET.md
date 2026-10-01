@@ -77,6 +77,20 @@ node scripts/deploy.mjs web --dry-run     # run the checks only
 - **Rollback:** every deploy keeps the previous one. To roll back, go to the
   Cloudflare dashboard → Workers & Pages → the project → Deployments.
 
+## Problem reports and update notices
+
+Every Unsold app has both (`unsold/DESIGN.md` §8a). The shared logic is in
+`packages/support`, and Unsold PDF's dialogs are in
+`apps/studio/src/support.ts`.
+
+- **Reports:** the person picks GitHub (a public, prefilled issue), email
+  (support@stayunsold.com) or copy. They see everything that's included
+  first, and documents are never included.
+- **New version:** after a release, edit
+  `apps/site/public/releases/latest.json` and run `npm run deploy:site` (see
+  `docs/RELEASING.md` → Announcing a new version). Direct-download copies
+  check once a day; store builds never check.
+
 ## GitHub Actions (CI)
 
 - **Every push and pull request:** runs the typecheck, the tests and the

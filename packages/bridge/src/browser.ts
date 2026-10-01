@@ -56,6 +56,7 @@ export function createBrowserBridge(
       nativeMenu: false,
       saveInPlace: false,
       tips: true,
+      distribution: 'web',
     },
 
     pickDocuments: pick,

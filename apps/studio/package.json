@@ -12,6 +12,7 @@
   "dependencies": {
     "@phosphor-icons/web": "^2.1.2",
     "@unsold/bridge": "0.1.0",
+    "@unsold/support": "0.1.0",
     "@unsold/tools": "0.1.0"
   },
   "devDependencies": {

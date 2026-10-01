@@ -55,6 +55,11 @@ export interface HostCapabilities {
   saveInPlace: boolean;
   /** The "buy me a coffee" link may show (not in app-store builds). */
   tips: boolean;
+  /**
+   * Where this copy came from: `direct` (our website; the app checks for new
+   * versions), `store` (the store delivers updates), `web` (a reload updates).
+   */
+  distribution: 'direct' | 'store' | 'web';
 }
 
 /** Commands the host can ask the UI to run (menus, OS shortcuts). */

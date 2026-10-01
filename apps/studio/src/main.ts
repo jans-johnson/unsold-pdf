@@ -3,10 +3,19 @@ import '@phosphor-icons/web/fill';
 import './styles.css';
 
 import { connectHost, TOOL_HOST_KEY, type ToolHost } from '@unsold/bridge';
+import { captureErrors } from '@unsold/support';
 import { $ } from './dom.ts';
 import type { PanelName } from './panels.ts';
 import { Studio } from './studio.ts';
+import {
+  openAboutDialog,
+  openReportDialog,
+  scheduleUpdateCheck,
+} from './support.ts';
 import { mountDocumentPanes, mountHome, mountToolsView } from './views.ts';
+
+// First, so a problem report can include errors from start-up onwards.
+captureErrors();
 
 const host = await connectHost();
 document.documentElement.dataset.platform = host.platform;
@@ -84,6 +93,9 @@ const commands: Record<string, Command> = {
   'all-tools': () => studio.activate('tools'),
   'open-tool': (id) => studio.openToolTab(String(id)),
   'run-tool': (id) => studio.runTool(String(id)),
+  'report-problem': () => void openReportDialog(studio),
+  about: () => void openAboutDialog(studio),
+  'check-updates': () => void openAboutDialog(studio),
 };
 
 document.addEventListener('click', (e) => {
@@ -255,6 +267,7 @@ mountToolsView(studio);
 mountDocumentPanes(studio);
 studio.activate('home');
 await host.ready();
+scheduleUpdateCheck(studio);
 
 if (host.selfTest) {
   const { runSelfTest } = await import('./self-test.ts');

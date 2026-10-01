@@ -82,6 +82,20 @@ const TOOLS: &[Item] = &[
     ("all-tools", "All Tools…", Some("CmdOrCtrl+Shift+A")),
 ];
 
+/// Help: every Unsold app can report a problem and (outside the stores) check
+/// for updates. On macOS "Check for Updates…" lives in the app menu instead.
+fn help_items() -> Vec<Item> {
+    let mut items: Vec<Item> = vec![("report-problem", "Report a Problem…", None)];
+    if !cfg!(target_os = "macos") {
+        items.push(("-", "", None));
+        if !crate::STORE_BUILD {
+            items.push(("check-updates", "Check for Updates…", None));
+        }
+        items.push(("about", "About Unsold PDF", None));
+    }
+    items
+}
+
 fn submenu<R: Runtime>(
     app: &AppHandle<R>,
     title: &str,
@@ -137,8 +151,12 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         let settings = MenuItemBuilder::with_id("open-tool:wasm-settings", "Settings…")
             .accelerator("CmdOrCtrl+,")
             .build(app)?;
-        let app_menu = SubmenuBuilder::new(app, "Unsold PDF")
-            .item(&about)
+        let mut app_menu = SubmenuBuilder::new(app, "Unsold PDF").item(&about);
+        if !crate::STORE_BUILD {
+            let updates = MenuItemBuilder::with_id("check-updates", "Check for Updates…").build(app)?;
+            app_menu = app_menu.item(&updates);
+        }
+        let app_menu = app_menu
             .separator()
             .item(&settings)
             .separator()
@@ -177,6 +195,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
         let window = SubmenuBuilder::new(app, "Window").minimize().maximize().close_window().build()?;
         menu = menu.item(&window);
     }
+    menu = menu.item(&submenu(app, "Help", vec![], &help_items())?);
     menu.build()
 }
 

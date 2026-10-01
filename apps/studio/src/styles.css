@@ -1399,6 +1399,98 @@ button.chip:hover {
 .home-footer p {
   margin: 0;
 }
+.home-footer-text {
+  display: grid;
+  gap: 4px;
+}
+.home-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+}
+.link-btn:hover {
+  color: var(--text-dim);
+  text-decoration-color: currentColor;
+}
+.pane-support + .pane-support {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 4px;
+}
+
+/* Report a problem / About and updates */
+.report .muted,
+.about .muted {
+  margin: 0 0 12px;
+}
+.muted.small {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.report-text {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-app);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.45;
+}
+.report-text:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.report-facts {
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.report-facts summary {
+  cursor: pointer;
+}
+.report-facts pre {
+  max-height: 200px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--bg-app);
+  color: var(--text-dim);
+  font-size: 11px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.about-version {
+  margin: 0 0 2px;
+  font-weight: 600;
+}
+.update-status {
+  margin: 14px 0 8px;
+}
+.update-action:not(:empty) {
+  margin-bottom: 12px;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 6px;
+  font-size: 13px;
+}
 .bmc-button {
   display: block;
   flex: none;
