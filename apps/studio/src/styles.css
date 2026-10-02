@@ -1491,6 +1491,21 @@ button.chip:hover {
   margin: 8px 0 6px;
   font-size: 13px;
 }
+.about-unsold {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-faint);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.about-unsold:hover {
+  color: var(--text-dim);
+}
+.about-unsold .ph {
+  font-size: 15px;
+}
 .bmc-button {
   display: block;
   flex: none;

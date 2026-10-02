@@ -13,7 +13,7 @@ import type { Studio } from './studio.ts';
 import { toast } from './ui/feedback.ts';
 import { openReportDialog } from './support.ts';
 
-const SUPPORT_URL = 'https://buymeacoffee.com/jansjohnson';
+const UNSOLD_URL = 'https://stayunsold.com';
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const matches = (q: string) => (t: Task) => !q || searchText(t).includes(q);
@@ -35,12 +35,13 @@ export function mountHome(studio: Studio) {
 
   $('#app-version').textContent = `Version ${__UNSOLD_VERSION__}`;
 
-  // App-store builds leave the tip link out (see HostCapabilities.tips).
-  const support = $<HTMLAnchorElement>('#support-link');
-  support.hidden = !host.capabilities.tips;
-  support.addEventListener('click', (e) => {
+  // Store builds leave it out: stayunsold.com has a tip jar, and store rules
+  // don't allow linking to payments outside their own (HostCapabilities.tips).
+  const about = $<HTMLAnchorElement>('#about-unsold');
+  about.hidden = !host.capabilities.tips;
+  about.addEventListener('click', (e) => {
     e.preventDefault();
-    void host.openExternal(SUPPORT_URL);
+    void host.openExternal(UNSOLD_URL);
   });
 
   const recCard = ([target, label, ic]: Shortcut) => {
@@ -335,18 +336,18 @@ export function mountDocumentPanes(studio: Studio) {
             icon('ph-bug'),
             'Report a problem'
           ),
-      // A quiet way to say thanks, at the very end of the list only.
+      // The Unsold website, at the very end of the list only.
       q || !studio.host.capabilities.tips
         ? ''
         : h(
             'button',
             {
               class: 'pane-support',
-              title: 'Unsold is free. If it helps you, buy me a coffee.',
-              onclick: () => void studio.host.openExternal(SUPPORT_URL),
+              title: 'Free apps that aren’t for sale',
+              onclick: () => void studio.host.openExternal(UNSOLD_URL),
             },
-            icon('ph-coffee'),
-            'Support Unsold'
+            icon('ph-globe-simple'),
+            'About Unsold'
           )
     );
     studio.syncChrome();
