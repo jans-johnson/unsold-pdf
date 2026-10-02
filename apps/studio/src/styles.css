@@ -1568,6 +1568,43 @@ button.chip:hover {
     flex-wrap: wrap;
     gap: 8px;
   }
+  /* Recent files: the six columns don't fit, so each file is its name over
+     "size · opened", with no header and no location column. */
+  .recent-row.head {
+    display: none;
+  }
+  .recent-row {
+    grid-template-columns: 32px auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'ico name name act'
+      'ico size time act';
+    column-gap: 10px;
+    row-gap: 2px;
+    padding: 10px 4px;
+  }
+  .recent-row .file-ico {
+    grid-area: ico;
+  }
+  .recent-row .name {
+    grid-area: name;
+  }
+  .recent-row .loc {
+    display: none;
+  }
+  .recent-row .size {
+    grid-area: size;
+  }
+  .recent-row .time {
+    grid-area: time;
+  }
+  .recent-row .time::before {
+    content: '·';
+    margin-right: 6px;
+  }
+  .recent-row .row-actions {
+    grid-area: act;
+    opacity: 1; /* no hover on touch screens */
+  }
   .recent-actions {
     flex: 1 1 100%;
   }

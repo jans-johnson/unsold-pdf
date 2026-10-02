@@ -139,8 +139,8 @@ async function renderRecents(studio: Studio) {
         icon('ph-file-pdf', 'ph-fill file-ico'),
         h('span', { class: 'name' }, r.name),
         h('span', { class: 'loc' }, h('bdi', {}, locationOf(r.handle))),
-        h('span', { class: 'meta' }, formatBytes(r.size)),
-        h('span', { class: 'meta' }, timeAgo(r.openedAt)),
+        h('span', { class: 'meta size' }, formatBytes(r.size)),
+        h('span', { class: 'meta time' }, timeAgo(r.openedAt)),
         h(
           'span',
           { class: 'row-actions' },
