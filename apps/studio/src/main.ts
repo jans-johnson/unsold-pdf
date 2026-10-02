@@ -7,8 +7,9 @@ import { captureErrors } from '@unsold/support';
 import { $ } from './dom.ts';
 import type { PanelName } from './panels.ts';
 import { Studio } from './studio.ts';
+import { closeMenus } from './ui/feedback.ts';
 import { mountDefaultAppCard } from './default-app.ts';
-import { mountSimple, setMode } from './simple.ts';
+import { mountSimple, setMode, simpleShown } from './simple.ts';
 import {
   openAboutDialog,
   openReportDialog,
@@ -109,6 +110,49 @@ document.addEventListener('click', (e) => {
   if (btn && !btn.disabled) commands[btn.dataset.cmd!]?.(undefined, btn);
 });
 host.onCommand(({ command, arg }) => commands[command]?.(arg));
+
+// Android's back gesture asks here first (MainActivity): close what's on top
+// and say so, or return false at Home to let the system take it.
+Object.assign(window, {
+  __unsoldBack: (): boolean => {
+    if (document.querySelector('.menu-pop')) {
+      closeMenus();
+      return true;
+    }
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+      backdrop.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+      );
+      return true;
+    }
+    if ($('#doc-toolbar').classList.contains('finding')) {
+      commands['find-close']();
+      return true;
+    }
+    const tab = studio.activeTab();
+    if (tab?.kind === 'doc' && studio.panel) {
+      studio.togglePanel(null);
+      return true;
+    }
+    if (tab?.kind === 'doc' && tab.tool) {
+      void studio.requestCloseTool(tab);
+      return true;
+    }
+    if (tab) {
+      // Simple mode closes the document (as phone PDF apps do); power mode
+      // keeps it open in its tab and goes Home.
+      if (simpleShown()) void studio.closeTab(tab);
+      else studio.activate('home');
+      return true;
+    }
+    if (studio.active !== 'home') {
+      studio.activate('home');
+      return true;
+    }
+    return false;
+  },
+});
 host.onDocumentsOpened((docs) => studio.openFiles(docs));
 host.onCloseRequested(() => studio.confirmCloseAll());
 

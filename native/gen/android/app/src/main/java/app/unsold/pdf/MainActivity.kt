@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.webkit.WebView
+import androidx.activity.OnBackPressedCallback
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +25,22 @@ class MainActivity : TauriActivity() {
     super.onCreate(savedInstanceState)
     // A relaunch after process death replays the old intent; skip it then.
     if (savedInstanceState == null) forward(intent)
+  }
+
+  /**
+   * Back goes to the previous screen, not out of the app: the page closes
+   * whatever is on top (menu, dialog, search, a tool, the document) and
+   * answers whether it did. At Home it doesn't, and the app steps aside the
+   * way Android apps do. Registered after Tauri's own handler, so it wins.
+   */
+  override fun onWebViewCreate(webView: WebView) {
+    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() {
+        webView.evaluateJavascript("window.__unsoldBack ? window.__unsoldBack() : false") { handled ->
+          if (handled != "true") moveTaskToBack(true)
+        }
+      }
+    })
   }
 
   override fun onNewIntent(intent: Intent) {

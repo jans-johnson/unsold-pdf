@@ -2027,8 +2027,9 @@ button.chip:hover {
     background: var(--bg-title);
     border-top: 1px solid var(--border);
   }
-  [data-mode='simple'] #view-doc:has(.tool-mode) #simple-actions {
-    display: none;
+  [data-mode='simple'] #view-doc:has(.tool-mode) #simple-actions,
+  [data-mode='simple'] #view-doc:has(.tool-mode) #page-pill {
+    display: none !important;
   }
   .simple-action {
     display: flex;
