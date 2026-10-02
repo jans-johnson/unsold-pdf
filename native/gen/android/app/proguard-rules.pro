@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Unsold PDF: these are called from Rust over JNI (native/src/android.rs), by
+# name. R8 can't see those calls, so without this it strips them from release
+# builds and "Open a file" silently does nothing.
+-keepclassmembers class app.unsold.pdf.MainActivity {
+    public void pickDocuments();
+    public void keepAccess(java.lang.String);
+}
