@@ -2460,6 +2460,42 @@
   color: #fff;
 }
 
+/* Phones: the bar spans the stage (there's no side inspector to leave room
+   for), and the buttons drop onto their own row under the message. */
+@media (max-width: 768px) {
+  #text-editor-app #scanBar,
+  #text-editor-app #main:has(#inspector[hidden]) #scanBar {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    transform: none;
+    width: auto;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 10px;
+    padding: 12px;
+  }
+  #text-editor-app #scanBar .msg {
+    flex: 1 1 0;
+  }
+  #text-editor-app #scanBar .actions {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+  #text-editor-app #scanBar .actions .btn:not(.icon) {
+    flex: 1 1 auto;
+  }
+  /* The close button stays top-right, beside the message. */
+  #text-editor-app #scanBar .actions .btn.icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+  #text-editor-app #scanBar .msg {
+    padding-right: 32px;
+  }
+}
+
 /* Text in a selected image */
 #text-editor-app #contextbar .btn.labeled {
   display: inline-flex;
