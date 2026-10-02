@@ -1637,3 +1637,44 @@ details > summary .icon {
   gap: 0.25rem;
   padding: 0.25rem 0;
 }
+
+/* ---------------------------------------------------------------- simple mode
+   Set by js/utils/simple-mode.ts when the Studio shows its phone layout. */
+[data-simple] #tool-uploader {
+  max-width: none !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+[data-simple] #uploader {
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+[data-simple] #form-filler-options,
+[data-simple] #signature-editor {
+  margin-top: 0 !important;
+}
+[data-simple] #pdf-viewer-container,
+[data-simple] #canvas-container-sign {
+  height: calc(100vh - 72px) !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+[data-simple] #canvas-container-sign {
+  /* room for the one-line tip above and Save below */
+  height: calc(100vh - 128px) !important;
+}
+[data-simple] #signature-editor > p {
+  margin: 8px 12px !important;
+  font-size: 13px !important;
+}
+[data-simple] #signature-editor > .mt-4:has(#flatten-signature-toggle) {
+  display: none !important;
+}
+[data-simple] #process-btn {
+  width: calc(100% - 24px) !important;
+  margin: 8px 12px !important;
+}

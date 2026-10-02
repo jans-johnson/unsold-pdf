@@ -1960,6 +1960,23 @@ button.chip:hover {
   [data-mode='simple'] .home-hero {
     display: none;
   }
+  /* Tools: our top bar already has back and the name, so the tool's own
+     title row goes, and only the everyday modes stay. */
+  [data-mode='simple'] .tool-header .t-icon,
+  [data-mode='simple'] .tool-header .t-head,
+  [data-mode='simple'] .tool-header .t-close,
+  [data-mode='simple'] .tool-header .spacer,
+  [data-mode='simple'] .mode-btn[data-mode='form-creator'],
+  [data-mode='simple'] .mode-btn[data-mode='add-stamps'] {
+    display: none !important;
+  }
+  [data-mode='simple'] .tool-header .mode-switch {
+    flex: 1;
+  }
+  /* Home's footer links live in the ⋮ menu; Open floats over the list. */
+  [data-mode='simple'] .home-footer {
+    display: none !important;
+  }
 
   /* Top bar: title or back · name · actions */
   [data-mode='simple'] #simple-bar {
@@ -2011,7 +2028,7 @@ button.chip:hover {
   #simple-fab .ph {
     font-size: 22px;
   }
-  [data-mode='simple'] .home-footer {
+  [data-mode='simple'] .recent-table {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
 

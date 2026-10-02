@@ -1,3 +1,4 @@
+import { markSimpleMode, simplifyViewer } from '../utils/simple-mode.js';
 // Self-contained Form Filler logic for standalone page
 import { createIcons, icons } from 'lucide';
 import { getPDFDocument, getCleanPdfFilename } from '../utils/helpers.js';
@@ -234,6 +235,7 @@ async function setupFormViewer() {
     iframe.onload = () => {
       viewerReady = true;
       hideLoader();
+      if (iframe.contentDocument) simplifyViewer(iframe.contentDocument);
       void prepareViewer(iframe);
     };
 
@@ -381,6 +383,7 @@ async function processAndDownloadForm() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+  markSimpleMode();
   const fileInput = document.getElementById('file-input') as HTMLInputElement;
   const dropZone = document.getElementById('drop-zone');
   const processBtn = document.getElementById('process-btn');

@@ -1,3 +1,4 @@
+import { markSimpleMode, simplifyViewer } from '../utils/simple-mode.js';
 import { createIcons, icons } from 'lucide';
 import { showAlert, showLoader, hideLoader } from '../ui.js';
 import {
@@ -102,6 +103,12 @@ function signaturesPlaced(): boolean {
 }
 
 function initializePage() {
+  if (markSimpleMode()) {
+    const tip = document.querySelector('#signature-editor > p');
+    if (tip)
+      tip.textContent =
+        'Tap the signature button, make or pick your signature, then tap where it goes.';
+  }
   registerToolPage({
     hasChanges: signaturesPlaced,
     apply: () => applyAndSaveSignatures(),
@@ -292,6 +299,7 @@ async function setupSignTool() {
         const doc = viewerWindow.document;
         const eventBus = app.eventBus;
         injectEditorToolbarStyle(doc);
+        simplifyViewer(doc);
         // The viewer's own download/save controls save through us too.
         doc.addEventListener(
           'click',

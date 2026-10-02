@@ -193,7 +193,7 @@ export function mountSimple(studio: Studio) {
     );
   $('#simple-actions').replaceChildren(
     action('Edit', 'ph-pencil-simple', run('edit-pdf-text')),
-    action('Sign', 'ph-signature', run('fill-sign')),
+    action('Sign', 'ph-signature', run('sign-pdf')),
     action('Comment', 'ph-chat-circle-text', run('edit-pdf')),
     action('More', 'ph-dots-three', (e) =>
       popMenu(e.currentTarget as HTMLElement, [
