@@ -83,6 +83,16 @@ export interface NetResponse {
 
 export type Unsubscribe = () => void;
 
+/**
+ * Making this app the default for PDFs: `done`; `settings` (the system's
+ * settings opened to finish it); `guide` (the person finishes it the next
+ * time they open a PDF); or `unsupported`. `message` says what to do next.
+ */
+export interface MakeDefaultResult {
+  outcome: 'done' | 'settings' | 'guide' | 'unsupported';
+  message?: string;
+}
+
 export interface SelfTestCheck {
   name: string;
   ok: boolean;
@@ -135,6 +145,10 @@ export interface HostBridge {
    * close, `false` to keep it open (e.g. the user cancelled a save prompt).
    */
   onCloseRequested(guard: () => Promise<boolean>): Unsubscribe;
+
+  /** Whether this app opens PDFs by default (`unknown` where it can't tell). */
+  defaultPdfStatus(): Promise<'yes' | 'no' | 'unknown'>;
+  makeDefaultPdfApp(): Promise<MakeDefaultResult>;
 
   /** Tell the host the UI is ready to receive queued documents and commands. */
   ready(): Promise<void>;

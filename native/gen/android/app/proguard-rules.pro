@@ -25,4 +25,7 @@
 -keepclassmembers class app.unsold.pdf.MainActivity {
     public void pickDocuments();
     public void keepAccess(java.lang.String);
+    public java.lang.String defaultPdfApp();
+    public java.lang.String appLabel(java.lang.String);
+    public void openAppSettings(java.lang.String);
 }

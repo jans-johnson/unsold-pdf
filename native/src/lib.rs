@@ -1,5 +1,6 @@
 #[cfg(target_os = "android")]
 mod android;
+mod default_app;
 mod documents;
 #[cfg(desktop)]
 mod menu;
@@ -250,6 +251,8 @@ pub fn run() {
             documents::recents_clear,
             documents::reveal_file,
             net::net_fetch,
+            default_app::default_pdf_status,
+            default_app::make_default_pdf_app,
         ])
         .build(tauri::generate_context!())
         .expect("failed to build Unsold PDF");

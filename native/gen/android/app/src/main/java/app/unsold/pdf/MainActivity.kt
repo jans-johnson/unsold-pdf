@@ -1,7 +1,9 @@
 package app.unsold.pdf
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -33,6 +35,42 @@ class MainActivity : TauriActivity() {
     val uris = documentsOf(intent ?: return)
     uris.forEach(::keepAccess)
     if (uris.isNotEmpty()) nativeOpened(uris.joinToString("\n"))
+  }
+
+  /**
+   * Called from Rust: the app that opens PDFs by default. "self", "none"
+   * (Android asks each time) or another app's package name.
+   */
+  @Suppress("unused")
+  fun defaultPdfApp(): String {
+    val probe = Intent(Intent.ACTION_VIEW)
+      .setDataAndType(Uri.parse("content://app.unsold.pdf.probe/document.pdf"), "application/pdf")
+    val info = packageManager.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo
+      ?: return "none"
+    return when {
+      info.packageName == packageName -> "self"
+      // No default chosen: the system's chooser answers instead.
+      info.packageName == "android" || info.name.contains("Resolver") -> "none"
+      else -> info.packageName
+    }
+  }
+
+  /** Called from Rust: an app's name as the person sees it. */
+  @Suppress("unused")
+  fun appLabel(pkg: String): String =
+    try {
+      packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+    } catch (e: PackageManager.NameNotFoundException) {
+      ""
+    }
+
+  /** Called from Rust: App info for a package ("Open by default" lives there). */
+  @Suppress("unused")
+  fun openAppSettings(pkg: String) {
+    startActivity(
+      Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", pkg, null))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
   }
 
   /** Called from Rust; the choice comes back through [nativePicked]. */

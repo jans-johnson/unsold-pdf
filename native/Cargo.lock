@@ -4461,6 +4461,7 @@ dependencies = [
  "tiny_http",
  "tokio",
  "url",
+ "winreg",
 ]
 
 [[package]]

@@ -1405,8 +1405,12 @@ button.chip:hover {
 }
 .home-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px 6px;
+}
+.home-meta .link-btn {
+  white-space: nowrap;
 }
 .link-btn {
   padding: 0;
@@ -1883,5 +1887,184 @@ button.chip:hover {
   .tool-header .mode-select select {
     flex: 1;
     font-size: 16px;
+  }
+}
+
+/* ---------------------------------------------------------------- default app */
+.default-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-raised);
+}
+.default-card[hidden] {
+  display: none;
+}
+.default-card > i {
+  flex: none;
+  font-size: 22px;
+  color: var(--accent);
+}
+.default-card .text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+.default-card .text strong {
+  display: block;
+  font-size: 14px;
+}
+.default-card .text span {
+  color: var(--text-dim);
+}
+.default-card .actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+/* ---------------------------------------------------------------- simple mode
+   Phones only (desktop always has the full layout); see src/simple.ts. */
+.simple-only,
+.power-only {
+  display: none;
+}
+/* Phones in power mode: a way back to simple mode. */
+@media (max-width: 760px) {
+  [data-mode='power'] .power-only {
+    display: inline;
+  }
+}
+@media (max-width: 760px) {
+  [data-mode='simple'] #tabstrip,
+  [data-mode='simple'] #title-open,
+  [data-mode='simple'] .titlebar-fill,
+  [data-mode='simple'] #greeting,
+  [data-mode='simple'] #home-privacy,
+  [data-mode='simple'] #home-open,
+  [data-mode='simple'] #recommended,
+  [data-mode='simple'] #rec-title,
+  [data-mode='simple'] #home-drop,
+  [data-mode='simple'] .recent-actions,
+  [data-mode='simple'] #quick-rail,
+  [data-mode='simple'] #right-rail,
+  [data-mode='simple'] #tools-pane,
+  [data-mode='simple'] .doc-toolbar:not(.finding) {
+    display: none !important;
+  }
+  [data-mode='simple'] .home-hero {
+    display: none;
+  }
+
+  /* Top bar: title or back · name · actions */
+  [data-mode='simple'] #simple-bar {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 6px 0 4px;
+  }
+  [data-mode='simple'] #simple-bar .icon-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+  }
+  .simple-title {
+    flex: 1;
+    min-width: 0;
+    padding: 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  /* Home: the recent list is the screen; Open floats bottom-right. */
+  [data-mode='simple'] .recent-head .section-title {
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+  [data-mode='simple'][data-view='home'] #simple-fab {
+    position: fixed;
+    right: 18px;
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 56px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 18px;
+    background: var(--accent-strong);
+    color: #fff;
+    font: 600 16px/1 inherit;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  #simple-fab .ph {
+    font-size: 22px;
+  }
+  [data-mode='simple'] .home-footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  /* Document: the page, a page-number pill, and four labelled actions. */
+  [data-mode='simple'] .doc-body {
+    padding-bottom: 0;
+  }
+  [data-mode='simple'] #simple-actions {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 4px 4px env(safe-area-inset-bottom);
+    background: var(--bg-title);
+    border-top: 1px solid var(--border);
+  }
+  [data-mode='simple'] #view-doc:has(.tool-mode) #simple-actions {
+    display: none;
+  }
+  .simple-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 9px 0 8px;
+    border: 0;
+    background: none;
+    color: var(--text-dim);
+    font: 500 12px/1 inherit;
+  }
+  .simple-action .ph {
+    font-size: 24px;
+    color: var(--text);
+  }
+  .simple-action:active {
+    background: var(--bg-hover);
+    border-radius: 12px;
+  }
+  [data-mode='simple'] #page-pill:not(:empty) {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    z-index: 5;
+    display: block;
+    translate: -50% 0;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(20, 20, 20, 0.82);
+    color: var(--text);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+  [data-mode='simple'] .doc-body {
+    position: relative;
   }
 }

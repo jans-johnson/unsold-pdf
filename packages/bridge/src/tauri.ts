@@ -69,6 +69,9 @@ export async function createTauriBridge(): Promise<HostBridge> {
       ? { report: (checks) => invoke('self_test_report', { checks }) }
       : undefined,
 
+    defaultPdfStatus: () => invoke('default_pdf_status'),
+    makeDefaultPdfApp: () => invoke('make_default_pdf_app'),
+
     async pickDocuments() {
       const refs = await invoke<DocumentRef[]>('pick_documents');
       return Promise.all(refs.map(read));

@@ -26,7 +26,9 @@
     "allow-recents-remove",
     "allow-recents-clear",
     "allow-reveal-file",
-    "allow-net-fetch"
+    "allow-net-fetch",
+    "allow-default-pdf-status",
+    "allow-make-default-pdf-app"
   ],
   "remote": {
     "urls": [

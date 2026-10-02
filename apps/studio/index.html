@@ -23,6 +23,7 @@
         <div class="tab-sep"></div>
         <div id="doc-tabs"></div>
       </nav>
+      <div id="simple-bar" class="simple-only"></div>
       <div class="titlebar-fill" data-tauri-drag-region></div>
       <button class="title-btn" id="title-open" title="Open file">
         <i class="ph ph-folder-open"></i>
@@ -44,7 +45,10 @@
               </button>
             </div>
 
-            <h2 class="section-title">Recommended tools for you</h2>
+            <div id="default-card" class="default-card" hidden></div>
+            <h2 class="section-title" id="rec-title">
+              Recommended tools for you
+            </h2>
             <div id="recommended" class="rec-grid"></div>
 
             <div id="home-drop" class="drop-card">
@@ -87,6 +91,10 @@
                   <span aria-hidden="true">·</span>
                   <button class="link-btn" data-cmd="report-problem">
                     Report a problem
+                  </button>
+                  <span class="power-only" aria-hidden="true">·</span>
+                  <button class="link-btn power-only" data-cmd="simple-mode">
+                    Simple mode
                   </button>
                 </p>
               </div>
@@ -263,6 +271,7 @@
 
           <!-- Stage: viewer / tool iframe for the active tab -->
           <div id="stage" class="stage"></div>
+          <div id="page-pill" class="simple-only" aria-live="polite"></div>
 
           <!-- Right side panel -->
           <aside id="side-panel" class="side-panel" hidden>
@@ -301,8 +310,12 @@
             </button>
           </nav>
         </div>
+        <nav id="simple-actions" class="simple-only"></nav>
       </section>
     </main>
+    <button id="simple-fab" class="simple-only" data-cmd="open">
+      <i class="ph ph-folder-open"></i><span>Open</span>
+    </button>
 
     <div id="drop-overlay" hidden>
       <div>

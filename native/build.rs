@@ -18,6 +18,8 @@ const COMMANDS: &[&str] = &[
     "recents_clear",
     "reveal_file",
     "net_fetch",
+    "default_pdf_status",
+    "make_default_pdf_app",
 ];
 
 fn main() {

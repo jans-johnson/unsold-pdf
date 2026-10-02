@@ -7,6 +7,8 @@ import { captureErrors } from '@unsold/support';
 import { $ } from './dom.ts';
 import type { PanelName } from './panels.ts';
 import { Studio } from './studio.ts';
+import { mountDefaultAppCard } from './default-app.ts';
+import { mountSimple, setMode } from './simple.ts';
 import {
   openAboutDialog,
   openReportDialog,
@@ -95,6 +97,10 @@ const commands: Record<string, Command> = {
   'run-tool': (id) => studio.runTool(String(id)),
   'report-problem': () => void openReportDialog(studio),
   about: () => void openAboutDialog(studio),
+  'simple-mode': () => {
+    setMode('simple');
+    studio.activate(studio.active);
+  },
   'check-updates': () => void openAboutDialog(studio),
 };
 
@@ -263,6 +269,8 @@ $('#stage').addEventListener('touchend', (e) => {
 // ------------------------------------------------------------------ start
 
 mountHome(studio);
+mountSimple(studio);
+void mountDefaultAppCard(studio);
 mountToolsView(studio);
 mountDocumentPanes(studio);
 studio.activate('home');

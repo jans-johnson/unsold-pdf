@@ -74,6 +74,8 @@ export function createBrowserBridge(
     },
 
     listRecents: async () => [],
+    defaultPdfStatus: async () => 'unknown',
+    makeDefaultPdfApp: async () => ({ outcome: 'unsupported' }),
     removeRecent: async () => {},
     clearRecents: async () => {},
 

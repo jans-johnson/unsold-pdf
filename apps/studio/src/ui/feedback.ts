@@ -77,7 +77,12 @@ export function popMenu(anchor: HTMLElement, items: MenuItem[]) {
   );
   document.body.append(menu);
   const w = menu.offsetWidth;
-  menu.style.top = `${r.bottom + 6}px`;
+  // Open upwards when there's no room below (menus on a bottom bar).
+  const h0 = menu.offsetHeight;
+  menu.style.top =
+    r.bottom + 6 + h0 > window.innerHeight - 8 && r.top - 6 - h0 >= 8
+      ? `${r.top - 6 - h0}px`
+      : `${r.bottom + 6}px`;
   menu.style.left = `${Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8))}px`;
   // Close on a click elsewhere, Escape, or a click into a tool page (which
   // blurs this window without reaching its document).

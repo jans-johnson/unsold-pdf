@@ -191,3 +191,54 @@ fn query_name(
     env.call_method(&cursor, "close", "()V", &[])?;
     Ok(name.filter(|n: &String| !n.is_empty()))
 }
+
+/// Runs `f` on the UI thread with the activity and waits for its answer.
+fn ask_activity<R: Runtime, T: Send + 'static>(
+    app: &AppHandle<R>,
+    f: impl FnOnce(&mut JNIEnv, &JObject) -> jni::errors::Result<T> + Send + 'static,
+) -> Option<T> {
+    let (tx, rx) = mpsc::channel();
+    on_activity(app, move |env, activity| {
+        let _ = tx.send(f(env, activity).ok());
+        Ok(())
+    });
+    rx.recv_timeout(Duration::from_secs(5)).ok().flatten()
+}
+
+fn string_result(env: &mut JNIEnv, value: jni::objects::JValueOwned) -> jni::errors::Result<String> {
+    let obj = value.l()?;
+    if obj.is_null() {
+        return Ok(String::new());
+    }
+    Ok(env.get_string(&JString::from(obj))?.into())
+}
+
+/// The app that opens PDFs by default: "self", "none" (Android asks each
+/// time) or another app's package name.
+pub fn default_pdf_app<R: Runtime>(app: &AppHandle<R>) -> Option<String> {
+    ask_activity(app, |env, activity| {
+        let v = env.call_method(activity, "defaultPdfApp", "()Ljava/lang/String;", &[])?;
+        string_result(env, v)
+    })
+}
+
+/// A package's name as the person sees it ("Drive", "Adobe Acrobat").
+pub fn app_label<R: Runtime>(app: &AppHandle<R>, package: &str) -> Option<String> {
+    let package = package.to_owned();
+    ask_activity(app, move |env, activity| {
+        let p = env.new_string(&package)?;
+        let v = env.call_method(activity, "appLabel", "(Ljava/lang/String;)Ljava/lang/String;", &[JValue::Object(&p)])?;
+        string_result(env, v)
+    })
+    .filter(|s| !s.is_empty())
+}
+
+/// Opens a package's App info screen (where "Open by default" lives).
+pub fn open_app_settings<R: Runtime>(app: &AppHandle<R>, package: &str) {
+    let package = package.to_owned();
+    on_activity(app, move |env, activity| {
+        let p = env.new_string(&package)?;
+        env.call_method(activity, "openAppSettings", "(Ljava/lang/String;)V", &[JValue::Object(&p)])?;
+        Ok(())
+    });
+}
