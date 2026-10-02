@@ -6,6 +6,93 @@
 /** Lines below this OCR confidence (0-100) stay part of the image. */
 export const MIN_LINE_CONFIDENCE = 55;
 
+/**
+ * Words below this confidence stay part of the image. Judging words, not just
+ * lines, stops a confident half-line ("/ Your Aadhaar No.") from carrying a
+ * misread half (Hindi read as English) into editable text.
+ */
+export const MIN_WORD_CONFIDENCE = 75;
+
+/** A lone character needs this much more: stray marks and fragments of
+ * sideways text (dates printed vertically) read as "i", "S", "&", "o". */
+const MIN_SINGLE_CHAR_CONFIDENCE = 92;
+const MIN_SINGLE_PUNCT_CONFIDENCE = 85;
+
+/** A word is plausible text: mostly letters and digits, not punctuation soup
+ * like "sh&ATH" (a sign the script wasn't one the OCR knows). */
+function plausibleWord(text) {
+  const t = text.trim();
+  if (!t) return false;
+  const alnum = (t.match(/[\p{L}\p{N}]/gu) || []).length;
+  if (!alnum) return /^[-–—/:.,()]+$/.test(t) && t.length <= 3;
+  // A symbol wedged between letters (sh&ATH, wo|rd) is a misread.
+  if (/[\p{L}][^\p{L}\p{N}\s.'’,:;\-/]+[\p{L}]/u.test(t)) return false;
+  return alnum / t.length >= 0.5;
+}
+
+/**
+ * Splits OCR lines into the runs of words that are safe to turn into text.
+ * Untrusted words are left out (they stay as pixels in the scan), and a line
+ * breaks wherever a word is left out or a wide gap separates two words, so
+ * kept words never get pulled across a hole. Each run keeps its line's
+ * baseline and height.
+ */
+export function trustedRuns(
+  lines,
+  { minLineConfidence = MIN_LINE_CONFIDENCE } = {}
+) {
+  const runs = [];
+  for (const line of lines) {
+    const height = Math.max(1, line.bbox.y1 - line.bbox.y0);
+    let run = [];
+    const flush = () => {
+      if (run.length) {
+        const confidence =
+          run.reduce((n, w) => n + w.confidence, 0) / run.length;
+        if (confidence >= minLineConfidence) {
+          runs.push({
+            text: run.map((w) => w.text).join(' '),
+            confidence,
+            bbox: {
+              x0: Math.min(...run.map((w) => w.bbox.x0)),
+              x1: Math.max(...run.map((w) => w.bbox.x1)),
+              y0: line.bbox.y0,
+              y1: line.bbox.y1,
+            },
+            baseline: line.baseline,
+            words: run,
+            // Style (bold, ink) is judged on the whole scanned line: a short
+            // run reads too little ink to tell bold from regular.
+            styleBox: line.bbox,
+          });
+        }
+      }
+      run = [];
+    };
+    for (const w of line.words) {
+      const t = w.text.trim();
+      // A lone letter or digit is the usual fragment of sideways text; lone
+      // punctuation (a "/" between two labels) is common and safer.
+      const need =
+        t.length !== 1
+          ? MIN_WORD_CONFIDENCE
+          : /[\p{L}\p{N}]/u.test(t)
+            ? MIN_SINGLE_CHAR_CONFIDENCE
+            : MIN_SINGLE_PUNCT_CONFIDENCE;
+      const trusted = plausibleWord(t) && w.confidence >= need;
+      if (!trusted) {
+        flush();
+        continue;
+      }
+      const prev = run.at(-1);
+      if (prev && w.bbox.x0 - prev.bbox.x1 > height * 1.5) flush();
+      run.push(w);
+    }
+    flush();
+  }
+  return runs;
+}
+
 /** Images smaller than this (longest side, px) are enlarged before OCR. */
 const UPSCALE_TARGET = 1600;
 
@@ -23,7 +110,9 @@ export async function recognizeLines(
   const source = document.createElement('canvas');
   source.width = width;
   source.height = height;
-  source.getContext('2d').putImageData(new ImageData(data, width, height), 0, 0);
+  source
+    .getContext('2d')
+    .putImageData(new ImageData(data, width, height), 0, 0);
   // Small images (logos, screenshots, stamps) read far better enlarged.
   const k = clamp(UPSCALE_TARGET / Math.max(width, height), 1, 3);
   let canvas = source;
@@ -35,17 +124,27 @@ export async function recognizeLines(
     g.imageSmoothingQuality = 'high';
     g.drawImage(source, 0, 0, canvas.width, canvas.height);
   }
-  const back = (b) => ({ x0: b.x0 / k, y0: b.y0 / k, x1: b.x1 / k, y1: b.y1 / k });
+  const back = (b) => ({
+    x0: b.x0 / k,
+    y0: b.y0 / k,
+    x1: b.x1 / k,
+    y1: b.y1 / k,
+  });
 
   // Loaded on demand: no OCR code or data is fetched until the user asks.
-  const { createConfiguredTesseractWorker } = await import('../utils/tesseract-runtime.ts');
+  const { createConfiguredTesseractWorker } =
+    await import('../utils/tesseract-runtime.ts');
   const worker = await createConfiguredTesseractWorker(language, 1, (m) =>
     onProgress?.(m.status, m.progress || 0)
   );
   const abort = () => worker.terminate();
   signal?.addEventListener('abort', abort, { once: true });
   try {
-    const { data: result } = await worker.recognize(canvas, {}, { blocks: true });
+    const { data: result } = await worker.recognize(
+      canvas,
+      {},
+      { blocks: true }
+    );
     if (signal?.aborted) throw new DOMException('Cancelled', 'AbortError');
     const lines = [];
     for (const block of result.blocks || []) {
@@ -53,7 +152,11 @@ export async function recognizeLines(
         for (const line of para.lines || []) {
           const words = (line.words || [])
             .filter((w) => w.text.trim())
-            .map((w) => ({ text: w.text, confidence: w.confidence, bbox: back(w.bbox) }));
+            .map((w) => ({
+              text: w.text,
+              confidence: w.confidence,
+              bbox: back(w.bbox),
+            }));
           const text = words.map((w) => w.text).join(' ');
           if (!text) continue;
           const b = line.baseline;
@@ -138,7 +241,9 @@ export function inkOf(img, box, background) {
     }
   }
   return {
-    color: r.length ? [channelMedian(r), channelMedian(g), channelMedian(b)] : [0, 0, 0],
+    color: r.length
+      ? [channelMedian(r), channelMedian(g), channelMedian(b)]
+      : [0, 0, 0],
     coverage: total ? ink / total : 0,
   };
 }
@@ -155,7 +260,9 @@ export function strokeWidth(img, box, background) {
     let run = 0;
     for (let x = Math.floor(box.x0); x <= Math.ceil(box.x1); x++) {
       const i = (y * width + x) * 4;
-      const ink = x < Math.ceil(box.x1) && bgLum - luminance(data[i], data[i + 1], data[i + 2]) > 60;
+      const ink =
+        x < Math.ceil(box.x1) &&
+        bgLum - luminance(data[i], data[i + 1], data[i + 2]) > 60;
       if (ink) run++;
       else if (run) {
         runs.push(run);
@@ -180,7 +287,11 @@ export function strokeContrast(img, box, background, ink, sizePx) {
   const span = Math.max(40, bgLum - luminance(...ink));
   const inkAt = (x, y) => {
     const i = (y * width + x) * 4;
-    return clamp((bgLum - luminance(data[i], data[i + 1], data[i + 2])) / span, 0, 1);
+    return clamp(
+      (bgLum - luminance(data[i], data[i + 1], data[i + 2])) / span,
+      0,
+      1
+    );
   };
   const x0 = Math.floor(box.x0),
     x1 = Math.ceil(box.x1),
@@ -289,7 +400,8 @@ export function pageFamily(lines) {
     for (const family of FAMILIES) {
       const perPt = textWidthPerPoint(l.text, family, l.bold);
       if (!perPt) continue;
-      score[family] += Math.abs(Math.log(l.widthPt / perPt / size)) * l.text.length;
+      score[family] +=
+        Math.abs(Math.log(l.widthPt / perPt / size)) * l.text.length;
     }
   }
   return FAMILIES.reduce((a, b) => (score[b] < score[a] ? b : a));
@@ -303,7 +415,11 @@ export function fitLine(text, { widthPt, ascentPt }, bold, family) {
   const sizeFromHeight = sizeFromAscent(ascentPt);
   const perPt = textWidthPerPoint(text, family, bold);
   if (!perPt) return { size: sizeFromHeight, hScale: 1 };
-  const size = clamp(widthPt / perPt, sizeFromHeight * 0.85, sizeFromHeight * 1.15);
+  const size = clamp(
+    widthPt / perPt,
+    sizeFromHeight * 0.85,
+    sizeFromHeight * 1.15
+  );
   const hScale = clamp(widthPt / (perPt * size), 0.8, 1.2);
   return { size: Math.round(size * 10) / 10, hScale };
 }

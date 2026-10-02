@@ -21,7 +21,7 @@ import {
   fitLine,
   inkOf,
   BOLD_STEM_RATIO,
-  MIN_LINE_CONFIDENCE,
+  trustedRuns,
   pageFamily,
   recognizeLines,
   strokeContrast,
@@ -3176,9 +3176,7 @@ async function convertActivePage({ signal, onProgress, undoPoint }) {
 async function readImageText(handle, { signal, onProgress }) {
   const img = P().renderImageObjectNative(handle);
   if (!img) return { img: null, lines: [] };
-  const lines = (await recognizeLines(img, { signal, onProgress })).filter(
-    (l) => l.confidence >= MIN_LINE_CONFIDENCE
-  );
+  const lines = trustedRuns(await recognizeLines(img, { signal, onProgress }));
   if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
   return { img, lines };
 }
@@ -3203,13 +3201,14 @@ async function convertImageText(found, { signal, onProgress, undoPoint, replaces
   const sx = B.w / img.width;
   const sy = B.h / img.height;
   const styles = lines.map((l) => {
-    const bg = backgroundAround(img, l.bbox);
+    const box = l.styleBox ?? l.bbox;
+    const bg = backgroundAround(img, box);
     // Bold: stems thick relative to the text size (judged per line, so it
     // also works for a single heading or a two-line image).
-    const sizePx = Math.max(1, (l.baseline - l.bbox.y0) / 0.72);
-    const bold = strokeWidth(img, l.bbox, bg) / sizePx > BOLD_STEM_RATIO;
-    const ink = inkOf(img, l.bbox, bg);
-    const contrast = strokeContrast(img, l.bbox, bg, ink.color, sizePx);
+    const sizePx = Math.max(1, (l.baseline - box.y0) / 0.72);
+    const bold = strokeWidth(img, box, bg) / sizePx > BOLD_STEM_RATIO;
+    const ink = inkOf(img, box, bg);
+    const contrast = strokeContrast(img, box, bg, ink.color, sizePx);
     return { bg, ink, bold, contrast };
   });
   const measured = lines.map((l, i) => ({
