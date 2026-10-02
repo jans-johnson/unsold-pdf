@@ -63,16 +63,11 @@ export function simplifyViewer(doc: Document) {
       max-width: none !important;
     }
     .editorParamsToolbar::before, .editorParamsToolbar::after { display: none !important; }
-    .editorParamsToolbar .editorParamsLabel,
-    .editorParamsToolbar .toolbarButton.labeled { color: #1c1c1c !important; }
     #editorSignatureAddSignature, #editorStampAddImage {
       width: 100% !important;
       justify-content: flex-start !important;
       gap: 8px;
       font-size: 14px;
-    }
-    #editorSignatureAddSignature::before, #editorStampAddImage::before {
-      background-color: #1c1c1c !important;
     }
 
     /* The "Add a signature" dialog fits the phone. */
