@@ -91,6 +91,16 @@ export function mountSimple(studio: Studio) {
     const doc = tab?.kind === 'doc' ? tab : null;
     document.documentElement.dataset.view = tab ? 'doc' : String(studio.active);
     if (!tab) {
+      // Open floats just above Home's footer, whatever its height.
+      requestAnimationFrame(() => {
+        const foot = document.querySelector<HTMLElement>('.home-footer');
+        document.documentElement.style.setProperty(
+          '--footer-h',
+          `${foot?.offsetHeight ?? 0}px`
+        );
+      });
+    }
+    if (!tab) {
       bar.replaceChildren(
         h('span', { class: 'simple-title' }, 'Unsold PDF'),
         h(

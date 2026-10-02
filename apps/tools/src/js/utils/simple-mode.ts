@@ -50,6 +50,41 @@ export function simplifyViewer(doc: Document) {
       display: flex; flex: 1; justify-content: space-evenly;
     }
     #toolbarViewerRight .toolbarButton { min-width: 44px; height: 40px; }
+
+    /* Each tool's options open as a full-width strip under the toolbar,
+       instead of a pop-up hanging off the button (and the screen edge). */
+    .editorParamsToolbar {
+      position: fixed !important;
+      top: calc(var(--toolbar-height, 32px) + 6px) !important;
+      left: 8px !important;
+      right: 8px !important;
+      inset-inline: 8px !important;
+      width: auto !important;
+      max-width: none !important;
+    }
+    .editorParamsToolbar::before, .editorParamsToolbar::after { display: none !important; }
+    .editorParamsToolbar .editorParamsLabel,
+    .editorParamsToolbar .toolbarButton.labeled { color: #1c1c1c !important; }
+    #editorSignatureAddSignature, #editorStampAddImage {
+      width: 100% !important;
+      justify-content: flex-start !important;
+      gap: 8px;
+      font-size: 14px;
+    }
+    #editorSignatureAddSignature::before, #editorStampAddImage::before {
+      background-color: #1c1c1c !important;
+    }
+
+    /* The "Add a signature" dialog fits the phone. */
+    #addSignatureDialog { max-width: calc(100vw - 16px) !important; }
+    #addSignatureTypeInput,
+    #addSignatureTypeInput::placeholder { font-size: 24px !important; }
+    #editorSignatureAddSignature > span,
+    #editorStampAddImage > span {
+      width: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
   `;
   doc.head.append(style);
 }

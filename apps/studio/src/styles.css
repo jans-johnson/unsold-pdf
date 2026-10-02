@@ -1973,9 +1973,12 @@ button.chip:hover {
   [data-mode='simple'] .tool-header .mode-switch {
     flex: 1;
   }
-  /* Home's footer links live in the ⋮ menu; Open floats over the list. */
+  /* Home's footer stays pinned to the bottom; Open floats just above it
+     (--footer-h is measured in simple.ts). */
   [data-mode='simple'] .home-footer {
-    display: none !important;
+    position: sticky;
+    bottom: 0;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
   }
 
   /* Top bar: title or back · name · actions */
@@ -2011,7 +2014,7 @@ button.chip:hover {
   [data-mode='simple'][data-view='home'] #simple-fab {
     position: fixed;
     right: 18px;
-    bottom: calc(22px + env(safe-area-inset-bottom));
+    bottom: calc(var(--footer-h, 0px) + 16px);
     z-index: 40;
     display: inline-flex;
     align-items: center;
@@ -2029,7 +2032,7 @@ button.chip:hover {
     font-size: 22px;
   }
   [data-mode='simple'] .recent-table {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    padding-bottom: 88px;
   }
 
   /* Document: the page, a page-number pill, and four labelled actions. */
